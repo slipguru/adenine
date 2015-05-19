@@ -40,7 +40,7 @@
 \normalfont \normalsize
 \huge{\tt ADENINE}: A Data ExploratioN pipelINE \\
 \horrule{2pt} \\[0.5cm] % Thick bottom horizontal rule
-Development plan \\ % The assignment title
+development plan \\ % The assignment title
 }
 
 \author{Samuele Fiorini} % Your name
@@ -55,9 +55,52 @@ Development plan \\ % The assignment title
 %	PROBLEM 1
 %----------------------------------------------------------------------------------------
 
-\section{Abstract}
+\section{Introduction and Motivation}
 
+A question that arises at the beginning of almost every new data analysis is
+the following:  {\sl are my data relevant with the problem I'm trying to
+solve}? \\
 
+The final goal of \adenine is to help its user to have a glimpse of the answer of
+this tedious problem. \\
+
+In order to reach this goal \adenine will make wide use of machine learning ad
+data mining techniques. The final pipeline will be essentially consist of three steps:
+
+\begin{enumerate}
+	
+	\item {\bf Preprocessing}: have you ever wondered what would have been changed in 
+	your problem if only you had centered your data? Or if you would have scaled down all the
+	measures in a certain interval? \adenine will present several classical preprocessing
+	procedures, such as: data centering, Min-Max scaling, standardization, normalization, and so on.
+	
+	\item {\bf Dimensionality reduction}
+	
+	\item {\bf Clustering}
+
+\end{enumerate}
+
+The final output of \adenine will be an as compact as possible visual and textual representation of 
+the results obtained from the pipelines made with each possible combination of the algorithms
+available for each step. For instance, referring to a pipeline built as: \\
+
+data normalization  + PCA + K-Means \\
+
+you can find something like:
+
+\begin{itemize}
+
+	\item an output file containing the norm of the original variables (which has
+	been divided to in order to coerce all the features in $[0,1]$),
+
+	\item a 2-D or 3-D scatter plot of the data projected along the 2 or 3 principal components
+	estimated by means of PCA and the percentage of explained variance associated
+	with each component,
+
+	\item a pictorial representation of the clustering results of the data
+	obtained with the optimum number of cluster (learned from the data).
+
+\end{itemize}
 
 \subsection{Material for PhD progress}
 
