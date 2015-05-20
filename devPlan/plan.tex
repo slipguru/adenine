@@ -10,6 +10,11 @@
 
 \usepackage[margin=1in]{geometry}
 
+\usepackage{xspace} % space after new commands
+\usepackage{hyperref}
+\usepackage{enumitem}
+
+
 \usepackage{sectsty} % Allows customizing section commands
 \allsectionsfont{\centering \normalfont\scshape} % Make all sections centered, the default font and small caps
 
@@ -34,7 +39,7 @@
 %----------------------------------------------------------------------------------------
 
 \newcommand{\horrule}[1]{\rule{\linewidth}{#1}} % Create horizontal rule command with 1 argument of height
-\newcommand{\adenine}{{\tt adenine}~}
+\newcommand{\adenine}{{\tt adenine}\xspace}
 
 \title{	
 \normalfont \normalsize
@@ -58,46 +63,54 @@ development plan \\ % The assignment title
 \section{Introduction and Motivation}
 
 A question that arises at the beginning of almost every new data analysis is
-the following:  {\sl are my data relevant with the problem I'm trying to
-solve}? \\
+the following:  {\sl are my data relevant for the problem I'm dealing with}? \\
 
-The final goal of \adenine is to help its user to have a glimpse of the answer of
-this tedious problem. \\
+The final goal of this project (named \adenine) is to help its user to have a glimpse of the answer of
+this tedious question. \\
 
-In order to reach this goal \adenine will make wide use of machine learning ad
-data mining techniques. The final pipeline will be essentially consist of three steps:
+In order to reach this goal, \adenine will take advantage of machine learning and
+data mining techniques. The final pipeline will essentially consist of three steps:
 
 \begin{enumerate}
 	
-	\item {\bf Preprocessing}: have you ever wondered what would have been changed in 
-	your problem if only you had centered your data? Or if you would have scaled down all the
-	measures in a certain interval? \adenine will present several classical preprocessing
-	procedures, such as: data centering, Min-Max scaling, standardization, normalization, and so on.
+  	\item {\bf Preprocessing}: have you ever wondered what would have 
+	changed if only  your data have been preprocessed in a different way? Or if
+	data preprocessing is a good idea   at all? \adenine will offer several
+	preprocessing procedures, such as: data centering, Min-Max scaling,
+	standardization or normalization and allows you to compare the results of the
+	analysis conducted with different starting point.
 	
-	\item {\bf Dimensionality reduction}
-	
+  	\item {\bf Dimensionality Reduction} (DR): in the context of data
+	exploration, this  phase becomes particularly helpful for high dimensional data (e.g.
+	-omics scenario).   This step, generically named DR, may actually include some
+	manifold learning   (such as Isomap, Multidimensional Scaling, etc), supervised
+	(Linear   Discriminant Analysis) and unsupervised (Principal Component Analysis, 
+	kernel PCA)  techniques.
+
 	\item {\bf Clustering}
 
 \end{enumerate}
 
 The final output of \adenine will be an as compact as possible visual and textual representation of 
 the results obtained from the pipelines made with each possible combination of the algorithms
-available for each step. For instance, referring to a pipeline built as: \\
+implemented at each step. As an example, referring to a pipeline built as:
 
-data normalization  + PCA + K-Means \\
+\begin{center}
+{\sl Data normalization $\rightarrow$ PCA $\rightarrow$ K-Means}
+\end{center}
 
-you can find something like:
+the output would be something like:
 
 \begin{itemize}
 
 	\item an output file containing the norm of the original variables (which has
-	been divided to in order to coerce all the features in $[0,1]$),
+	been  used to coerce all the features in $[0,1]$),
 
-	\item a 2-D or 3-D scatter plot of the data projected along the 2 or 3 principal components
-	estimated by means of PCA and the percentage of explained variance associated
-	with each component,
+  	\item a 2-D or 3-D scatter plot of the data projected along the principal
+	components   and the percentage of explained variance associated   with each
+	one of them,
 
-	\item a pictorial representation of the clustering results of the data
+	\item a pictorial representation of the data clustering results
 	obtained with the optimum number of cluster (learned from the data).
 
 \end{itemize}
@@ -128,13 +141,119 @@ four PhD courses of my first-year work plan:
 \end{enumerate}
 
 
-\section{Covered Topics}
+\section{Implemented Algorithms}
+
+The implementation of nearly all the algorithms of \adenine will refer to the
+\href{http://scikit-learn.org/stable/index.html}{\tt scikit-learn} python
+library. See the following \href{http://scikit-learn.org/stable/unsupervised_learning.html}{\tt link} for a
+comprehensive list,
 
 \subsection{Preprocessing}
+
+At this step the data will be fed to the following preprocessing procedures:
+\begin{enumerate}[start = 0]
+	\item no preprocessing: the analysis will be conducted on raw data;
+
+	\item na\"ive recentering: remove the mean;
+
+	\item standardization: remove the mean and scale each feature by 
+	their standard deviations, this will make the data normally distributed;
+
+	\item normalization: scale all the samples to have unit norm
+
+\end{enumerate}
+
+In its first version \adenine will allow the user to impute the missing values by means of the
+median, the mean or the most frequent value (future works are in Section~\ref{sec:future}).
+See the {\tt sklearn} \href{http://scikit-learn.org/stable/modules/preprocessing.html}{docs}
+on data preprocessing for further details.
+
 \subsection{Dimensionality reduction}
+
+The following is a work-in-progress list of the techniques I plan to
+make available in \adenine. The list includes algorithms that come
+from very different standpoint, but that have a common outcome:
+the estimation of a low-dimensional embedding (manifold) in which the data can
+be projected for visualization or further purposes.
+
+\begin{enumerate}[label=(\alph*)]
+
+	\item Principal Component Analysis (PCA), in its Incremental or Randomized variants
+	in case of big data;
+
+	\item Kernel PCA, which may come along different kernels (Gaussian,
+	polynomial, and so on);
+	
+	\item Isomap;
+
+	\item Locally Linear Embedding (LLE), in its modified (MLLE) or Hessian 
+	(HLLE) regularized version;
+
+	\item Spectral Embedding (SE);
+
+	\item Local Tangent Space Alignment (LTSA);
+
+	\item Multidimensional Scaling (MDS), in its metric and non-metric version;
+
+	\item t-distributed Stochastic Neighbor Embedding (t-SNE).
+
+\end{enumerate}
+
 \subsection{Clustering}
 
+On the same line, this section presents a list of the clustering techniques I 
+plan to include in \adenine.
 
+\begin{enumerate}
+
+	\item [($\alpha$)] K-Means, in its Mini-Batch variant for big data;
+
+	\item [($\beta$)] Affinity Propagation;
+
+	\item [($\gamma$)] Mean Shift;
+
+	\item [($\delta$)] Spectral Clustering;
+
+	\item [($\epsilon$)] Hierarchical Agglomerative Clustering, exploring
+	different linkage type, i.e., Ward, complete, average as well as different 
+	metrics, e.g. Euclidean, Manhattan, Minkowski, etc.;
+
+	\item [($\zeta$)] DBSCAN;
+
+	\item [($\eta$)] Birch.
+
+\end{enumerate}
+
+Several indexes to analyze the clustering performances will be included, some
+of them may require ground truth labels (such as Adjusted Rand Index (ARI), the
+Adjusted Mutual Information (AMI), the homogeneity, completeness or V measure
+scores), while others may evaluate the cluster compactness or the separation
+between clusters (such as the silhouette score).
+
+\section{Future Works} \label{sec:future}
+
+Indeed \adenine is not meant to be an all-inclusive tool. This section, that
+will always be a work-in-progress, aims at mentioning all the features that
+are not going to be implemented in the first version of \adenine, but that may
+be implemented later on.
+
+\begin{itemize}
+
+	\item How can we handle missing values? \adenine may have some statistically robust
+	imputation tools (such as low-rank matrix completion, or collaborative filtering) in
+	future versions;
+
+	\item Kernel K-Means;
+
+	\item Dictionary Learning;
+
+	\item Factor Analysis;
+
+	\item Non-negative Matrix Factorization;
+
+	\item Outliers Detection.
+
+\end{itemize}
 %----------------------------------------------------------------------------------------
 
 \end{document}
