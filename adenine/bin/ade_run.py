@@ -16,10 +16,7 @@ def main(config_file):
     print X
     print y
 
-
-
-
-
+    
 
 
 
