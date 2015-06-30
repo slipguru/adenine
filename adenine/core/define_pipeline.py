@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-from itertools import product
+from adenine.utils.extra import modified_cartesian
 
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import Imputer
@@ -164,7 +164,7 @@ def parse_steps(steps):
         The returned list must contain every possible combination of imputing -> preprocessing -> dimensionality reduction -> clustering algorithms. The maximum number of pipelines that could be generated is 20, even if the number of combinations is higher.
     """
     max_n_pipes = 20 # avoiding unclear outputs
-    tpl_pipes = []   # a list of list of tuples input of sklearn Pipeline
+    pipes = []       # a list of list of tuples input of sklearn Pipeline
     
     imputing   = steps[0]
     preproc    = steps[1]
@@ -172,19 +172,19 @@ def parse_steps(steps):
     clustering = steps[3]
     
     # Parse the imputing options
-    i_lst_of_tpl = []
+    i_lst_of_tpls = []
     if imputing['Impute'][0]: # Check Impute On/Off flag
         for name in imputing['Replacement']:
             imp = Imputer(missing_values = imputing['Missing'][0],
                           strategy = name)
-            i_lst_of_tpl.append([("Impute_"+name, imp)])
+            i_lst_of_tpls.append(("Impute_"+name, imp))
             
     # Parse the preprocessing options
     pp_lst_of_tpls = []
     for key in preproc.keys():
         if preproc[key][0]:
             pp_lst_of_tpls.append(parse_preproc(key, preproc[key]))
-            
+                    
     # Parse the dimensionality reduction & manifold learning options
     dr_lst_of_tpls = []
     for key in dimred.keys():
@@ -206,19 +206,13 @@ def parse_steps(steps):
                 cl_lst_of_tpls.append(parse_clustering(key, clustering[key]))
     
     
-    # # Update the tpl_list with all the elements of the cartesian product of all the lists of tuples
-    # for i, element in enumerate(product(i_lst_of_tpl, pp_lst_of_tpls)):
-    #     print("{}) \n {} \n **************".format(i,element))
-    #     tpl_pipes.append(element)
-    #     
-    
-            
-            
-    
-        
-        # if len(tpl_pipes) > max_n_pipes:
-        #     print("Maximum number of Pipelines reached")
-        #     break
-            
-    
+    # Generate the list of list of tuples (i.e. the list of pipelines)
+    pipes =  modified_cartesian(i_lst_of_tpls, pp_lst_of_tpls, dr_lst_of_tpls, cl_lst_of_tpls)
+    for pipe in pipes:
+        print("Generated pipeline: \n {} \n".format(pipe))
+    print("*** {} pipelines generated ***".format(len(pipes)))
 
+    # if len(pipes) > max_n_pipes:
+    #     print("Maximum number of Pipelines reached")
+    #     break
+            

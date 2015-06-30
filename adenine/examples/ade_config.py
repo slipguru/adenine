@@ -3,10 +3,6 @@
 
 from adenine.utils import data_source
 
-# --- tmp stuff --- #
-reload(data_source)
-# --- tmp stuff --- #
-
 # ----------------------------  INPUT DATA ---------------------------- #
 X, y, feat_names = data_source.load('iris')
 # X, y, feat_names = data_source.load('digits')
@@ -17,19 +13,19 @@ X, y, feat_names = data_source.load('iris')
 # -----------------------  PIPELINE DEFINITION ------------------------ #
 
 # --- Missing Values Imputing --- #
-step0 = {'Impute': [False], 'Missing': [-1], 'Replacement': ['median','mean']}
+step0 = {'Impute': [True], 'Missing': [-1], 'Replacement': ['median','mean']}
 
 # --- Data Preprocessing --- #
-step1 = {'None': [True], 'Recenter': [False], 'Standardize': [False],
-         'Normalize': [False, ['l2']], 'MinMax': [True, [0,1]]}
+step1 = {'None': [True], 'Recenter': [True], 'Standardize': [True],
+         'Normalize': [True, ['l2']], 'MinMax': [True, [0,1]]}
 
 # --- Dimensionality Reduction & Manifold Learning --- #
-step2 = {'PCA': [False], 'IncrementalPCA': [False], 'RandomizedPCA': [False],
-         'KernelPCA': [True, ['rbf','poly']], 'Isomap': [False],
-         'LLE': [False, ['standard','modified','hessian']],
-         'SE': [False], 'LTSA': [False],
-         'MDS': [False, ['metric','nonmetric']],
-         'tSNE': [False], 'None': [False]}
+step2 = {'PCA': [True], 'IncrementalPCA': [True], 'RandomizedPCA': [True],
+         'KernelPCA': [True, ['rbf','poly']], 'Isomap': [True],
+         'LLE': [True, ['standard','modified','hessian']],
+         'SE': [True], 'LTSA': [True],
+         'MDS': [True, ['metric','nonmetric']],
+         'tSNE': [True], 'None': [True]}
 
 # --- Clustering --- #
 step3 = {'KMeans': [False, [3]],

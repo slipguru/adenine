@@ -4,10 +4,6 @@
 import imp, sys, os
 from adenine.core import define_pipeline
 
-# --- tmp stuff --- #
-reload(define_pipeline)
-# --- tmp stuff --- #
-
 def main(config_file):
 
     # Load the configuration file
