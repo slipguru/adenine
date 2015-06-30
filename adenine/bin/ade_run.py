@@ -11,10 +11,11 @@ def main(config_file):
     config = imp.load_source('ade_config', config_path)
 
     # Read the variables from the config file
-    X, y = config.X, config.y
+    X, y, feat_names = config.X, config.y, config.feat_names
 
     print X
     print y
+    print feat_names
 
     
 
@@ -31,4 +32,4 @@ if __name__ == '__main__':
         print("USAGE: ade_run.py <CONFIG_FILE> ")
         sys.exit()
     else:
-        out = main(sys.argv[1])
+        main(sys.argv[1])
