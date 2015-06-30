@@ -1,0 +1,14 @@
+class Recenterer:
+    """This class implements the data recentering.
+    
+    It is an sklearn 'transforms', it implements both a fit and a transform method and it compute the column-wise mean (.fit method) and returns the recentered data matrix (.transform method).
+    """
+    def __init__(self, data, label = []):
+        self.X = data
+        
+    def fit(self,X):
+        self.mean = np.mean(data, axis = 0)
+        return self
+    
+    def transform(self,X):
+        return self.X - self.mean

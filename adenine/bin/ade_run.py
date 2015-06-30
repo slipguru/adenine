@@ -2,7 +2,11 @@
 # -*- coding: utf-8 -*-
 
 import imp, sys, os
+from adenine.core import define_pipeline
 
+# --- tmp stuff --- #
+reload(define_pipeline)
+# --- tmp stuff --- #
 
 def main(config_file):
 
@@ -13,10 +17,12 @@ def main(config_file):
     # Read the variables from the config file
     X, y, feat_names = config.X, config.y, config.feat_names
 
-    print X
-    print y
-    print feat_names
-
+    # Pipeline Definition
+    pipes = define_pipeline.parse_steps([config.step0, config.step1,
+                                       config.step2, config.step3])
+    
+    
+    
     
 
 
