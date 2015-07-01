@@ -3,6 +3,10 @@
 
 from adenine.utils import data_source
 
+# --------------------------  EXPERMIENT INFO ------------------------- #
+exp_tag = 'debug'
+output_root_folder = 'results'
+
 # ----------------------------  INPUT DATA ---------------------------- #
 X, y, feat_names = data_source.load('iris')
 # X, y, feat_names = data_source.load('digits')
@@ -27,7 +31,7 @@ step2 = {'PCA': [False], 'IncrementalPCA': [False], 'RandomizedPCA': [False],
          'tSNE': [False], 'None': [False]}
 
 # --- Clustering --- #
-step3 = {'KMeans': [False, [3]],
+step3 = {'KMeans': [True, [3]],
          'KernelKMeans': [False, [3,['rbf','poly']]], #TODO
          'AP': [False], 'MS': [False], 'Spectral': [False, [3]],
          'Hierarchical': [False, [3, ['manhattan','euclidean'],

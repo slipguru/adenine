@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from itertools import product
+import time
 
 def modified_cartesian(*args):
     """Modified Cartesian product.
@@ -22,14 +23,29 @@ def modified_cartesian(*args):
     nonempty = []
     for arg in args:
         if len(arg)>0:
-            nonempty.append(arg)
-    
+            nonempty.append(arg) 
     # Cartesian product
     cp = []
     for c in product(*nonempty):
-        cp.append(list(c))
-            
+        cp.append(list(c))        
     return cp
         
+def make_time_flag():
+    """Generate a time flag.
     
+    This function simply generates a time flag using the current time.
+        
+    Returns
+    -----------
+    timeFlag : string
+        A unique time flag.
+    """
+    y = str(time.localtime().tm_year)
+    mo = str(time.localtime().tm_mon)
+    d = str(time.localtime().tm_mday)
+    h = str(time.localtime().tm_hour)
+    mi = str(time.localtime().tm_min)
+    s = str(time.localtime().tm_sec)
+    return h+':'+mi+':'+s+'_'+d+'-'+mo+'-'+y
     
+

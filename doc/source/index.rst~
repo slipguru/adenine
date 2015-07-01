@@ -35,7 +35,6 @@ Pipelines Definition
 .. automodule:: adenine.core.define_pipeline
    :members:
 
-
 Extra tools
 -----------------------------
 
