@@ -13,23 +13,23 @@ X, y, feat_names = data_source.load('iris')
 # -----------------------  PIPELINE DEFINITION ------------------------ #
 
 # --- Missing Values Imputing --- #
-step0 = {'Impute': [True], 'Missing': [-1], 'Replacement': ['median','mean']}
+step0 = {'Impute': [False], 'Missing': [-1], 'Replacement': ['median','mean']}
 
 # --- Data Preprocessing --- #
-step1 = {'None': [True], 'Recenter': [False], 'Standardize': [False],
-         'Normalize': [False, ['l2']], 'MinMax': [True, [0,1]]}
+step1 = {'None': [False], 'Recenter': [False], 'Standardize': [False],
+         'Normalize': [False, ['l2']], 'MinMax': [False, [0,1]]}
 
 # --- Dimensionality Reduction & Manifold Learning --- #
-step2 = {'PCA': [True], 'IncrementalPCA': [False], 'RandomizedPCA': [False],
+step2 = {'PCA': [False], 'IncrementalPCA': [False], 'RandomizedPCA': [False],
          'KernelPCA': [False, ['rbf','poly']], 'Isomap': [False],
          'LLE': [False, ['standard','modified','hessian']],
          'SE': [False], 'LTSA': [False],
          'MDS': [False, ['metric','nonmetric']],
-         'tSNE': [True], 'None': [False]}
+         'tSNE': [False], 'None': [False]}
 
 # --- Clustering --- #
 step3 = {'KMeans': [False, [3]],
-         'KernelKMeans': [False, ['rbf','poly']],
-         'AP': [False], 'MS': [False], 'Spectral': [False],
-         'Hierarchical': [False, ['ward','complete','average'],
-                                 ['manhattan','euclidean','minkowski']]}
+         'KernelKMeans': [False, [3,['rbf','poly']]], #TODO
+         'AP': [False], 'MS': [False], 'Spectral': [False, [3]],
+         'Hierarchical': [False, [3, ['manhattan','euclidean'],
+                                 ['ward','complete','average']]]}

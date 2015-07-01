@@ -9,7 +9,8 @@ from adenine.core import define_pipeline
 def main(config_file):
     
     # Define the ade.log file (a new one for each run)
-    logging.basicConfig(filename='ade.log', level=logging.INFO, filemode = 'w')
+    logFileName = 'ade.log'
+    logging.basicConfig(filename=logFileName, level=logging.INFO, filemode = 'w')
 
     # Load the configuration file
     config_path = os.path.abspath(config_file)
@@ -24,12 +25,7 @@ def main(config_file):
     
     
     
-    
-
-
-
-
-
+    # print("See {} for details".format(logFileName))
 
 
 # ----------------------------  RUN MAIN ---------------------------- #
@@ -40,3 +36,5 @@ if __name__ == '__main__':
         sys.exit()
     else:
         main(sys.argv[1])
+        
+    

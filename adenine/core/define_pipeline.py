@@ -19,6 +19,11 @@ from sklearn.manifold import LocallyLinearEmbedding
 from sklearn.manifold import SpectralEmbedding
 from sklearn.manifold import MDS
 from sklearn.manifold import TSNE
+from sklearn.cluster import KMeans
+from sklearn.cluster import AffinityPropagation
+from sklearn.cluster import MeanShift
+from sklearn.cluster import SpectralClustering
+from sklearn.cluster import AgglomerativeClustering
 
 class DummyNone:
     """Dummy class that does nothing.
@@ -61,7 +66,7 @@ def parse_preproc(key, content):
         elif key.lower() == 'normalize':
             pp = Normalizer(norm = content[0])
         elif key.lower() == 'minmax':
-            pp = MinMaxScaler(feature_range = (content[0], content[1]))
+            pp = MinMaxScaler(feature_range = (content[1][0], content[1][1]))
         else:
             pp = DummyNone()
         return (key, pp)
@@ -130,17 +135,18 @@ def parse_clustering(key, content):
         A tuple made like that ('ClusteringName', clustObj), where clustObj implements the .fit method.
     """
     if key.lower() == 'kmeans':
-        cl = []
-    elif key.lower() == 'kernelkmeans':
-        cl = []
+        cl = KMeans(n_clusters = content, init = 'k-means++', n_jobs = -1)
+    elif key.lower() == 'kernelkmeans': # TODO
+        kernel = content[1]
+        cl = KMeans(n_clusters = content[0], init = 'k-means++', n_jobs = -1) 
     elif key.lower() == 'ap':
-        cl = []
+        cl = AffinityPropagation()
     elif key.lower() == 'ms':
-        cl = []
+        cl = MeanShift()
     elif key.lower() == 'spectral':
-        cl = []
+        cl = SpectralClustering(n_cluster = content)
     elif key.lower() == 'hierarchical':
-        cl = []
+        cl = AgglomerativeClustering(n_clusters = content[0], affinity = content[1], linkage = content[2])
     else:
         cl = DummyNone()
     return (key, cl)
@@ -164,7 +170,7 @@ def parse_steps(steps):
     pipes : list of sklearn.pipeline.Pipeline
         The returned list must contain every possible combination of imputing -> preprocessing -> dimensionality reduction -> clustering algorithms. The maximum number of pipelines that could be generated is 20, even if the number of combinations is higher.
     """
-    max_n_pipes = 20 # avoiding unclear outputs
+    max_n_pipes = 20 # avoiding unclear (too-long) outputs
     pipes = []       # a list of list of tuples input of sklearn Pipeline
     
     imputing   = steps[0]
@@ -174,7 +180,7 @@ def parse_steps(steps):
     
     # Parse the imputing options
     i_lst_of_tpls = []
-    if imputing['Impute'][0]: # Check Impute On/Off flag
+    if imputing['Impute'][0]: # On/Off flag
         for name in imputing['Replacement']:
             imp = Imputer(missing_values = imputing['Missing'][0],
                           strategy = name)
@@ -183,29 +189,51 @@ def parse_steps(steps):
     # Parse the preprocessing options
     pp_lst_of_tpls = []
     for key in preproc.keys():
-        if preproc[key][0]:
+        if preproc[key][0]: # On/Off flag
             pp_lst_of_tpls.append(parse_preproc(key, preproc[key]))
                     
     # Parse the dimensionality reduction & manifold learning options
     dr_lst_of_tpls = []
     for key in dimred.keys():
-        if dimred[key][0]:
+        if dimred[key][0]: # On/Off flag
             if len(dimred[key]) > 1:# For each variant (e.g. 'rbf' or 
                 for k in dimred[key][1]: # 'poly' for KernelPCA)
                     dr_lst_of_tpls.append(parse_dimred(key, k))
             else:
                 dr_lst_of_tpls.append(parse_dimred(key, dimred[key]))
                 
-    # Parse the clustering options
+    # # Parse the clustering options
+    # cl_lst_of_tpls = []
+    # for key in clustering.keys():
+    #     print key
+    #     print clustering[key]
+    #     print len(clustering[key])
+    #     print "---"
+    #     if clustering[key][0]: # On/Off flag
+    #         if len(clustering[key]) > 1: # More than 1 parameter
+    #             for k in clustering[key][1]:
+    #                 cl_lst_of_tpls.append(parse_clustering(key, k))
+    #         else:
+    #             cl_lst_of_tpls.append(parse_clustering(key, clustering[key]))
+                
+     # Parse the clustering options
     cl_lst_of_tpls = []
     for key in clustering.keys():
-        if clustering[key][0]:
-            if len(clustering[key]) > 1:
-                for k in clustering[key][1]:
-                    cl_lst_of_tpls.append(parse_clustering(key, clustering[key]))
-            else:
+        if clustering[key][0]: # On/Off flag
+            if len(clustering[key]) > 1: # Discriminate from just flag or flag + args
+                if len(clustering[key][1]) > 1: # discrimitate from 1 arg or 2+ args
+                    if len(clustering[key][1]) > 2:
+                        for k1, k2, k3 in modified_cartesian([clustering[key][1][0]], clustering[key][1][1], clustering[key][1][2]):
+                            cl_lst_of_tpls.append(parse_clustering(key, [k1,k2,k3]))
+                    else: # 2 args case
+                        for k1, k2 in zip([clustering[key][1][0]], clustering[key][1][1]):
+                            cl_lst_of_tpls.append(parse_clustering(key, [k1,k2]))
+                else: # 1 arg case
+                    for k in clustering[key][1]:
+                        cl_lst_of_tpls.append(parse_clustering(key, k))
+            else: # just flag case
                 cl_lst_of_tpls.append(parse_clustering(key, clustering[key]))
-    
+                
     
     # Generate the list of list of tuples (i.e. the list of pipelines)
     pipes =  modified_cartesian(i_lst_of_tpls, pp_lst_of_tpls, dr_lst_of_tpls, cl_lst_of_tpls)
@@ -213,7 +241,11 @@ def parse_steps(steps):
         logging.info("Generated pipeline: \n {} \n".format(pipe))
     logging.info("*** {} pipelines generated ***".format(len(pipes)))
 
-    # if len(pipes) > max_n_pipes:
-    #     print("Maximum number of Pipelines reached")
-    #     break
+    # Get only the first max_n_pipes
+    if len(pipes) > max_n_pipes:
+        logging.warning("Maximum number of pipelines reached. I'm keeping the first {}".format(max_n_pipes))
+        pipes = pipes[0:max_n_pipes]
+    
+    return pipes
+        
             
