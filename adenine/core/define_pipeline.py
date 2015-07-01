@@ -103,6 +103,8 @@ def parse_dimred(key, content):
         dr = Isomap()
     elif key.lower() == 'lle':
         dr = LocallyLinearEmbedding(method = content)
+    elif key.lower() == 'ltsa':
+        dr = LocallyLinearEmbedding(method = content)
     elif key.lower() == 'se':
         dr = SpectralEmbedding()
     elif key.lower() == 'mds':
@@ -144,7 +146,7 @@ def parse_clustering(key, content):
     elif key.lower() == 'ms':
         cl = MeanShift()
     elif key.lower() == 'spectral':
-        cl = SpectralClustering(n_cluster = content)
+        cl = SpectralClustering(n_clusters = content)
     elif key.lower() == 'hierarchical':
         cl = AgglomerativeClustering(n_clusters = content[0], affinity = content[1], linkage = content[2])
     else:
