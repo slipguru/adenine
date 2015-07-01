@@ -2,9 +2,14 @@
 # -*- coding: utf-8 -*-
 
 import imp, sys, os
+import logging
 from adenine.core import define_pipeline
 
+
 def main(config_file):
+    
+    # Define the ade.log file (a new one for each run)
+    logging.basicConfig(filename='ade.log', level=logging.INFO, filemode = 'w')
 
     # Load the configuration file
     config_path = os.path.abspath(config_file)

@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+import logging
 import numpy as np
 from adenine.utils.extra import modified_cartesian
 
@@ -209,8 +210,8 @@ def parse_steps(steps):
     # Generate the list of list of tuples (i.e. the list of pipelines)
     pipes =  modified_cartesian(i_lst_of_tpls, pp_lst_of_tpls, dr_lst_of_tpls, cl_lst_of_tpls)
     for pipe in pipes:
-        print("Generated pipeline: \n {} \n".format(pipe))
-    print("*** {} pipelines generated ***".format(len(pipes)))
+        logging.info("Generated pipeline: \n {} \n".format(pipe))
+    logging.info("*** {} pipelines generated ***".format(len(pipes)))
 
     # if len(pipes) > max_n_pipes:
     #     print("Maximum number of Pipelines reached")

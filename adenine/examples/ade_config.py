@@ -16,16 +16,16 @@ X, y, feat_names = data_source.load('iris')
 step0 = {'Impute': [True], 'Missing': [-1], 'Replacement': ['median','mean']}
 
 # --- Data Preprocessing --- #
-step1 = {'None': [True], 'Recenter': [True], 'Standardize': [True],
-         'Normalize': [True, ['l2']], 'MinMax': [True, [0,1]]}
+step1 = {'None': [True], 'Recenter': [False], 'Standardize': [False],
+         'Normalize': [False, ['l2']], 'MinMax': [True, [0,1]]}
 
 # --- Dimensionality Reduction & Manifold Learning --- #
-step2 = {'PCA': [True], 'IncrementalPCA': [True], 'RandomizedPCA': [True],
-         'KernelPCA': [True, ['rbf','poly']], 'Isomap': [True],
-         'LLE': [True, ['standard','modified','hessian']],
-         'SE': [True], 'LTSA': [True],
-         'MDS': [True, ['metric','nonmetric']],
-         'tSNE': [True], 'None': [True]}
+step2 = {'PCA': [True], 'IncrementalPCA': [False], 'RandomizedPCA': [False],
+         'KernelPCA': [False, ['rbf','poly']], 'Isomap': [False],
+         'LLE': [False, ['standard','modified','hessian']],
+         'SE': [False], 'LTSA': [False],
+         'MDS': [False, ['metric','nonmetric']],
+         'tSNE': [True], 'None': [False]}
 
 # --- Clustering --- #
 step3 = {'KMeans': [False, [3]],
