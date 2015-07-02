@@ -31,7 +31,7 @@ def main(config_file):
     pipes = pipelines.create(pipes_def)
     
     # Pipelines Evaluation
-    pipelines.run(pipes, X, y, feat_names, exp_tag, root)
+    pipelines.run(pipes, X, exp_tag, root)
     
     # print("See {} for details".format(logFileName))
 

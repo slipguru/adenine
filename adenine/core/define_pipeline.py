@@ -39,6 +39,9 @@ class DummyNone:
     def transform(self,X):
         return X
     
+    def get_params(self):
+        return dict()
+    
 def parse_preproc(key, content):
         """Parse the options of the preprocessing step.
         
@@ -241,12 +244,12 @@ def parse_steps(steps):
     pipes =  modified_cartesian(i_lst_of_tpls, pp_lst_of_tpls, dr_lst_of_tpls, cl_lst_of_tpls)
     for pipe in pipes:
         logging.info("Generated pipeline: \n {} \n".format(pipe))
-    logging.info("*** {} pipelines generated ***".format(len(pipes)))
+    logging.info("*** {} pipeline(s) generated ***".format(len(pipes)))
 
-    # Get only the first max_n_pipes
-    if len(pipes) > max_n_pipes:
-        logging.warning("Maximum number of pipelines reached. I'm keeping the first {}".format(max_n_pipes))
-        pipes = pipes[0:max_n_pipes]
+    # # Get only the first max_n_pipes
+    # if len(pipes) > max_n_pipes:
+    #     logging.warning("Maximum number of pipelines reached. I'm keeping the first {}".format(max_n_pipes))
+    #     pipes = pipes[0:max_n_pipes]
     
     return pipes
         
