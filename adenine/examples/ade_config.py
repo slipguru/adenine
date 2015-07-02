@@ -6,6 +6,7 @@ from adenine.utils import data_source
 # --------------------------  EXPERMIENT INFO ------------------------- #
 exp_tag = 'debug'
 output_root_folder = 'results'
+parallel = False
 
 # ----------------------------  INPUT DATA ---------------------------- #
 X, y, feat_names = data_source.load('iris')
@@ -17,22 +18,22 @@ X, y, feat_names = data_source.load('iris')
 # -----------------------  PIPELINE DEFINITION ------------------------ #
 
 # --- Missing Values Imputing --- #
-step0 = {'Impute': [True], 'Missing': [-1], 'Replacement': ['median','mean']}
+step0 = {'Impute': [False], 'Missing': [-1], 'Replacement': ['median','mean']}
 
 # --- Data Preprocessing --- #
-step1 = {'None': [True], 'Recenter': [True], 'Standardize': [True],
-         'Normalize': [True, ['l2']], 'MinMax': [True, [0,1]]}
+step1 = {'None': [False], 'Recenter': [False], 'Standardize': [False],
+         'Normalize': [False, ['l2']], 'MinMax': [True, [0,1]]}
 
 # --- Dimensionality Reduction & Manifold Learning --- #
-step2 = {'PCA': [True], 'IncrementalPCA': [True], 'RandomizedPCA': [True],
-         'KernelPCA': [True, ['linear','rbf','poly']], 'Isomap': [True],
-         'LLE': [True, ['standard','modified','hessian', 'ltsa']],
-         'SE': [True], 'MDS': [True, ['metric','nonmetric']],
-         'tSNE': [True], 'None': [True]}
+step2 = {'PCA': [False], 'IncrementalPCA': [False], 'RandomizedPCA': [False],
+         'KernelPCA': [True, ['linear','rbf','poly']], 'Isomap': [False],
+         'LLE': [False, ['standard','modified','hessian', 'ltsa']],
+         'SE': [False], 'MDS': [False, ['metric','nonmetric']],
+         'tSNE': [False], 'None': [False]}
 
 # --- Clustering --- #
 step3 = {'KMeans': [True, [3]],
-         'KernelKMeans': [True, [3,['rbf','poly']]], #TODO
-         'AP': [True], 'MS': [True], 'Spectral': [True, [3]],
-         'Hierarchical': [True, [3, ['manhattan','euclidean'],
+         'KernelKMeans': [False, [3,['rbf','poly']]], #TODO
+         'AP': [False], 'MS': [False], 'Spectral': [False, [3]],
+         'Hierarchical': [False, [3, ['manhattan','euclidean'],
                                  ['ward','complete','average']]]}

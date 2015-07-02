@@ -233,10 +233,10 @@ def parse_steps(steps):
         logging.info("Generated pipeline: \n {} \n".format(pipe))
     logging.info("*** {} pipeline(s) generated ***".format(len(pipes)))
 
-    # # Get only the first max_n_pipes
-    # if len(pipes) > max_n_pipes:
-    #     logging.warning("Maximum number of pipelines reached. I'm keeping the first {}".format(max_n_pipes))
-    #     pipes = pipes[0:max_n_pipes]
+    # Get only the first max_n_pipes
+    if len(pipes) > max_n_pipes:
+        logging.warning("Maximum number of pipelines reached. I'm keeping the first {}".format(max_n_pipes))
+        pipes = pipes[0:max_n_pipes]
     
     return pipes
         
