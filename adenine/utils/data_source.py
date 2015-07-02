@@ -7,7 +7,7 @@ import numpy as np
 from sklearn import datasets
 
 class dataSetObj:
-    """A sklearn-like object.
+    """Sklearn-like object.
     
     A simple dictionary-like object that contains a custom dataset. The meaningful attributes are .data and .target.
     
