@@ -24,11 +24,8 @@ def main(config_file):
     X, y, feat_names = config.X, config.y, config.feat_names
 
     # Pipelines Definition
-    pipes_def = define_pipeline.parse_steps([config.step0, config.step1,
+    pipes = define_pipeline.parse_steps([config.step0, config.step1,
                                              config.step2, config.step3])
-    
-    # Pipelines Creation
-    pipes = pipelines.create(pipes_def)
     
     # Pipelines Evaluation
     pipelines.run(pipes, X, exp_tag, root)

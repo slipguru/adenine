@@ -67,7 +67,7 @@ def parse_preproc(key, content):
         elif key.lower() == 'standardize':
             pp = StandardScaler(with_mean = True, with_std = True)
         elif key.lower() == 'normalize':
-            pp = Normalizer(norm = content[0])
+            pp = Normalizer(norm = content[1][0])
         elif key.lower() == 'minmax':
             pp = MinMaxScaler(feature_range = (content[1][0], content[1][1]))
         else:
@@ -207,20 +207,6 @@ def parse_steps(steps):
             else:
                 dr_lst_of_tpls.append(parse_dimred(key, dimred[key]))
                 
-    # # Parse the clustering options
-    # cl_lst_of_tpls = []
-    # for key in clustering.keys():
-    #     print key
-    #     print clustering[key]
-    #     print len(clustering[key])
-    #     print "---"
-    #     if clustering[key][0]: # On/Off flag
-    #         if len(clustering[key]) > 1: # More than 1 parameter
-    #             for k in clustering[key][1]:
-    #                 cl_lst_of_tpls.append(parse_clustering(key, k))
-    #         else:
-    #             cl_lst_of_tpls.append(parse_clustering(key, clustering[key]))
-                
      # Parse the clustering options
     cl_lst_of_tpls = []
     for key in clustering.keys():
@@ -229,7 +215,8 @@ def parse_steps(steps):
                 if len(clustering[key][1]) > 1: # discrimitate from 1 arg or 2+ args
                     if len(clustering[key][1]) > 2:
                         for k1, k2, k3 in modified_cartesian([clustering[key][1][0]], clustering[key][1][1], clustering[key][1][2]):
-                            cl_lst_of_tpls.append(parse_clustering(key, [k1,k2,k3]))
+                            if k2 != 'manhattan' and k3 != 'ward': # that doesn't work together
+                                cl_lst_of_tpls.append(parse_clustering(key, [k1,k2,k3]))
                     else: # 2 args case
                         for k1, k2 in zip([clustering[key][1][0]], clustering[key][1][1]):
                             cl_lst_of_tpls.append(parse_clustering(key, [k1,k2]))

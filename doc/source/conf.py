@@ -18,7 +18,10 @@ import os
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-#sys.path.insert(0, os.path.abspath('.'))
+sys.path.insert(0, os.path.abspath('.'))
+sys.path.insert(0, os.path.abspath('sphinxext'))
+
+from adenine import __version as VERSION
 
 # -- General configuration ------------------------------------------------
 
@@ -35,7 +38,16 @@ extensions = [
     'sphinx.ext.coverage',
     'sphinx.ext.mathjax',
     'sphinx.ext.viewcode',
+    'sphinx.ext.autosummary',
+    'sphinx.ext.intersphinx',
+    'numpydoc',
+    'sphinxcontrib.programoutput',
 ]
+
+# Extension configurations
+autoclass_content = 'init'
+autodoc_member_order = 'bysource'
+numpydoc_show_class_members = False
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -58,7 +70,7 @@ copyright = u'2015, Samuele Fiorini'
 # built documents.
 #
 # The short X.Y version.
-version = '0.1.0'
+version = VERSION
 # The full version, including alpha/beta/rc tags.
 release = version
 
@@ -105,7 +117,10 @@ pygments_style = 'sphinx'
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = 'default'
+# html_theme = 'default'
+# html_theme = "nature"
+html_theme = 'slipGURUTheme'
+
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -113,7 +128,7 @@ html_theme = 'default'
 #html_theme_options = {}
 
 # Add any paths that contain custom themes here, relative to this directory.
-#html_theme_path = []
+html_theme_path = ['.']
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".

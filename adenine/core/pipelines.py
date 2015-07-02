@@ -78,7 +78,10 @@ def evaluate(level, step, X):
         A matrix projection in case of dimred, a label vector in case of clustering, and so on.
     """
     if level == 'imputing' or level == 'preproc' or level == 'dimred' or level == 'None':
-        res = step.transform(X)
+        if hasattr(step, 'embedding_'):
+            res = step.embedding_
+        else:
+            res = step.transform(X)
     elif level == 'clustering':
         if hasattr(step, 'labels_'):
             res = step.labels_ # e.g. in case of spectral clustering
@@ -117,11 +120,14 @@ def run(pipes, X, exp_tag = 'def_tag', root = ''):
     for i, pipe in enumerate(pipes):
         pipeID = 'pipe'+str(i)
         step_dump = dict()
-        for j, step in enumerate(pipe.steps): # step[0] -> step_label | step[1] -> sklearn (or sklearn-like) object (model)
+        for j, step in enumerate(pipe): # step[0] -> step_label | step[1] -> sklearn (or sklearn-like) object (model)
             stepID = 'step'+str(j)
             # 1. define which level of step is this (i.e.: imputing, preproc, dimred, clustering, none)
             level = which_level(step[0])
             # 2. fit the model (whatever it is)
+            if step[1].get_params().get('method') == 'hessian':
+                n_components = step[1].get_params().get('n_components')
+                step[1].set_params(n_neighbors = 1 + (n_components * (n_components + 3) / 2))
             step[1].fit(X)
             # 3. evaluate (i.e. transform or predict according to the level)
             res = evaluate(level, step[1], X)
@@ -131,7 +137,9 @@ def run(pipes, X, exp_tag = 'def_tag', root = ''):
         pipes_dump[pipeID] = step_dump
         logging.info("DUMP: \n {} \n #########".format(pipes_dump))
         
-            
+    # Dump
+    # outputFileName = 
+    # with open()
             
             
     
