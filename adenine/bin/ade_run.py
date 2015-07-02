@@ -1,13 +1,12 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import imp, sys, os
+import imp, sys, os, shutil
 import time
 import logging
 from adenine.utils.extra import make_time_flag
 from adenine.core import define_pipeline
 from adenine.core import pipelines
-
 
 def main(config_file):
     
@@ -17,6 +16,8 @@ def main(config_file):
     
     # Get the experiment tag and the output root folder
     exp_tag, root = config.exp_tag, config.output_root_folder
+    if not os.path.exists(root):
+        os.makedirs(root)        
     
     # Define the ade.log file (a new one for each run)
     fileName = 'ade_'+exp_tag+'_'+make_time_flag()
@@ -29,15 +30,18 @@ def main(config_file):
     # Pipelines Definition
     pipes = define_pipeline.parse_steps([config.step0, config.step1,
                                              config.step2, config.step3])
-    
-    tic = time.time()
-    # Pipelines Evaluation
-    pipelines.run(pipes = pipes, X = X, exp_tag = fileName, root = root)
-    tac = time.time()
-    print("Elapsed time : {}".format(tac-tic))
-    
-    # print("See {} for details".format(logFileName))
 
+    # Pipelines Evaluation
+    tic = time.time()
+    outFolder = pipelines.run(pipes = pipes, X = X, exp_tag = fileName, root = root)
+    tac = time.time()
+    print("pipelines.run: Elapsed time : {}".format(tac-tic))
+    
+    # Copy the ade_config just used into the outFolder
+    shutil.copy(config_path, os.path.join(outFolder, 'ade_config.py'))
+    
+    # Move the logging file into the outFolder
+    shutil.move(logFileName, outFolder)
 
 # ----------------------------  RUN MAIN ---------------------------- #
 if __name__ == '__main__':

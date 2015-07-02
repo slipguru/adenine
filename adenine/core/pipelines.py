@@ -109,6 +109,11 @@ def run(pipes = (), X = (), exp_tag = 'def_tag', root = ''):
         
     parallel : bool
         Run all the pipelines in parallel on the cores of your machine (if True, it requires pplus).
+        
+    Returns
+    -----------
+    outputFolderName : string
+        The path of the output folder.
     """
     # Check root folder
     if not os.path.exists(root): # if it does not exist
@@ -117,10 +122,7 @@ def run(pipes = (), X = (), exp_tag = 'def_tag', root = ''):
         os.makedirs(root)        # and make the folder
         logging.warn("No root folder supplied, folder {} created".format(os.path.abspath(root)))
         
-    logging.info("Parallel = {}".format(parallel))
-        
     # Eval pipes
-    
     pipes_dump = dict()
     for i, pipe in enumerate(pipes):
         pipeID = 'pipe'+str(i)
@@ -143,12 +145,19 @@ def run(pipes = (), X = (), exp_tag = 'def_tag', root = ''):
         pipes_dump[pipeID] = step_dump
         logging.debug("DUMP: \n {} \n #########".format(pipes_dump))
 
-    # pkl Dump
+    # Output Name
     outputFileName = exp_tag
-    print os.path.join(root,outputFileName+'.pkl')
-    with open(os.path.join(root,outputFileName+'.pkl'), 'w+') as f:
+    outputFolderName = os.path.join(root,outputFileName)
+
+    # Create exp folder into the root folder
+    os.makedirs(outputFolderName)
+
+    # pkl Dump
+    with open(os.path.join(outputFolderName,outputFileName+'.pkl'), 'w+') as f:
         pkl.dump(pipes_dump, f)
-            
+    logging.info("Dumped : {}".format(os.path.join(outputFolderName,outputFileName+'.pkl')))
+    
+    return outputFolderName
             
     
             
