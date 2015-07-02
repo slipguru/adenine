@@ -39,18 +39,3 @@ def tmpfun(pc, pipes, X):
     return pipes_dump
 
 ##################################################################
-
-else:
-        # Run using pplus
-        logging.info("Parallel")
-        
-        
-        pc = pplus.PPlusConnection(debug=True)
-        print('Starting experiment with id %s' % pc.id)
-        print('Master session id %s' % pc.session_id)
-        
-        for pipe in enumerate(pipes):
-            pc.submit(tmpfun, args =(pipes, X), depfuncs = (which_level,))
-        
-        results = pc.collect()
-        # print results

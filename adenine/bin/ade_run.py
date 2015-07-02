@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import imp, sys, os
+import time
 import logging
 from adenine.utils.extra import make_time_flag
 from adenine.core import define_pipeline
@@ -29,8 +30,11 @@ def main(config_file):
     pipes = define_pipeline.parse_steps([config.step0, config.step1,
                                              config.step2, config.step3])
     
+    tic = time.time()
     # Pipelines Evaluation
-    pipelines.run(pipes = pipes, X = X, exp_tag = fileName, root = root, parallel = config.parallel)
+    pipelines.run(pipes = pipes, X = X, exp_tag = fileName, root = root)
+    tac = time.time()
+    print("Elapsed time : {}".format(tac-tic))
     
     # print("See {} for details".format(logFileName))
 

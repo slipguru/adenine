@@ -51,7 +51,7 @@ def load_custom(fileName_X = 'X.npy', fileName_y = 'y.npy'):
     return dataSetObj(np.load(fileName_X),y)
     
 
-def load(opt = 'custom'):
+def load(opt = 'custom', fileName_X = 'X.npy', fileName_y = 'y.npy'):
     """Load a specified dataset.
     
     This function can be used either to load one of the standard scikit-learn datasets or a different dataset saved as X.npy Y.npy in the working directory.
@@ -59,6 +59,12 @@ def load(opt = 'custom'):
     Parameters
     -----------
     opt : {'iris', 'digits', 'diabetes', 'boston', 'custom'}, default: 'custom'
+    
+    fileName_X : string, default : 'X.npy'
+        The data matrix file name.
+    
+    fileName_y : string, default : 'y.npy'
+        The label vector file name.
     
     Returns
     -----------
@@ -81,8 +87,7 @@ def load(opt = 'custom'):
         elif opt.lower() == 'boston':
             data = datasets.load_boston()
         elif opt.lower() == 'custom':
-            data = load_custom()
-            print data
+            data = load_custom(fileName_X, fileName_y)
     except IOError as e:
          print("I/O error({0}): {1}".format(e.errno, e.strerror))
     

@@ -6,14 +6,14 @@ from adenine.utils import data_source
 # --------------------------  EXPERMIENT INFO ------------------------- #
 exp_tag = 'debug'
 output_root_folder = 'results'
-parallel = False
+# parallel = False
 
 # ----------------------------  INPUT DATA ---------------------------- #
 X, y, feat_names = data_source.load('iris')
 # X, y, feat_names = data_source.load('digits')
 # X, y, feat_names = data_source.load('diabetes')
 # X, y, feat_names = data_source.load('boston')
-# X, y, feat_names = data_source.load('custom')
+# X, y, feat_names = data_source.load('custom', 'bigX.npy', 'bigY.npy')
 
 # -----------------------  PIPELINE DEFINITION ------------------------ #
 
@@ -32,8 +32,8 @@ step2 = {'PCA': [False], 'IncrementalPCA': [False], 'RandomizedPCA': [False],
          'tSNE': [False], 'None': [False]}
 
 # --- Clustering --- #
-step3 = {'KMeans': [True, [3]],
+step3 = {'KMeans': [False, [3]],
          'KernelKMeans': [False, [3,['rbf','poly']]], #TODO
          'AP': [False], 'MS': [False], 'Spectral': [False, [3]],
-         'Hierarchical': [False, [3, ['manhattan','euclidean'],
+         'Hierarchical': [True, [3, ['manhattan','euclidean'],
                                  ['ward','complete','average']]]}
