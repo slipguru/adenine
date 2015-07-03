@@ -15,7 +15,7 @@ def main(config_file):
     config = imp.load_source('ade_config', config_path)
     
     # Read the variables from the config file
-    X, y, feat_names = config.X, config.y, config.feat_names
+    X, y, feat_names, class_names = config.X, config.y, config.feat_names, config.class_names
     
     # Get the experiment tag and the output root folder
     exp_tag, root = config.exp_tag, config.output_root_folder

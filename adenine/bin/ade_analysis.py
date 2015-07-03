@@ -15,7 +15,7 @@ def main(dumpfile):
     config = imp.load_source('ade_config', config_path)
     
     # Read the variables from the config file
-    X, y, feat_names = config.X, config.y, config.feat_names
+    X, y, feat_names, class_names = config.X, config.y, config.feat_names, config.class_names
     
     # Initialize the log file
     fileName = 'results_'+os.path.basename(dumpfile)[0:-4]
@@ -28,7 +28,7 @@ def main(dumpfile):
     
     tic = time.time()
     # Analyze the pipelines
-    analyze_results.start(inputDict = res, rootFolder = os.path.dirname(dumpfile), y = y)
+    analyze_results.start(inputDict = res, rootFolder = os.path.dirname(dumpfile), y = y, feat_names = feat_names, class_names = class_names)
     tac = time.time()
     print("analyze_results.start: Elapsed time : {}".format(tac-tic))
     

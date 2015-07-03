@@ -94,8 +94,10 @@ def load(opt = 'custom', fileName_X = 'X.npy', fileName_y = 'y.npy'):
     # Get X, y and feature_names
     X, y = data.data, data.target
     try:
-        feat_names = data.target_names
+        feat_names = data.features_names
+        class_names = data.target_names
     except:
         feat_names = range(0,X.shape[1])
+        class_names = 0
         
-    return X, y, feat_names
+    return X, y, feat_names, class_names
