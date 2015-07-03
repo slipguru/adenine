@@ -1,20 +1,37 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import sys, os
+import imp, sys, os
+import time
 import logging
 import cPickle as pkl
+from adenine.core import analyze_results
 
 def main(dumpfile):
+    
+    # Load the configuration file
+    config_path = os.path.dirname(dumpfile)
+    config_path = os.path.join(os.path.abspath(config_path), 'ade_config.py')
+    config = imp.load_source('ade_config', config_path)
+    
+    # Read the variables from the config file
+    X, y, feat_names = config.X, config.y, config.feat_names
+    
+    # Initialize the log file
+    fileName = 'results_'+os.path.basename(dumpfile)[0:-4]
+    logFileName = os.path.join(os.path.dirname(dumpfile), fileName+'.log')
+    logging.basicConfig(filename=logFileName, level=logging.INFO, filemode = 'w')
     
     # Load the results
     with open(dumpfile, 'r') as f:
         res = pkl.load(f)
-        
-    print res
-
     
-
+    tic = time.time()
+    # Analyze the pipelines
+    analyze_results.start(inputDict = res, rootFolder = os.path.dirname(dumpfile), y = y)
+    tac = time.time()
+    print("analyze_results.start: Elapsed time : {}".format(tac-tic))
+    
 
 # ----------------------------  RUN MAIN ---------------------------- #
 if __name__ == '__main__':
@@ -34,6 +51,6 @@ if __name__ == '__main__':
             print("No .pkl file found in {}".format(sys.argv[1]))
             sys.exit(-1)
         else:
-            print("Starting the analysis of {}".format(fileName))
+            # print("Starting the analysis of {}".format(fileName))
             main(os.path.join(sys.argv[1],fileName)) # Run analysis
                 

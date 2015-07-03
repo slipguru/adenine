@@ -14,6 +14,9 @@ def main(config_file):
     config_path = os.path.abspath(config_file)
     config = imp.load_source('ade_config', config_path)
     
+    # Read the variables from the config file
+    X, y, feat_names = config.X, config.y, config.feat_names
+    
     # Get the experiment tag and the output root folder
     exp_tag, root = config.exp_tag, config.output_root_folder
     if not os.path.exists(root):
@@ -24,9 +27,6 @@ def main(config_file):
     logFileName = os.path.join(root, fileName+'.log')
     logging.basicConfig(filename=logFileName, level=logging.INFO, filemode = 'w')
 
-    # Read the variables from the config file
-    X, y, feat_names = config.X, config.y, config.feat_names
-
     # Pipelines Definition
     pipes = define_pipeline.parse_steps([config.step0, config.step1,
                                              config.step2, config.step3])
@@ -35,13 +35,12 @@ def main(config_file):
     tic = time.time()
     outFolder = pipelines.run(pipes = pipes, X = X, exp_tag = fileName, root = root)
     tac = time.time()
-    print("pipelines.run: Elapsed time : {}".format(tac-tic))
     
     # Copy the ade_config just used into the outFolder
     shutil.copy(config_path, os.path.join(outFolder, 'ade_config.py'))
-    
     # Move the logging file into the outFolder
     shutil.move(logFileName, outFolder)
+    print("pipelines.run: Elapsed time : {}".format(tac-tic))
 
 # ----------------------------  RUN MAIN ---------------------------- #
 if __name__ == '__main__':
