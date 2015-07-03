@@ -91,7 +91,7 @@ def evaluate(level, step, X):
 def run(pipes = (), X = (), exp_tag = 'def_tag', root = ''):
     """Fit and transform/predict some pipelines on some data.
     
-    This function fits each pipeline in the input list on the provided data. The results are dumped into a pkl file as a dictionary of dictionaries of the form {'pipeID': {'stepID' : [alg_name, level, params, res], ...}, ...}.
+    This function fits each pipeline in the input list on the provided data. The results are dumped into a pkl file as a dictionary of dictionaries of the form {'pipeID': {'stepID' : [alg_name, level, params, res], ...}, ...}. If a pipeline fails
     
     Parameters
     -----------
@@ -136,12 +136,17 @@ def run(pipes = (), X = (), exp_tag = 'def_tag', root = ''):
             if step[1].get_params().get('method') == 'hessian': # check hessian lle constraints
                 n_components = step[1].get_params().get('n_components')
                 step[1].set_params(n_neighbors = 1 + (n_components * (n_components + 3) / 2))
-            step[1].fit(X_curr)
-            # 3. evaluate (i.e. transform or predict according to the level)
-            X_curr = evaluate(level, step[1], X_curr)
-            # 4. save the results in a dictionary of dictionary of the form:
-            # {'pipeID': {'stepID' : [alg_name, level, params, res]}}
-            step_dump[stepID] = [step[0], level, step[1].get_params(), X_curr]
+            try:
+                step[1].fit(X_curr)
+                # 3. evaluate (i.e. transform or predict according to the level)
+                X_curr = evaluate(level, step[1], X_curr)
+                # 4. save the results in a dictionary of dictionary of the form:
+                # {'pipeID': {'stepID' : [alg_name, level, params, res]}}
+                step_dump[stepID] = [step[0], level, step[1].get_params(), X_curr]
+            except AssertionError as e:
+                logging.critical("Pipeline {} failed at step {}".format(pipeID, step[0]))
+                step_dump[stepID] = [step[0], level, step[1].get_params(), np.nan]
+                break # skip this pipeline
         pipes_dump[pipeID] = step_dump
         logging.debug("DUMP: \n {} \n #########".format(pipes_dump))
 

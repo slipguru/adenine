@@ -48,7 +48,7 @@ if __name__ == '__main__':
 
     if len(sys.argv) < 2:
         print("USAGE: ade_run.py <CONFIG_FILE> ")
-        sys.exit()
+        sys.exit(-1)
     else:
         main(sys.argv[1])
         
