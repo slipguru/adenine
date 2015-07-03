@@ -91,7 +91,7 @@ def evaluate(level, step, X):
 def run(pipes = (), X = (), exp_tag = 'def_tag', root = ''):
     """Fit and transform/predict some pipelines on some data.
     
-    This function fits each pipeline in the input list on the provided data. The results are dumped into a pkl file as a dictionary of dictionaries of the form {'pipeID': {'stepID' : [level, params, res], ...}, ...}.
+    This function fits each pipeline in the input list on the provided data. The results are dumped into a pkl file as a dictionary of dictionaries of the form {'pipeID': {'stepID' : [alg_name, level, params, res], ...}, ...}.
     
     Parameters
     -----------
@@ -140,8 +140,8 @@ def run(pipes = (), X = (), exp_tag = 'def_tag', root = ''):
             # 3. evaluate (i.e. transform or predict according to the level)
             X_curr = evaluate(level, step[1], X_curr)
             # 4. save the results in a dictionary of dictionary of the form:
-            # {'pipeID': {'stepID' : [level, params, res]}}
-            step_dump[stepID] = [level, step[1].get_params(), X_curr]
+            # {'pipeID': {'stepID' : [alg_name, level, params, res]}}
+            step_dump[stepID] = [step[0], level, step[1].get_params(), X_curr]
         pipes_dump[pipeID] = step_dump
         logging.debug("DUMP: \n {} \n #########".format(pipes_dump))
 

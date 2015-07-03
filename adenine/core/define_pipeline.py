@@ -175,7 +175,7 @@ def parse_steps(steps):
     pipes : list of sklearn.pipeline.Pipeline
         The returned list must contain every possible combination of imputing -> preprocessing -> dimensionality reduction -> clustering algorithms. The maximum number of pipelines that could be generated is 20, even if the number of combinations is higher.
     """
-    max_n_pipes = 20 # avoiding unclear (too-long) outputs
+    max_n_pipes = 10e5 # avoiding unclear (too-long) outputs
     pipes = []       # a list of list of tuples input of sklearn Pipeline
     
     imputing   = steps[0]

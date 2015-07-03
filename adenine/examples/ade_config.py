@@ -21,7 +21,7 @@ X, y, feat_names = data_source.load('iris')
 step0 = {'Impute': [False], 'Missing': [-1], 'Replacement': ['median','mean']}
 
 # --- Data Preprocessing --- #
-step1 = {'None': [False], 'Recenter': [False], 'Standardize': [False],
+step1 = {'None': [True], 'Recenter': [False], 'Standardize': [False],
          'Normalize': [False, ['l2']], 'MinMax': [True, [0,1]]}
 
 # --- Dimensionality Reduction & Manifold Learning --- #
@@ -32,8 +32,8 @@ step2 = {'PCA': [False], 'IncrementalPCA': [False], 'RandomizedPCA': [False],
          'tSNE': [False], 'None': [False]}
 
 # --- Clustering --- #
-step3 = {'KMeans': [False, [3]],
+step3 = {'KMeans': [True, [3]],
          'KernelKMeans': [False, [3,['rbf','poly']]], #TODO
-         'AP': [False], 'MS': [False], 'Spectral': [False, [3]],
-         'Hierarchical': [True, [3, ['manhattan','euclidean'],
+         'AP': [False], 'MS': [False], 'Spectral': [True, [3]],
+         'Hierarchical': [False, [3, ['manhattan','euclidean'],
                                  ['ward','complete','average']]]}
