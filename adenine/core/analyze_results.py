@@ -118,10 +118,20 @@ def make_voronoi(root = (), data_in = (), model_param = (), trueLabel = np.nan, 
     Z = model.predict(np.c_[xx.ravel(), yy.ravel()])
     # Put the result into a color plot
     Z = Z.reshape(xx.shape)
+    offset = (x_max - x_min)/3 # just to define a window that is coeherent with the data
+    
+    print "---------------------------"
+    print model
+    # print np.unique(Z.ravel())
+    print model.cluster_centers_.shape
+    print "---------------------------"
+    # raise ValueError('DEBUG')
+    
+    
     plt.imshow(Z, interpolation='nearest',
                # extent=(xx.min(), xx.max(), yy.min(), yy.max()),
                # extent=(-4, 4, -4, 4),
-               extent = (np.round(x_min-1), np.round(x_max+1), np.round(y_min-1), np.round(y_max+1)),
+               extent = (np.round(x_min-offset), np.round(x_max+offset), np.round(y_min-offset), np.round(y_max+offset)),
                cmap=plt.get_cmap('Pastel1'), aspect = 'auto')
     
     fileName = os.path.basename(root)

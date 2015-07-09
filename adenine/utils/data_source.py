@@ -58,7 +58,7 @@ def load(opt = 'custom', fileName_X = 'X.npy', fileName_y = 'y.npy'):
     
     Parameters
     -----------
-    opt : {'iris', 'digits', 'diabetes', 'boston', 'custom'}, default: 'custom'
+    opt : {'iris', 'digits', 'diabetes', 'boston', 'blobs','custom'}, default: 'custom'
     
     fileName_X : string, default : 'X.npy'
         The data matrix file name.
@@ -86,6 +86,10 @@ def load(opt = 'custom', fileName_X = 'X.npy', fileName_y = 'y.npy'):
             data = datasets.load_diabetes()
         elif opt.lower() == 'boston':
             data = datasets.load_boston()
+        elif opt.lower() == 'blobs':
+            xx, yy = datasets.make_blobs(n_samples=500, centers=[[1, 1], [-1, -1], [1, -1]], cluster_std=0.3, n_features=3)
+            # xx, yy = datasets.make_classification(n_samples = 500, n_features = 20, n_informative = 2)
+            data = datasets.base.Bunch(data = xx, target = yy)
         elif opt.lower() == 'custom':
             data = load_custom(fileName_X, fileName_y)
     except IOError as e:
