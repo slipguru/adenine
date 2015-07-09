@@ -101,7 +101,7 @@ def parse_dimred(key, content):
     elif key.lower() == 'randomizedpca':
         dr = RandomizedPCA()
     elif key.lower() == 'kernelpca':
-        dr = KernelPCA(kernel = content)
+        dr = KernelPCA(kernel = content, n_components = None)
     elif key.lower() == 'isomap':
         dr = Isomap()
     elif key.lower() == 'lle':

@@ -91,7 +91,7 @@ def evaluate(level, step, X):
 def run(pipes = (), X = (), exp_tag = 'def_tag', root = ''):
     """Fit and transform/predict some pipelines on some data.
     
-    This function fits each pipeline in the input list on the provided data. The results are dumped into a pkl file as a dictionary of dictionaries of the form {'pipeID': {'stepID' : [alg_name, level, params, out, in], ...}, ...}. If a pipeline fails
+    This function fits each pipeline in the input list on the provided data. The results are dumped into a pkl file as a dictionary of dictionaries of the form {'pipeID': {'stepID' : [alg_name, level, params, data_out, data_in, model_obj], ...}, ...}. If a pipeline fails for some reasons the content of the stepID key is a list of np.nan.
     
     Parameters
     -----------
@@ -143,11 +143,11 @@ def run(pipes = (), X = (), exp_tag = 'def_tag', root = ''):
                 X_next = evaluate(level, step[1], X_curr)
                 # 4. save the results in a dictionary of dictionary of the form:
                 # {'pipeID': {'stepID' : [alg_name, level, params, res]}}
-                step_dump[stepID] = [step[0], level, step[1].get_params(), X_curr, X_next]
+                step_dump[stepID] = [step[0], level, step[1].get_params(), X_next, X_curr, step[1]]
                 X_curr = np.array(X_next) # update the matrix
             except AssertionError as e:
                 logging.critical("Pipeline {} failed at step {}".format(pipeID, step[0]))
-                step_dump[stepID] = [step[0], level, step[1].get_params(), np.nan, np.nan]
+                step_dump[stepID] = [step[0], level, step[1].get_params(), np.nan, np.nan, np.nan]
                 break # skip this pipeline
         pipes_dump[pipeID] = step_dump
         logging.debug("DUMP: \n {} \n #########".format(pipes_dump))

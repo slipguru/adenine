@@ -55,8 +55,9 @@ def make_scatter(root = (), embedding = (), model_param = (), trueLabel = np.nan
     # g.set_yticklabels([])
     plt.title(title)
     plt.savefig(os.path.join(root,fileName))
+    logging.info('Figured saved {}'.format(os.path.join(root,fileName)))
     
-def make_voronoi(root = (), data_in = (), model_param = (), trueLabel = np.nan, labels = ()):
+def make_voronoi(root = (), data_in = (), model_param = (), trueLabel = np.nan, labels = (), model = ()):
     """Generate and save the Voronoi tessellation obtained from the clustering algorithm.
     
     This function generates the Voronoi tessellation obtained from the clustering algorithm applied on the data projected on a two-dimensional embedding. The plots will be saved into the appropriate folder of the tree-like structure created into the root folder.
@@ -77,8 +78,11 @@ def make_voronoi(root = (), data_in = (), model_param = (), trueLabel = np.nan, 
         
     labels : array of int, shape : n_samples
         The result of the clustering step.
+    
+    model : sklearn or sklearn-like object
+        An instance of the class that evaluates a step.
     """
-    n_samples, n_dim = data.shape
+    n_samples, n_dim = data_in.shape
     
     # Define plot color
     if not np.isnan(trueLabel[0]):
@@ -88,40 +92,30 @@ def make_voronoi(root = (), data_in = (), model_param = (), trueLabel = np.nan, 
         y = np.zeros((n_samples))
         _hue = ' '
     
-    # --- TEMP: reduce the dimensionality by PCA just in order to plot the background of the voronoi tessellation
-    if n_dim > 2:
-        embedding = PCA(n_components=2).fit_transform(data)
-        kmeans = KMeans(init='k-means++', n_clusters=n_digits)
-        kmeans.fit(embedding)
-    else:
-        embedding = data
-    # --- END TEMP
+   # Define the fileName
+    fileName = os.path.basename(root)
+    # Define the plot title
+    for i, t in enumerate(root.split(os.sep)): # something like ['results', 'ade_debug_', 'Standardize', 'PCA']
+        if t[0:5] == '_ade': break
+    title = str("$\mapsto$").join(root.split(os.sep)[i-2:])
     
-    # Seaborn Plot
-    title = 'Voronoi Tessellation'
-    X = embedding[:,:2]
+    # Seaborn scatter Plot
+    X = data_in[:,:2]
     df = pd.DataFrame(data = np.hstack((X,y[:,np.newaxis])), columns = ["$x_1$","$x_2$",_hue])
     # Generate seaborn plot
     g = sns.FacetGrid(df, hue=_hue, palette="Set1", size=5, legend_out=False)
     g.map(plt.scatter, "$x_1$", "$x_2$", s=100, linewidth=.5, edgecolor="white")
     if _hue != ' ': g.add_legend() #!! customize legend
     plt.title(title)
-    # #--------------------------#
-    # plt.scatter(X[:,0], X[:,1], s=50, c=y, alpha=0.5) 
     
-    # Step size of the mesh. Decrease to increase the quality of the VQ.
-    h = .02     # point in the mesh [x_min, m_max]x[y_min, y_max].
-    # h = 0.001
-    
-    # Plot the decision boundary. For that, we will assign a color to each
-    # x_min, x_max = reduced_data[:, 0].min() + 1, reduced_data[:, 0].max() - 1
-    # y_min, y_max = reduced_data[:, 1].min() + 1, reduced_data[:, 1].max() - 1
-    x_min, x_max = reduced_data[:, 0].min(), reduced_data[:, 0].max()
-    y_min, y_max = reduced_data[:, 1].min(), reduced_data[:, 1].max()
-    xx, yy = np.meshgrid(np.arange(x_min, x_max, h), np.arange(y_min, y_max, h))
+    # Make and add to the Plot the decision boundary.
+    npoints = 1000 # the number of points in that makes the background. Reducing this will decrease the quality of the voronoi background
+    x_min, x_max = X[:, 0].min(), X[:, 0].max()
+    y_min, y_max = X[:, 1].min(), X[:, 1].max()
+    xx, yy = np.meshgrid(np.linspace(x_min, x_max, npoints), np.linspace(y_min, y_max, npoints))
     
     # Obtain labels for each point in mesh. Use last trained model.
-    Z = kmeans.predict(np.c_[xx.ravel(), yy.ravel()])
+    Z = model.predict(np.c_[xx.ravel(), yy.ravel()])
     # Put the result into a color plot
     Z = Z.reshape(xx.shape)
     plt.imshow(Z, interpolation='nearest',
@@ -129,15 +123,10 @@ def make_voronoi(root = (), data_in = (), model_param = (), trueLabel = np.nan, 
                # extent=(-4, 4, -4, 4),
                extent = (np.round(x_min-1), np.round(x_max+1), np.round(y_min-1), np.round(y_max+1)),
                cmap=plt.get_cmap('Pastel1'), aspect = 'auto')
-               # cmap=colmap,
-               # aspect='auto', origin='lower')
     
-    centroids = kmeans.cluster_centers_
-    print centroids
-
-    plt.show()
-    
-    
+    fileName = os.path.basename(root)
+    plt.savefig(os.path.join(root,fileName))
+    logging.info('Figured saved {}'.format(os.path.join(root,fileName)))
 
 def est_clst_perf(root = (), label = (), trueLabel = np.nan, model_param = ()):
     """Estimate the clustering performance.
@@ -190,12 +179,16 @@ def get_step_attributes(step = (), pos = ()):
         
     param : dictionary
         The parameters of the sklearn object implementing the algorithm.
+        
+    mdl_obj : sklearn or sklearn-like object
+        This is an instance of the class that evaluates a step.
     """
     name = step[0]
     level = step[1] # {imputing, preproc, dimred, clustering}
     param = step[2]
     data_out = step[3]
     data_in = step[4]
+    mdl_obj = step[5]
     if level.lower() == 'none' and pos == 0: level = 'preproc'
     if level.lower() == 'none' and pos == 1: level = 'dimred'
     
@@ -211,7 +204,7 @@ def get_step_attributes(step = (), pos = ()):
             name += '_nonmetric'
             
     logging.info("{} : {}".format(level,name)) 
-    return name, level, param, data_out, data_in
+    return name, level, param, data_out, data_in, mdl_obj
 
 def start(inputDict = (), rootFolder = (), y = np.nan, feat_names = (), class_names = ()):
     """Analyze the results of ade_run.
@@ -241,7 +234,7 @@ def start(inputDict = (), rootFolder = (), y = np.nan, feat_names = (), class_na
         for i, step in enumerate(sorted(inputDict[pipe].keys())):
             
             # Tree-like folder structure definition
-            step_name, step_level, step_param, step_out, step_in = get_step_attributes(inputDict[pipe][step], pos = i)
+            step_name, step_level, step_param, step_out, step_in, mdl_obj = get_step_attributes(inputDict[pipe][step], pos = i)
             
             # Output folder definition & creation
             outFolder = os.path.join(outFolder,step_name)
@@ -250,9 +243,10 @@ def start(inputDict = (), rootFolder = (), y = np.nan, feat_names = (), class_na
             
             # Launch analysis
             if step_level == 'dimred':
-                make_scatter(root = os.path.join(rootFolder, outFolder), embedding = step_out, trueLabel = y, model_param = step_param, class_names = class_names)
+                make_scatter(root = os.path.join(rootFolder, outFolder), embedding = step_out, trueLabel = y, model_param = step_param)
             if step_level == 'clustering':
-                make_voronoi(root = os.path.join(rootFolder, outFolder), label = step_out, trueLabel = y, model_param = step_param, data_in = step_in)
+                if hasattr(mdl_obj, 'cluster_centers_'):
+                    make_voronoi(root = os.path.join(rootFolder, outFolder), labels = step_out, trueLabel = y, model_param = step_param, data_in = step_in, model = mdl_obj)
                 # est_clst_perf(root = os.path.join(rootFolder, outFolder), label = step_res, trueLabel = y, model_param = step_param)
             
             

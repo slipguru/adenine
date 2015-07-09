@@ -28,12 +28,12 @@ step1 = {'None': [True], 'Recenter': [False], 'Standardize': [True],
 step2 = {'PCA': [False], 'IncrementalPCA': [False], 'RandomizedPCA': [False],
          'KernelPCA': [True, ['linear','rbf','poly']], 'Isomap': [True],
          'LLE': [False, ['standard','modified','hessian', 'ltsa']],
-         'SE': [False], 'MDS': [True, ['metric','nonmetric']],
-         'tSNE': [True], 'None': [False]}
+         'SE': [False], 'MDS': [False, ['metric','nonmetric']],
+         'tSNE': [False], 'None': [False]}
 
 # --- Clustering --- #
-step3 = {'KMeans': [False, [3]],
+step3 = {'KMeans': [True, [3]],
          'KernelKMeans': [False, [3,['rbf','poly']]], #TODO
-         'AP': [False], 'MS': [False], 'Spectral': [False, [3]],
+         'AP': [True], 'MS': [True], 'Spectral': [False, [3]],
          'Hierarchical': [False, [3, ['manhattan','euclidean'],
                                  ['ward','complete','average']]]}
