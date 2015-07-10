@@ -5,23 +5,54 @@
 
 import numpy as np
 from sklearn import datasets
+from sklearn.preprocessing import Binarizer
 
-class dataSetObj:
-    """Sklearn-like object.
+def MixGauss(mu = (), std = (), n_sample = ()):
+    """Create a Gaussian dataset.
     
-    A simple dictionary-like object that contains a custom dataset. The meaningful attributes are .data and .target.
+    Generates a dataset with n_sample * n_class examples and n_dim dimensions. Mu, the mean vector, is n_class x n_dim.
     
     Parameters
     -----------
-    D : array of float, shape : n_samples x n_features
-        The input data matrix.
+    mu : array of float, shape : n_class x n_dim
+        The mean of each class.
         
-    T :  array of float, shape : n_samples
-        The label vector.
+    std :  array of float, shape : n_class
+        The standard deviation of each Gaussian distribution.
+        
+    n_sample : int
+        Number of point per class.
     """
-    def __init__(self,D,T):
-        self.data = D
-        self.target = T
+    n_class, n_var = mu.shape
+
+    X = np.zeros((n_sample*n_class, n_var))
+    y = np.zeros(n_sample*n_class)
+
+    start = 0
+    for i, s, m in zip(range(n_class), std, mu):
+        end = start + n_sample
+        X[start:end,:] = s * np.random.randn(n_sample, n_var) + m
+        y[start:end] = i
+        start = end
+
+    return X, y
+
+# class dataSetObj: #TODO use sklearn Bunch instead of this silly class
+#     """Sklearn-like object.
+#     
+#     A simple dictionary-like object that contains a custom dataset. The meaningful attributes are .data and .target.
+#     
+#     Parameters
+#     -----------
+#     D : array of float, shape : n_samples x n_features
+#         The input data matrix.
+#         
+#     T :  array of float, shape : n_samples
+#         The label vector.
+#     """
+#     def __init__(self,D,T):
+#         self.data = D
+#         self.target = T
         
 def load_custom(fileName_X = 'X.npy', fileName_y = 'y.npy'):
     """Load a custom dataset.
@@ -38,8 +69,8 @@ def load_custom(fileName_X = 'X.npy', fileName_y = 'y.npy'):
         
     Returns
     -----------
-    data : dataSetObj
-        An instance of the dataSetObj class, the meaningful attributes are .data, the data matrix, and .target, the label vector
+    data : sklearn.datasets.base.Bunch
+        An instance of the sklearn.datasets.base.Bunch class, the meaningful attributes are .data, the data matrix, and .target, the label vector
     """
     try: # labels are not mandatory
         y = np.load(fileName_y)
@@ -47,8 +78,9 @@ def load_custom(fileName_X = 'X.npy', fileName_y = 'y.npy'):
         y = np.nan
         e.strerror = "No labels file provided"
         print("I/O error({0}): {1}".format(e.errno, e.strerror))
-        
-    return dataSetObj(np.load(fileName_X),y)
+    
+    return datasets.base.Bunch(data = np.load(fileName_X), target = y)
+    # return dataSetObj(np.load(fileName_X),y)
     
 
 def load(opt = 'custom', fileName_X = 'X.npy', fileName_y = 'y.npy'):
@@ -84,10 +116,18 @@ def load(opt = 'custom', fileName_X = 'X.npy', fileName_y = 'y.npy'):
             data = datasets.load_digits()
         elif opt.lower() == 'diabetes':
             data = datasets.load_diabetes()
+            b = Binarizer(threshold = np.mean(data.target))
+            data.target = b.fit_transform(data.data)
         elif opt.lower() == 'boston':
             data = datasets.load_boston()
-        elif opt.lower() == 'blobs':
-            xx, yy = datasets.make_blobs(n_samples=500, centers=[[1, 1], [-1, -1], [1, -1]], cluster_std=0.3, n_features=3)
+            b = Binarizer(threshold = np.mean(data.target))
+            data.target = b.fit_transform(data.data)
+        elif opt.lower() == 'gauss':
+            means = np.array([[-1,1],[0,-1],[1,1]])
+            sigmas = np.array([0.2, 0.2, 0.2])
+            n = 333
+            xx, yy = MixGauss(mu = means, std = sigmas, n_sample = n)
+            # xx, yy = datasets.make_blobs(n_samples=500, centers=[[1, 1], [-1, -1], [1, -1]], cluster_std=0.3, n_features=3)
             # xx, yy = datasets.make_classification(n_samples = 500, n_features = 20, n_informative = 2)
             data = datasets.base.Bunch(data = xx, target = yy)
         elif opt.lower() == 'custom':

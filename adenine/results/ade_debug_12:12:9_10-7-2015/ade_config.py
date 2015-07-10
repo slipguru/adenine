@@ -10,10 +10,10 @@ output_root_folder = 'results'
 
 # ----------------------------  INPUT DATA ---------------------------- #
 # X, y, feat_names, class_names = data_source.load('iris')
-X, y, feat_names, class_names = data_source.load('blobs')
+# X, y, feat_names, class_names = data_source.load('blobs')
 # X, y, feat_names, class_names = data_source.load('digits')
 # X, y, feat_names, class_names = data_source.load('diabetes')
-# X, y, feat_names, class_names = data_source.load('boston')
+X, y, feat_names, class_names = data_source.load('boston')
 # X, y, feat_names, class_names = data_source.load('custom', 'examples/X.npy', 'examples/y.npy')
 
 # -----------------------  PIPELINE DEFINITION ------------------------ #
@@ -23,7 +23,7 @@ step0 = {'Impute': [False], 'Missing': [-1], 'Replacement': ['median','mean']}
 
 # --- Data Preprocessing --- #
 step1 = {'None': [True], 'Recenter': [False], 'Standardize': [True],
-         'Normalize': [False, ['l2']], 'MinMax': [True, [0,1]]}
+         'Normalize': [False, ['l2']], 'MinMax': [False, [0,1]]}
 
 # --- Dimensionality Reduction & Manifold Learning --- #
 step2 = {'PCA': [False], 'IncrementalPCA': [False], 'RandomizedPCA': [False],

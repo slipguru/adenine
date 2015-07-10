@@ -29,6 +29,9 @@ def make_scatter(root = (), embedding = (), model_param = (), trueLabel = np.nan
     """
     n_samples, n_dim = embedding.shape
     
+    # print trueLabel
+    # raise ValueError('DEBUG')
+    
     # Define plot color
     if not np.isnan(trueLabel[0]):
         y = trueLabel # use the labels if provided
@@ -108,6 +111,9 @@ def make_voronoi(root = (), data_in = (), model_param = (), trueLabel = np.nan, 
     if _hue != ' ': g.add_legend() #!! customize legend
     plt.title(title)
     
+    # Add centroids
+    plt.scatter(model.cluster_centers_[:,0], model.cluster_centers_[:,1], s = 100, marker = 'h', c = 'w')
+    
     # Make and add to the Plot the decision boundary.
     npoints = 1000 # the number of points in that makes the background. Reducing this will decrease the quality of the voronoi background
     x_min, x_max = X[:, 0].min(), X[:, 0].max()
@@ -118,21 +124,20 @@ def make_voronoi(root = (), data_in = (), model_param = (), trueLabel = np.nan, 
     Z = model.predict(np.c_[xx.ravel(), yy.ravel()])
     # Put the result into a color plot
     Z = Z.reshape(xx.shape)
-    offset = (x_max - x_min)/3 # just to define a window that is coeherent with the data
     
     print "---------------------------"
     print model
     # print np.unique(Z.ravel())
-    print model.cluster_centers_.shape
+    print model.cluster_centers_
     print "---------------------------"
     # raise ValueError('DEBUG')
-    
-    
+
     plt.imshow(Z, interpolation='nearest',
-               # extent=(xx.min(), xx.max(), yy.min(), yy.max()),
-               # extent=(-4, 4, -4, 4),
-               extent = (np.round(x_min-offset), np.round(x_max+offset), np.round(y_min-offset), np.round(y_max+offset)),
+               # extent = (xx.min(), xx.max(), yy.min(), yy.max()),
                cmap=plt.get_cmap('Pastel1'), aspect = 'auto')
+    
+    plt.xlim([xx.min(), xx.max()])
+    plt.ylim([yy.min(), yy.max()])
     
     fileName = os.path.basename(root)
     plt.savefig(os.path.join(root,fileName))
@@ -254,10 +259,12 @@ def start(inputDict = (), rootFolder = (), y = np.nan, feat_names = (), class_na
             # Launch analysis
             if step_level == 'dimred':
                 make_scatter(root = os.path.join(rootFolder, outFolder), embedding = step_out, trueLabel = y, model_param = step_param)
+                plt.clf()
             if step_level == 'clustering':
                 if hasattr(mdl_obj, 'cluster_centers_'):
                     make_voronoi(root = os.path.join(rootFolder, outFolder), labels = step_out, trueLabel = y, model_param = step_param, data_in = step_in, model = mdl_obj)
                 # est_clst_perf(root = os.path.join(rootFolder, outFolder), label = step_res, trueLabel = y, model_param = step_param)
+                plt.clf()
             
             
             
