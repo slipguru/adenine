@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+import copy
 import logging
 import cPickle as pkl
 import numpy as np
@@ -91,7 +92,7 @@ def evaluate(level, step, X):
 def run(pipes = (), X = (), exp_tag = 'def_tag', root = ''):
     """Fit and transform/predict some pipelines on some data.
     
-    This function fits each pipeline in the input list on the provided data. The results are dumped into a pkl file as a dictionary of dictionaries of the form {'pipeID': {'stepID' : [alg_name, level, params, data_out, data_in, model_obj], ...}, ...}. If a pipeline fails for some reasons the content of the stepID key is a list of np.nan.
+    This function fits each pipeline in the input list on the provided data. The results are dumped into a pkl file as a dictionary of dictionaries of the form {'pipeID': {'stepID' : [alg_name, level, params, data_out, data_in, model_obj, voronoi_suitable_object], ...}, ...}. The model_obj is the sklearn model which has been fit on the dataset, the voronoi_suitable_object is the very same model but fitted on just the first two dimensions of the dataset. If a pipeline fails for some reasons the content of the stepID key is a list of np.nan.
     
     Parameters
     -----------
@@ -141,9 +142,15 @@ def run(pipes = (), X = (), exp_tag = 'def_tag', root = ''):
                 # 3. evaluate (i.e. transform or predict according to the level)
                 # X_curr = evaluate(level, step[1], X_curr)
                 X_next = evaluate(level, step[1], X_curr)
+                # 3.1 if the model is suitable for voronoi tessellation: fit also on 2D
+                if hasattr(step[1], 'cluster_centers_'):
+                    mdl_voronoi = copy.copy(step[1])
+                    mdl_voronoi.fit(X_curr[:,:2])
+                else:
+                    mdl_voronoi = np.nan
                 # 4. save the results in a dictionary of dictionary of the form:
-                # {'pipeID': {'stepID' : [alg_name, level, params, res]}}
-                step_dump[stepID] = [step[0], level, step[1].get_params(), X_next, X_curr, step[1]]
+                # {'pipeID': {'stepID' : [alg_name, level, params, res, Xnext, Xcurr, stepObj, voronoi_suitable_model]}}
+                step_dump[stepID] = [step[0], level, step[1].get_params(), X_next, X_curr, step[1], mdl_voronoi]
                 X_curr = np.array(X_next) # update the matrix
             except AssertionError as e:
                 logging.critical("Pipeline {} failed at step {}".format(pipeID, step[0]))

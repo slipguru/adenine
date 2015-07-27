@@ -59,6 +59,7 @@ def make_scatter(root = (), embedding = (), model_param = (), trueLabel = np.nan
     plt.title(title)
     plt.savefig(os.path.join(root,fileName))
     logging.info('Figured saved {}'.format(os.path.join(root,fileName)))
+    plt.close()
     
 def make_voronoi(root = (), data_in = (), model_param = (), trueLabel = np.nan, labels = (), model = ()):
     """Generate and save the Voronoi tessellation obtained from the clustering algorithm.
@@ -83,7 +84,7 @@ def make_voronoi(root = (), data_in = (), model_param = (), trueLabel = np.nan, 
         The result of the clustering step.
     
     model : sklearn or sklearn-like object
-        An instance of the class that evaluates a step.
+        An instance of the class that evaluates a step. In particular this must be a clustering model provided with the clusters_centers_ attribute (e.g. KMeans).
     """
     n_samples, n_dim = data_in.shape
     
@@ -118,23 +119,18 @@ def make_voronoi(root = (), data_in = (), model_param = (), trueLabel = np.nan, 
     npoints = 1000 # the number of points in that makes the background. Reducing this will decrease the quality of the voronoi background
     x_min, x_max = X[:, 0].min(), X[:, 0].max()
     y_min, y_max = X[:, 1].min(), X[:, 1].max()
-    xx, yy = np.meshgrid(np.linspace(x_min, x_max, npoints), np.linspace(y_min, y_max, npoints))
+    offset = (x_max - x_min) / 5. + (y_max - y_min) / 5. # zoom out the plot a bit
+    xx, yy = np.meshgrid(np.linspace(x_min-offset, x_max+offset, npoints), np.linspace(y_min-offset, y_max+offset, npoints))
     
     # Obtain labels for each point in mesh. Use last trained model.
+    
     Z = model.predict(np.c_[xx.ravel(), yy.ravel()])
     # Put the result into a color plot
     Z = Z.reshape(xx.shape)
-    
-    print "---------------------------"
-    print model
-    # print np.unique(Z.ravel())
-    print model.cluster_centers_
-    print "---------------------------"
-    # raise ValueError('DEBUG')
 
     plt.imshow(Z, interpolation='nearest',
-               # extent = (xx.min(), xx.max(), yy.min(), yy.max()),
-               cmap=plt.get_cmap('Pastel1'), aspect = 'auto')
+               extent = (xx.min(), xx.max(), yy.min(), yy.max()),
+               cmap=plt.get_cmap('Pastel1'), aspect = 'auto', origin = 'lower')
     
     plt.xlim([xx.min(), xx.max()])
     plt.ylim([yy.min(), yy.max()])
@@ -142,6 +138,7 @@ def make_voronoi(root = (), data_in = (), model_param = (), trueLabel = np.nan, 
     fileName = os.path.basename(root)
     plt.savefig(os.path.join(root,fileName))
     logging.info('Figured saved {}'.format(os.path.join(root,fileName)))
+    plt.close()
 
 def est_clst_perf(root = (), label = (), trueLabel = np.nan, model_param = ()):
     """Estimate the clustering performance.
@@ -204,6 +201,7 @@ def get_step_attributes(step = (), pos = ()):
     data_out = step[3]
     data_in = step[4]
     mdl_obj = step[5]
+    voronoi_mdl_obj = step[6]
     if level.lower() == 'none' and pos == 0: level = 'preproc'
     if level.lower() == 'none' and pos == 1: level = 'dimred'
     
@@ -219,7 +217,7 @@ def get_step_attributes(step = (), pos = ()):
             name += '_nonmetric'
             
     logging.info("{} : {}".format(level,name)) 
-    return name, level, param, data_out, data_in, mdl_obj
+    return name, level, param, data_out, data_in, mdl_obj, voronoi_mdl_obj
 
 def start(inputDict = (), rootFolder = (), y = np.nan, feat_names = (), class_names = ()):
     """Analyze the results of ade_run.
@@ -249,7 +247,7 @@ def start(inputDict = (), rootFolder = (), y = np.nan, feat_names = (), class_na
         for i, step in enumerate(sorted(inputDict[pipe].keys())):
             
             # Tree-like folder structure definition
-            step_name, step_level, step_param, step_out, step_in, mdl_obj = get_step_attributes(inputDict[pipe][step], pos = i)
+            step_name, step_level, step_param, step_out, step_in, mdl_obj, voronoi_mdl_obj = get_step_attributes(inputDict[pipe][step], pos = i)
             
             # Output folder definition & creation
             outFolder = os.path.join(outFolder,step_name)
@@ -262,7 +260,7 @@ def start(inputDict = (), rootFolder = (), y = np.nan, feat_names = (), class_na
                 plt.clf()
             if step_level == 'clustering':
                 if hasattr(mdl_obj, 'cluster_centers_'):
-                    make_voronoi(root = os.path.join(rootFolder, outFolder), labels = step_out, trueLabel = y, model_param = step_param, data_in = step_in, model = mdl_obj)
+                    make_voronoi(root = os.path.join(rootFolder, outFolder), labels = step_out, trueLabel = y, model_param = step_param, data_in = step_in, model = voronoi_mdl_obj)
                 # est_clst_perf(root = os.path.join(rootFolder, outFolder), label = step_res, trueLabel = y, model_param = step_param)
                 plt.clf()
             

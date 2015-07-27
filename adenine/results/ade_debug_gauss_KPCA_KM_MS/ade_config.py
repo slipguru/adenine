@@ -9,8 +9,8 @@ output_root_folder = 'results'
 # parallel = False
 
 # ----------------------------  INPUT DATA ---------------------------- #
-X, y, feat_names, class_names = data_source.load('iris')
-# X, y, feat_names, class_names = data_source.load('blobs')
+# X, y, feat_names, class_names = data_source.load('iris')
+X, y, feat_names, class_names = data_source.load('gauss')
 # X, y, feat_names, class_names = data_source.load('digits')
 # X, y, feat_names, class_names = data_source.load('diabetes')
 # X, y, feat_names, class_names = data_source.load('boston')
@@ -27,14 +27,14 @@ step1 = {'None': [True], 'Recenter': [False], 'Standardize': [True],
 
 # --- Dimensionality Reduction & Manifold Learning --- #
 step2 = {'PCA': [False], 'IncrementalPCA': [False], 'RandomizedPCA': [False],
-         'KernelPCA': [True, ['linear','rbf','poly']], 'Isomap': [True],
+         'KernelPCA': [True, ['linear','rbf','poly']], 'Isomap': [False],
          'LLE': [False, ['standard','modified','hessian', 'ltsa']],
-         'SE': [False], 'MDS': [False, ['metric','nonmetric']],
-         'tSNE': [False], 'None': [True]}
+         'SE': [False], 'MDS': [True, ['metric','nonmetric']],
+         'tSNE': [False], 'None': [False]}
 
 # --- Clustering --- #
 step3 = {'KMeans': [True, [3]],
          'KernelKMeans': [False, [3,['rbf','poly']]], #TODO
-         'AP': [True], 'MS': [True], 'Spectral': [False, [3]],
+         'AP': [False], 'MS': [True], 'Spectral': [False, [3]],
          'Hierarchical': [False, [3, ['manhattan','euclidean'],
                                  ['ward','complete','average']]]}
