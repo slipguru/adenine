@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
+from sklearn import metrics
 
 def make_scatter(root = (), embedding = (), model_param = (), trueLabel = np.nan):
     """Generate and save the scatter plot of the dimensionality reduced data set.
@@ -96,7 +97,7 @@ def make_voronoi(root = (), data_in = (), model_param = (), trueLabel = np.nan, 
         y = np.zeros((n_samples))
         _hue = ' '
     
-   # Define the fileName
+    # Define the fileName
     fileName = os.path.basename(root)
     # Define the plot title
     for i, t in enumerate(root.split(os.sep)): # something like ['results', 'ade_debug_', 'Standardize', 'PCA']
@@ -140,7 +141,7 @@ def make_voronoi(root = (), data_in = (), model_param = (), trueLabel = np.nan, 
     logging.info('Figured saved {}'.format(os.path.join(root,fileName)))
     plt.close()
 
-def est_clst_perf(root = (), label = (), trueLabel = np.nan, model_param = ()):
+def est_clst_perf(root = (), data_in = (), label = (), trueLabel = np.nan, model = ()):
     """Estimate the clustering performance.
     
     This function estimate the clustering performance by means of several indexes. Then eventually saves the results in a tree-like structure in the root folder.
@@ -149,6 +150,9 @@ def est_clst_perf(root = (), label = (), trueLabel = np.nan, model_param = ()):
     -----------
     root : string
         The root path for the output creation
+    
+    data_in : array of float, shape : (n_samples, n_dimensions)
+        The low space embedding estimated by the dimensinality reduction and manifold learning algorithm.
         
     label : array of float, shape : n_samples
         The label assignment performed by the clusterin algorithm.
@@ -156,11 +160,32 @@ def est_clst_perf(root = (), label = (), trueLabel = np.nan, model_param = ()):
     trueLabel : array of float, shape : n_samples
         The true label vector; np.nan if missing.
     
-    model_param : dictionary
-        The parameters of the clustering algorithm.
+    model : sklearn or sklearn-like object
+        An instance of the class that evaluates a step. In particular this must be a clustering model provided with the clusters_centers_ attribute (e.g. KMeans).
     """
-    pass
-
+    perf_out = dict()
+    
+    perf_out['silhouette'] = metrics.silhouette_score(data_in, label, metric = 'euclidean')
+    
+    if hasattr(model, 'inertia_'): # Sum of distances of samples to their closest cluster center.
+        perf_out['inertia'] = mdl_obj.inertia_
+    
+    if not np.isnan(np.array([trueLabel]).any()): # the next indexes need a gold standard
+        perf_out['ari'] = metrics.adjusted_rand_score(trueLabel, label)
+        perf_out['ami'] = metrics.adjusted_mutual_info_score(trueLabel, label)
+        perf_out['homogeneity'] = metrics.homogeneity_score(trueLabel, label)
+        perf_out['completeness'] = metrics.completeness_score(trueLabel, label)
+        perf_out['v_measure'] = metrics.v_measure_score(trueLabel, label)   
+        
+    # Define the fileName
+    fileName = os.path.basename(root)+".txt"
+    with open(os.path.join(root,fileName), "w") as f:
+        f.write("-------------------------------\n")
+        f.write("Adenine: Clustering Performance\n")
+        f.write("-------------------------------\n")
+        for elem in sorted(perf_out.keys()):
+            f.write("{} \t|\t = {:.3} \n".format(elem, perf_out[elem]))
+    
 
 def get_step_attributes(step = (), pos = ()):
     """Get the attributes of the input step.
@@ -261,8 +286,8 @@ def start(inputDict = (), rootFolder = (), y = np.nan, feat_names = (), class_na
             if step_level == 'clustering':
                 if hasattr(mdl_obj, 'cluster_centers_'):
                     make_voronoi(root = os.path.join(rootFolder, outFolder), labels = step_out, trueLabel = y, model_param = step_param, data_in = step_in, model = voronoi_mdl_obj)
-                # est_clst_perf(root = os.path.join(rootFolder, outFolder), label = step_res, trueLabel = y, model_param = step_param)
-                plt.clf()
+                est_clst_perf(root = os.path.join(rootFolder, outFolder), data_in = step_in, label = step_out, trueLabel = y)
+                
             
             
             

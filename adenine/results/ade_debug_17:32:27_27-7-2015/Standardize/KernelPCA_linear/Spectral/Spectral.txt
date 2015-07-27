@@ -1,0 +1,9 @@
+-------------------------------
+Adenine: Clustering Performance
+-------------------------------
+ami 	|	 = 1.0 
+ari 	|	 = 1.0 
+completeness 	|	 = 1.0 
+homogeneity 	|	 = 1.0 
+silhouette 	|	 = 0.794 
+v_measure 	|	 = 1.0 
