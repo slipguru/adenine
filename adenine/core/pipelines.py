@@ -41,7 +41,7 @@ def which_level(label):
     
     Returns
     -----------
-    level : {imputing, preproc, dimred, clustring, None}
+    level : {imputing, preproc, dimred, clustering, None}
         The appropriate level of the input step.
     """
     if label in set(['Impute_median', 'Impute_mean']):

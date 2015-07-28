@@ -3,6 +3,7 @@
 
 import os
 import logging
+import cPickle as pkl
 import numpy as np
 import pandas as pd
 import seaborn as sns
@@ -114,7 +115,8 @@ def make_voronoi(root = (), data_in = (), model_param = (), trueLabel = np.nan, 
     plt.title(title)
     
     # Add centroids
-    plt.scatter(model.cluster_centers_[:,0], model.cluster_centers_[:,1], s = 100, marker = 'h', c = 'w')
+    if hasattr(model, 'cluster_centers_'):
+        plt.scatter(model.cluster_centers_[:,0], model.cluster_centers_[:,1], s = 100, marker = 'h', c = 'w')
     
     # Make and add to the Plot the decision boundary.
     npoints = 1000 # the number of points in that makes the background. Reducing this will decrease the quality of the voronoi background
@@ -139,7 +141,7 @@ def make_voronoi(root = (), data_in = (), model_param = (), trueLabel = np.nan, 
     fileName = os.path.basename(root)
     plt.savefig(os.path.join(root,fileName))
     logging.info('Figured saved {}'.format(os.path.join(root,fileName)))
-    plt.close()
+    
 
 def est_clst_perf(root = (), data_in = (), label = (), trueLabel = np.nan, model = ()):
     """Estimate the clustering performance.
@@ -178,13 +180,21 @@ def est_clst_perf(root = (), data_in = (), label = (), trueLabel = np.nan, model
         perf_out['v_measure'] = metrics.v_measure_score(trueLabel, label)   
         
     # Define the fileName
-    fileName = os.path.basename(root)+".txt"
-    with open(os.path.join(root,fileName), "w") as f:
-        f.write("-------------------------------\n")
+    fileName = os.path.basename(root)
+    with open(os.path.join(root,fileName+".txt"), "w") as f:
+        f.write("------------------------------------\n")
         f.write("Adenine: Clustering Performance\n")
-        f.write("-------------------------------\n")
+        f.write("------------------------------------\n")
+        f.write("Index Name{}|{}Index Score\n".format(' '*10,' '*4))
+        f.write("------------------------------------\n")
         for elem in sorted(perf_out.keys()):
-            f.write("{} \t|\t = {:.3} \n".format(elem, perf_out[elem]))
+            f.write("{}{}|{}{:.3}\n".format(elem,' '*(20-len(elem)),' '*4,perf_out[elem]))
+            f.write("------------------------------------\n")
+            
+    # pkl Dump
+    with open(os.path.join(root,fileName+'.pkl'), 'w+') as f:
+        pkl.dump(perf_out, f)
+    logging.info("Dumped : {}".format(os.path.join(root,fileName+'.pkl')))
     
 
 def get_step_attributes(step = (), pos = ()):
@@ -240,9 +250,145 @@ def get_step_attributes(step = (), pos = ()):
             name += '_metric'
         else:
             name += '_nonmetric'
+    elif name == 'Hierarchical':
+        name += '_'+param['affinity']+'_'+param['linkage']
             
     logging.info("{} : {}".format(level,name)) 
     return name, level, param, data_out, data_in, mdl_obj, voronoi_mdl_obj
+
+def make_tree(root = (), data_in = (), model_param = (), trueLabel = np.nan, labels = (), model = ()):
+    """Generate and save the tree structure obtained from the clustering algorithm.
+    
+    This function generates the tree obtained from the clustering algorithm applied on the data. The plots will be saved into the appropriate folder of the tree-like structure created into the root folder.
+    
+    Parameters
+    -----------
+    root : string
+        The root path for the output creation
+    
+    data_in : array of float, shape : (n_samples, n_dimensions)
+        The low space embedding estimated by the dimensinality reduction and manifold learning algorithm.
+        
+    model_param : dictionary
+        The parameters of the dimensionality reduciont and manifold learning algorithm.
+        
+    trueLabel : array of float, shape : n_samples
+        The true label vector; np.nan if missing (useful for plotting reasons).
+        
+    labels : array of int, shape : n_samples
+        The result of the clustering step.
+    
+    model : sklearn or sklearn-like object
+        An instance of the class that evaluates a step. In particular this must be a clustering model provided with the clusters_centers_ attribute (e.g. KMeans).
+    """
+    import itertools
+    import pydot
+    
+    graph = pydot.Dot(graph_type='graph')
+    
+    ii = itertools.count(data_in.shape[0])
+    for x in model.children_:
+        root_node = str(next(ii))
+        left_edge = pydot.Edge(root_node, x[0])
+        right_edge = pydot.Edge(root_node, x[1])
+        graph.add_edge(right_edge)
+        graph.add_edge(left_edge)
+    
+    # Define the fileName
+    fileName = os.path.basename(root)
+    graph.write_png(os.path.join(root,fileName+'_tree.png'))
+    logging.info('Figured saved {}'.format(os.path.join(root,fileName+"_tree.png")))
+
+def make_dendrogram(root = (), data_in = (), model_param = (), trueLabel = np.nan, labels = (), model = ()):
+    """Generate and save the dendrogram obtained from the clustering algorithm.
+    
+    This function generates the dendrogram obtained from the clustering algorithm applied on the data. The plots will be saved into the appropriate folder of the tree-like structure created into the root folder.
+    
+    Parameters
+    -----------
+    root : string
+        The root path for the output creation
+    
+    data_in : array of float, shape : (n_samples, n_dimensions)
+        The low space embedding estimated by the dimensinality reduction and manifold learning algorithm.
+        
+    model_param : dictionary
+        The parameters of the dimensionality reduciont and manifold learning algorithm.
+        
+    trueLabel : array of float, shape : n_samples
+        The true label vector; np.nan if missing (useful for plotting reasons).
+        
+    labels : array of int, shape : n_samples
+        The result of the clustering step.
+    
+    model : sklearn or sklearn-like object
+        An instance of the class that evaluates a step. In particular this must be a clustering model provided with the clusters_centers_ attribute (e.g. KMeans).
+    """
+    # tmp = np.hstack((np.arange(0,data_in.shape[0],1)[:,np.newaxis], data_in[:,0][:,np.newaxis], data_in[:,1][:,np.newaxis]))
+    tmp = data_in
+    col = ["$x_{"+str(i)+"}$" for i in np.arange(0,data_in.shape[1],1)]
+    df = pd.DataFrame(data = tmp, columns = col)
+    
+    sns.set(font="monospace")
+    g = sns.clustermap(df.corr(), method=model.linkage, metric=model.affinity)
+    
+    # Define the fileName
+    fileName = os.path.basename(root)
+    g.savefig(os.path.join(root,fileName+"_dendrogram.png"))
+    logging.info('Figured saved {}'.format(os.path.join(root,fileName+"_dendrogram.png")))
+    
+    
+def make_scatterplot(root = (), data_in = (), model_param = (), trueLabel = np.nan, labels = (), model = ()):
+    """Generate and save the scatter plot obtained from the clustering algorithm.
+    
+    This function generates the scatter plot obtained from the clustering algorithm applied on the data projected on a two-dimensional embedding. The color of the points in the plot is consistent with the label estimated by the algorithm. The plots will be saved into the appropriate folder of the tree-like structure created into the root folder.
+    
+    Parameters
+    -----------
+    root : string
+        The root path for the output creation
+    
+    data_in : array of float, shape : (n_samples, n_dimensions)
+        The low space embedding estimated by the dimensinality reduction and manifold learning algorithm.
+        
+    model_param : dictionary
+        The parameters of the dimensionality reduciont and manifold learning algorithm.
+        
+    trueLabel : array of float, shape : n_samples
+        The true label vector; np.nan if missing (useful for plotting reasons).
+        
+    labels : array of int, shape : n_samples
+        The result of the clustering step.
+    
+    model : sklearn or sklearn-like object
+        An instance of the class that evaluates a step. In particular this must be a clustering model provided with the clusters_centers_ attribute (e.g. KMeans).
+    """
+    n_samples, n_dim = data_in.shape
+    
+    # Define plot color
+    y = labels
+    _hue = 'Estimated Labels'
+    
+    # Define the fileName
+    fileName = os.path.basename(root)
+    # Define the plot title
+    for i, t in enumerate(root.split(os.sep)): # something like ['results', 'ade_debug_', 'Standardize', 'PCA']
+        if t[0:5] == '_ade': break
+    title = str("$\mapsto$").join(root.split(os.sep)[i-2:])
+    
+    # Seaborn scatter Plot
+    X = data_in[:,:2]
+    df = pd.DataFrame(data = np.hstack((X,y[:,np.newaxis])), columns = ["$x_1$","$x_2$",_hue])
+    # Generate seaborn plot
+    g = sns.FacetGrid(df, hue=_hue, palette="Set1", size=5, legend_out=False)
+    g.map(plt.scatter, "$x_1$", "$x_2$", s=100, linewidth=.5, edgecolor="white")
+    if _hue != ' ': g.add_legend() #!! customize legend
+    plt.title(title)
+    
+    fileName = os.path.basename(root)
+    plt.savefig(os.path.join(root,fileName+"_scatter"))
+    logging.info('Figured saved {}'.format(os.path.join(root,fileName+"_scatter")))
+    
 
 def start(inputDict = (), rootFolder = (), y = np.nan, feat_names = (), class_names = ()):
     """Analyze the results of ade_run.
@@ -286,6 +432,13 @@ def start(inputDict = (), rootFolder = (), y = np.nan, feat_names = (), class_na
             if step_level == 'clustering':
                 if hasattr(mdl_obj, 'cluster_centers_'):
                     make_voronoi(root = os.path.join(rootFolder, outFolder), labels = step_out, trueLabel = y, model_param = step_param, data_in = step_in, model = voronoi_mdl_obj)
+                elif hasattr(mdl_obj, 'n_leaves_'):
+                    make_tree(root = os.path.join(rootFolder, outFolder), labels = step_out, trueLabel = y, model_param = step_param, data_in = step_in, model = mdl_obj)
+                    
+                    make_dendrogram(root = os.path.join(rootFolder, outFolder), labels = step_out, trueLabel = y, model_param = step_param, data_in = step_in, model = mdl_obj)
+                    
+                    make_scatterplot(root = os.path.join(rootFolder, outFolder), labels = step_out, trueLabel = y, model_param = step_param, data_in = step_in, model = mdl_obj)
+                    
                 est_clst_perf(root = os.path.join(rootFolder, outFolder), data_in = step_in, label = step_out, trueLabel = y)
                 
             

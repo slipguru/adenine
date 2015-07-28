@@ -124,7 +124,7 @@ def load(opt = 'custom', fileName_X = 'X.npy', fileName_y = 'y.npy'):
             data.target = b.fit_transform(data.data)
         elif opt.lower() == 'gauss':
             means = np.array([[-1,1,1,1],[0,-1,0,0],[1,1,-1,-1]])
-            sigmas = np.array([0.2, 0.2, 0.2])
+            sigmas = np.array([0.33, 0.33, 0.33])
             n = 333
             xx, yy = MixGauss(mu = means, std = sigmas, n_sample = n)
             # xx, yy = datasets.make_blobs(n_samples=500, centers=[[1, 1], [-1, -1], [1, -1]], cluster_std=0.3, n_features=3)
