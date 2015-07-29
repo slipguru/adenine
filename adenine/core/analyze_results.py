@@ -284,15 +284,19 @@ def make_tree(root = (), data_in = (), model_param = (), trueLabel = np.nan, lab
     import itertools
     import pydot
     
+    MAX_NODES = 150
+    
     graph = pydot.Dot(graph_type='graph')
     
     ii = itertools.count(data_in.shape[0])
-    for x in model.children_:
+    for k, x in enumerate(model.children_):
         root_node = str(next(ii))
         left_edge = pydot.Edge(root_node, x[0])
         right_edge = pydot.Edge(root_node, x[1])
         graph.add_edge(right_edge)
         graph.add_edge(left_edge)
+        if k > MAX_NODES:
+            break
     
     # Define the fileName
     fileName = os.path.basename(root)
@@ -437,7 +441,7 @@ def start(inputDict = (), rootFolder = (), y = np.nan, feat_names = (), class_na
                     
                     make_dendrogram(root = os.path.join(rootFolder, outFolder), labels = step_out, trueLabel = y, model_param = step_param, data_in = step_in, model = mdl_obj)
                     
-                    make_scatterplot(root = os.path.join(rootFolder, outFolder), labels = step_out, trueLabel = y, model_param = step_param, data_in = step_in, model = mdl_obj)
+                make_scatterplot(root = os.path.join(rootFolder, outFolder), labels = step_out, trueLabel = y, model_param = step_param, data_in = step_in, model = mdl_obj)
                     
                 est_clst_perf(root = os.path.join(rootFolder, outFolder), data_in = step_in, label = step_out, trueLabel = y)
                 
