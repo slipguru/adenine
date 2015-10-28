@@ -95,7 +95,8 @@ def parse_dimred(key, content):
     if key.lower() == 'none':
         dr = DummyNone()
     elif key.lower() == 'pca':
-        dr = PCA(n_components = 'mle')
+        #dr = PCA(n_components = 'mle')
+        dr = PCA(n_components = 2)
     elif key.lower() == 'incrementalpca':
         dr = IncrementalPCA()
     elif key.lower() == 'randomizedpca':
