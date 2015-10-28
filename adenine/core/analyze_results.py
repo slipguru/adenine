@@ -35,7 +35,8 @@ def make_scatter(root = (), embedding = (), model_param = (), trueLabel = np.nan
     # raise ValueError('DEBUG')
     
     # Define plot color
-    if not np.isnan(trueLabel[0]):
+#    if not np.isnan(trueLabel[0]):
+    if not trueLabel[0] == np.nan:
         y = trueLabel # use the labels if provided
         _hue = 'Classes'
     else:

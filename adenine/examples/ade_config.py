@@ -36,5 +36,5 @@ step2 = {'PCA': [False], 'IncrementalPCA': [False], 'RandomizedPCA': [False],
 step3 = {'KMeans': [True, [3]],
          'KernelKMeans': [False, [3,['rbf','poly']]], #TODO
          'AP': [True], 'MS': [True], 'Spectral': [False, [3]],
-         'Hierarchical': [True, [3, ['manhattan','euclidean'],
+         'Hierarchical': [False, [3, ['manhattan','euclidean'],
                                  ['ward','complete','average']]]}
