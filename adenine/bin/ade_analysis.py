@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/ipython
 # -*- coding: utf-8 -*-
 
 import imp, sys, os
@@ -54,4 +54,3 @@ if __name__ == '__main__':
         else:
             # print("Starting the analysis of {}".format(fileName))
             main(os.path.join(sys.argv[1],fileName)) # Run analysis
-            

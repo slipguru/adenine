@@ -34,7 +34,7 @@ step2 = {'PCA': [False], 'IncrementalPCA': [False], 'RandomizedPCA': [False],
          'tSNE': [True], 'None': [False]}
 
 # --- Clustering --- #
-step3 = {'KMeans': [True, [5]],
+step3 = {'KMeans': [True, [3]],
          'KernelKMeans': [False, [3,['rbf','poly']]], #TODO
          'AP': [True], 'MS': [True], 'Spectral': [False, [3]],
          'Hierarchical': [False, [3, ['manhattan','euclidean'],
