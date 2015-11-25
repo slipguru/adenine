@@ -92,7 +92,8 @@ def make_voronoi(root = (), data_in = (), model_param = (), trueLabel = np.nan, 
     n_samples, n_dim = data_in.shape
     
     # Define plot color
-    if not np.isnan(trueLabel[0]):
+    #if not np.isnan(trueLabel[0]):
+    if not trueLabel[0] == np.nan:
         y = trueLabel # use the labels if provided
         _hue = 'Classes'
     else:
@@ -173,7 +174,8 @@ def est_clst_perf(root = (), data_in = (), label = (), trueLabel = np.nan, model
     if hasattr(model, 'inertia_'): # Sum of distances of samples to their closest cluster center.
         perf_out['inertia'] = mdl_obj.inertia_
     
-    if not np.isnan(np.array([trueLabel]).any()): # the next indexes need a gold standard
+    #if not np.isnan(np.array([trueLabel]).any()): # the next indexes need a gold standard
+    if not np.array([trueLabel]).any() == np.nan: # the next indexes need a gold standard
         perf_out['ari'] = metrics.adjusted_rand_score(trueLabel, label)
         perf_out['ami'] = metrics.adjusted_mutual_info_score(trueLabel, label)
         perf_out['homogeneity'] = metrics.homogeneity_score(trueLabel, label)
