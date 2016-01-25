@@ -262,7 +262,7 @@ def get_step_attributes(step = (), pos = ()):
             name += '_nonmetric'
     elif name == 'Hierarchical':
         name += '_'+param['affinity']+'_'+param['linkage']
-        if param['affinity'] == 'precomputed'
+        if param['affinity'] == 'precomputed':
             metric = 'precomputed'
 
     logging.info("{} : {}".format(level,name))
