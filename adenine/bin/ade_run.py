@@ -25,7 +25,7 @@ def main(config_file):
     # Define the ade.log file (a new one for each run)
     fileName = 'ade_'+exp_tag+'_'+make_time_flag()
     logFileName = os.path.join(root, fileName+'.log')
-    logging.basicConfig(filename=logFileName, level=logging.INFO, filemode = 'w')
+    logging.basicConfig(filename=logFileName, level=logging.INFO, filemode='w')
 
     # Pipelines Definition
     pipes = define_pipeline.parse_steps([config.step0, config.step1,
@@ -33,7 +33,7 @@ def main(config_file):
 
     # Pipelines Evaluation
     tic = time.time()
-    outFolder = pipelines.run(pipes = pipes, X = X, exp_tag = fileName, root = root)
+    outFolder = pipelines.run(pipes=pipes, X=X, exp_tag=fileName, root=root)
     tac = time.time()
 
     # Copy the ade_config just used into the outFolder

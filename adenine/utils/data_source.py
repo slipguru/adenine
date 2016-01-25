@@ -38,17 +38,17 @@ def MixGauss(mu = (), std = (), n_sample = ()):
 
     return X, y
 
-def load_custom(fileName_X = 'X.npy', fileName_y = 'y.npy'):
+def load_custom(fileName_X, fileName_y):
     """Load a custom dataset.
 
     This function loads the data matrix and the label vector returning a unique sklearn-like object dataSetObj.
 
     Parameters
     -----------
-    fileName_X : string, default : 'X.npy'
+    fileName_X : string
         The data matrix file name.
 
-    fileName_y : string, default : 'y.npy'
+    fileName_y : string
         The label vector file name.
 
     Returns
@@ -56,6 +56,8 @@ def load_custom(fileName_X = 'X.npy', fileName_y = 'y.npy'):
     data : sklearn.datasets.base.Bunch
         An instance of the sklearn.datasets.base.Bunch class, the meaningful attributes are .data, the data matrix, and .target, the label vector
     """
+    if fileName_X is None:
+        raise IOError("Filename for X must be specified with mode 'custom'.")
     if fileName_X.endswith('.npy'): # it an .npy file is provided
         try: # labels are not mandatory
             y = np.load(fileName_y)
@@ -64,16 +66,17 @@ def load_custom(fileName_X = 'X.npy', fileName_y = 'y.npy'):
             e.strerror = "No labels file provided"
             print("I/O error({0}): {1}".format(e.errno, e.strerror))
 
-        return datasets.base.Bunch(data = np.load(fileName_X), target = y)
+        return datasets.base.Bunch(data = np.load(fileName_X), target=y)
         # return dataSetObj(np.load(fileName_X),y)
 
     elif fileName_X.endswith('.csv') or fileName_X.endswith('.txt'):
-        dfx = pd.io.parsers.read_csv(fileName_X, header = 0, index_col = 0)
-        dfy = pd.io.parsers.read_csv(fileName_y, header = 0, index_col = 0)
-        return datasets.base.Bunch(data = dfx.as_matrix(), target = dfy.as_matrix().ravel())
+        dfx = pd.io.parsers.read_csv(fileName_X, header=0, index_col=0)
+        if fileName_y is not None:
+            y = pd.io.parsers.read_csv(fileName_y, header=0, index_col=0).as_matrix().ravel()
+        return datasets.base.Bunch(data=dfx.as_matrix(), target=y)
 
 
-def load(opt = 'custom', fileName_X = 'X.npy', fileName_y = 'y.npy'):
+def load(opt='custom', fileName_X=None, fileName_y=None):
     """Load a specified dataset.
 
     This function can be used either to load one of the standard scikit-learn datasets or a different dataset saved as X.npy Y.npy in the working directory.
@@ -82,10 +85,10 @@ def load(opt = 'custom', fileName_X = 'X.npy', fileName_y = 'y.npy'):
     -----------
     opt : {'iris', 'digits', 'diabetes', 'boston', 'blobs','custom'}, default: 'custom'
 
-    fileName_X : string, default : 'X.npy'
+    fileName_X : string, default : None
         The data matrix file name.
 
-    fileName_y : string, default : 'y.npy'
+    fileName_y : string, default : None
         The label vector file name.
 
     Returns
@@ -127,9 +130,11 @@ def load(opt = 'custom', fileName_X = 'X.npy', fileName_y = 'y.npy'):
     X, y = data.data, data.target
     try:
         feat_names = data.features_names
-        class_names = data.target_names
     except:
         feat_names = range(0,X.shape[1])
+    try:
+        class_names = data.target_names
+    except:
         class_names = 0
 
     return X, y, feat_names, class_names
