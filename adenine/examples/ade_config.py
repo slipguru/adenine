@@ -15,7 +15,8 @@ output_root_folder = 'results'
 # X, y, feat_names, class_names = data_source.load('diabetes')
 # X, y, feat_names, class_names = data_source.load('boston')
 # X, y, feat_names, class_names = data_source.load('custom', 'X.npy', 'y.npy')
-X, y, feat_names, class_names = data_source.load('custom', 'X.csv', 'y.csv')
+# X, y, feat_names, class_names = data_source.load('custom', 'X.csv', 'y.csv')
+X, y, feat_names, class_names = data_source.load('custom', '/home/fede/src/adenine/adenine/examples/TM_matrix.csv')
 
 # -----------------------  PIPELINE DEFINITION ------------------------ #
 
@@ -34,8 +35,9 @@ step2 = {'PCA': [False], 'IncrementalPCA': [False], 'RandomizedPCA': [False],
          'tSNE': [False], 'None': [False]}
 
 # --- Clustering --- #
-step3 = {'KMeans': [True, [5]],
+step3 = {'KMeans': [False, [5]],
          'KernelKMeans': [False, [3,['rbf','poly']]], #TODO
-         'AP': [True], 'MS': [True], 'Spectral': [False, [3]],
-         'Hierarchical': [False, [3, ['manhattan','euclidean'],
-                                 ['ward','complete','average']]]}
+         'AP': [True], 'MS': [False], 'Spectral': [False, [3]],
+         #'Hierarchical': [False, [3, ['manhattan','euclidean'], ['ward','complete','average']]]
+         'Hierarchical': [True, [3, ['precomputed'], ['ward']]]
+         }

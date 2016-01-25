@@ -36,12 +36,12 @@ def make_scatter(root = (), embedding = (), model_param = (), trueLabel = np.nan
 
     # Define plot color
 #    if not np.isnan(trueLabel[0]):
-    if not trueLabel[0] == np.nan:
-        y = trueLabel # use the labels if provided
-        _hue = 'Classes'
-    else:
+    if trueLabel is None or trueLabel == np.nan:
         y = np.zeros((n_samples))
         _hue = ' '
+    else:
+        y = trueLabel # use the labels if provided
+        _hue = 'Classes'
 
     # Define the fileName
     fileName = os.path.basename(root)
@@ -93,12 +93,13 @@ def make_voronoi(root = (), data_in = (), model_param = (), trueLabel = np.nan, 
 
     # Define plot color
     #if not np.isnan(trueLabel[0]):
-    if not trueLabel[0] == np.nan:
-        y = trueLabel # use the labels if provided
-        _hue = 'Classes'
-    else:
+
+    if trueLabel is None or trueLabel == np.nan:
         y = np.zeros((n_samples))
         _hue = ' '
+    else:
+        y = trueLabel # use the labels if provided
+        _hue = 'Classes'
 
     # Define the fileName
     fileName = os.path.basename(root)
@@ -145,7 +146,7 @@ def make_voronoi(root = (), data_in = (), model_param = (), trueLabel = np.nan, 
     logging.info('Figured saved {}'.format(os.path.join(root,fileName)))
 
 
-def est_clst_perf(root = (), data_in = (), label = (), trueLabel = np.nan, model = ()):
+def est_clst_perf(root=(), data_in=(), label=(), trueLabel=np.nan, model=(), metric='euclidean'):
     """Estimate the clustering performance.
 
     This function estimate the clustering performance by means of several indexes. Then eventually saves the results in a tree-like structure in the root folder.
@@ -170,7 +171,7 @@ def est_clst_perf(root = (), data_in = (), label = (), trueLabel = np.nan, model
     perf_out = dict()
 
     try:
-        perf_out['silhouette'] = metrics.silhouette_score(data_in, label, metric = 'euclidean')
+        perf_out['silhouette'] = metrics.silhouette_score(data_in, label, metric=metric)
 
         if hasattr(model, 'inertia_'): # Sum of distances of samples to their closest cluster center.
             perf_out['inertia'] = mdl_obj.inertia_
@@ -247,6 +248,7 @@ def get_step_attributes(step = (), pos = ()):
     voronoi_mdl_obj = step[6]
     if level.lower() == 'none' and pos == 0: level = 'preproc'
     if level.lower() == 'none' and pos == 1: level = 'dimred'
+    metric = 'euclidean'
 
     # Append additional parameters in the step name
     if name == 'KernelPCA':
@@ -260,9 +262,11 @@ def get_step_attributes(step = (), pos = ()):
             name += '_nonmetric'
     elif name == 'Hierarchical':
         name += '_'+param['affinity']+'_'+param['linkage']
+        if param['affinity'] == 'precomputed'
+            metric = 'precomputed'
 
     logging.info("{} : {}".format(level,name))
-    return name, level, param, data_out, data_in, mdl_obj, voronoi_mdl_obj
+    return name, level, param, data_out, data_in, mdl_obj, voronoi_mdl_obj, metric
 
 def make_tree(root = (), data_in = (), model_param = (), trueLabel = np.nan, labels = (), model = ()):
     """Generate and save the tree structure obtained from the clustering algorithm.
@@ -430,7 +434,7 @@ def start(inputDict = (), rootFolder = (), y = np.nan, feat_names = (), class_na
         for i, step in enumerate(sorted(inputDict[pipe].keys())):
 
             # Tree-like folder structure definition
-            step_name, step_level, step_param, step_out, step_in, mdl_obj, voronoi_mdl_obj = get_step_attributes(inputDict[pipe][step], pos = i)
+            step_name, step_level, step_param, step_out, step_in, mdl_obj, voronoi_mdl_obj, metric = get_step_attributes(inputDict[pipe][step], pos = i)
 
             # Output folder definition & creation
             outFolder = os.path.join(outFolder,step_name)
@@ -451,4 +455,4 @@ def start(inputDict = (), rootFolder = (), y = np.nan, feat_names = (), class_na
 
                 make_scatterplot(root = os.path.join(rootFolder, outFolder), labels = step_out, trueLabel = y, model_param = step_param, data_in = step_in, model = mdl_obj)
 
-                est_clst_perf(root = os.path.join(rootFolder, outFolder), data_in = step_in, label = step_out, trueLabel = y)
+                est_clst_perf(root = os.path.join(rootFolder, outFolder), data_in = step_in, label = step_out, trueLabel = y, metric=metric)

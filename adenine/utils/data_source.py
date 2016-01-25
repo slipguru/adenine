@@ -66,11 +66,16 @@ def load_custom(fileName_X, fileName_y):
             e.strerror = "No labels file provided"
             print("I/O error({0}): {1}".format(e.errno, e.strerror))
 
-        return datasets.base.Bunch(data = np.load(fileName_X), target=y)
+        return datasets.base.Bunch(data=np.load(fileName_X), target=y)
         # return dataSetObj(np.load(fileName_X),y)
 
     elif fileName_X.endswith('.csv') or fileName_X.endswith('.txt'):
-        dfx = pd.io.parsers.read_csv(fileName_X, header=0, index_col=0)
+        try:
+            dfx = pd.io.parsers.read_csv(fileName_X, header=0, index_col=0)
+        except IOError as e:
+            e.strerror = "Can't open {}".format(fileName_X)
+            print("I/O error({0}): {1}".format(e.errno, e.strerror))
+        y = None
         if fileName_y is not None:
             y = pd.io.parsers.read_csv(fileName_y, header=0, index_col=0).as_matrix().ravel()
         return datasets.base.Bunch(data=dfx.as_matrix(), target=y)
@@ -102,6 +107,7 @@ def load(opt='custom', fileName_X=None, fileName_y=None):
     feature_names : array of integers (or strings), shape : n_features
         The feature names; a range of number if missing.
     """
+    data = None
     try: # Select the dataset
         if opt.lower() == 'iris':
             data = datasets.load_iris()
