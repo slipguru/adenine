@@ -63,13 +63,13 @@ def parse_preproc(key, content):
         if key.lower() == 'none':
             pp = DummyNone()
         elif key.lower() == 'recenter':
-            pp = StandardScaler(with_mean = True, with_std = False)
+            pp = StandardScaler(with_mean=True, with_std=False)
         elif key.lower() == 'standardize':
-            pp = StandardScaler(with_mean = True, with_std = True)
+            pp = StandardScaler(with_mean=True, with_std=True)
         elif key.lower() == 'normalize':
-            pp = Normalizer(norm = content[1][0])
+            pp = Normalizer(norm=content[1][0])
         elif key.lower() == 'minmax':
-            pp = MinMaxScaler(feature_range = (content[1][0], content[1][1]))
+            pp = MinMaxScaler(feature_range=(content[1][0], content[1][1]))
         else:
             pp = DummyNone()
         return (key, pp)
@@ -96,26 +96,26 @@ def parse_dimred(key, content):
         dr = DummyNone()
     elif key.lower() == 'pca':
         #dr = PCA(n_components = 'mle')
-        dr = PCA(n_components = 2)
+        dr = PCA(n_components=2)
     elif key.lower() == 'incrementalpca':
         dr = IncrementalPCA()
     elif key.lower() == 'randomizedpca':
         dr = RandomizedPCA()
     elif key.lower() == 'kernelpca':
-        dr = KernelPCA(kernel = content, n_components = None)
+        dr = KernelPCA(kernel=content, n_components=None)
     elif key.lower() == 'isomap':
         dr = Isomap()
     elif key.lower() == 'lle':
-        dr = LocallyLinearEmbedding(method = content)
+        dr = LocallyLinearEmbedding(method=content)
     elif key.lower() == 'ltsa':
-        dr = LocallyLinearEmbedding(method = content)
+        dr = LocallyLinearEmbedding(method=content)
     elif key.lower() == 'se':
         dr = SpectralEmbedding()
     elif key.lower() == 'mds':
         if content == 'nonmetric':
-            dr = MDS(metric = 'False')
+            dr = MDS(metric='False')
         else:
-            dr = MDS(metric = 'True')
+            dr = MDS(metric='True')
     elif key.lower() == 'tsne':
         dr = TSNE()
     else:
@@ -141,16 +141,16 @@ def parse_clustering(key, content):
         A tuple made like that ('ClusteringName', clustObj), where clustObj implements the .fit method.
     """
     if key.lower() == 'kmeans':
-        cl = KMeans(n_clusters = content, init = 'k-means++', n_jobs = -1)
+        cl = KMeans(n_clusters=content, init='k-means++', n_jobs=-1)
     elif key.lower() == 'kernelkmeans': # TODO
         kernel = content[1]
-        cl = KMeans(n_clusters = content[0], init = 'k-means++', n_jobs = -1)
+        cl = KMeans(n_clusters=content[0], init='k-means++', n_jobs=-1)
     elif key.lower() == 'ap':
         cl = AffinityPropagation()
     elif key.lower() == 'ms':
         cl = MeanShift()
     elif key.lower() == 'spectral':
-        cl = SpectralClustering(n_clusters = content)
+        cl = SpectralClustering(n_clusters=content)
     elif key.lower() == 'hierarchical':
         if len(content) > 2:
             cl = AgglomerativeClustering(n_clusters=content[0], affinity=content[1], linkage=content[2])
@@ -192,8 +192,8 @@ def parse_steps(steps):
     i_lst_of_tpls = []
     if imputing['Impute'][0]: # On/Off flag
         for name in imputing['Replacement']:
-            imp = Imputer(missing_values = imputing['Missing'][0],
-                          strategy = name)
+            imp = Imputer(missing_values=imputing['Missing'][0],
+                          strategy=name)
             i_lst_of_tpls.append(("Impute_"+name, imp))
 
     # Parse the preprocessing options

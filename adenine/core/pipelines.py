@@ -89,7 +89,7 @@ def evaluate(level, step, X):
             res = step.predict(X)
     return res
 
-def run(pipes = (), X = (), exp_tag = 'def_tag', root = ''):
+def run(pipes=(), X=(), exp_tag='def_tag', root=''):
     """Fit and transform/predict some pipelines on some data.
 
     This function fits each pipeline in the input list on the provided data. The results are dumped into a pkl file as a dictionary of dictionaries of the form {'pipeID': {'stepID' : [alg_name, level, params, data_out, data_in, model_obj, voronoi_suitable_object], ...}, ...}. The model_obj is the sklearn model which has been fit on the dataset, the voronoi_suitable_object is the very same model but fitted on just the first two dimensions of the dataset. If a pipeline fails for some reasons the content of the stepID key is a list of np.nan.
@@ -136,7 +136,7 @@ def run(pipes = (), X = (), exp_tag = 'def_tag', root = ''):
             # 2. fit the model (whatever it is)
             if step[1].get_params().get('method') == 'hessian': # check hessian lle constraints
                 n_components = step[1].get_params().get('n_components')
-                step[1].set_params(n_neighbors = 1 + (n_components * (n_components + 3) / 2))
+                step[1].set_params(n_neighbors=1 + (n_components * (n_components + 3) / 2))
             try:
                 step[1].fit(X_curr)
                 # 3. evaluate (i.e. transform or predict according to the level)
