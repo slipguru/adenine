@@ -9,8 +9,9 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn import metrics
+from scipy.cluster.hierarchy import linkage as sp_linkage
 
-def make_scatter(root = (), embedding = (), model_param = (), trueLabel = np.nan):
+def make_scatter(root=(), embedding=(), model_param=(), trueLabel=np.nan):
     """Generate and save the scatter plot of the dimensionality reduced data set.
 
     This function generates the scatter plot representing the dimensionality reduced data set. The plots will be saved into the root folder in a tree-like structure.
@@ -36,7 +37,7 @@ def make_scatter(root = (), embedding = (), model_param = (), trueLabel = np.nan
 
     # Define plot color
 #    if not np.isnan(trueLabel[0]):
-    if trueLabel is None or trueLabel == np.nan:
+    if trueLabel is None or trueLabel[0] == np.nan:
         y = np.zeros((n_samples))
         _hue = ' '
     else:
@@ -52,7 +53,7 @@ def make_scatter(root = (), embedding = (), model_param = (), trueLabel = np.nan
 
     # Create pandas data frame (needed by sns)
     X = embedding[:,:2]
-    df = pd.DataFrame(data = np.hstack((X,y[:,np.newaxis])), columns = ["$x_1$","$x_2$",_hue])
+    df = pd.DataFrame(data=np.hstack((X,y[:,np.newaxis])), columns=["$x_1$","$x_2$",_hue])
     # Generate seaborn plot
     g = sns.FacetGrid(df, hue=_hue, palette="Set1", size=5, legend_out=False)
     g.map(plt.scatter, "$x_1$", "$x_2$", s=100, linewidth=.5, edgecolor="white")
@@ -64,7 +65,7 @@ def make_scatter(root = (), embedding = (), model_param = (), trueLabel = np.nan
     logging.info('Figured saved {}'.format(os.path.join(root,fileName)))
     plt.close()
 
-def make_voronoi(root = (), data_in = (), model_param = (), trueLabel = np.nan, labels = (), model = ()):
+def make_voronoi(root=(), data_in=(), model_param=(), trueLabel=np.nan, labels=(), model=()):
     """Generate and save the Voronoi tessellation obtained from the clustering algorithm.
 
     This function generates the Voronoi tessellation obtained from the clustering algorithm applied on the data projected on a two-dimensional embedding. The plots will be saved into the appropriate folder of the tree-like structure created into the root folder.
@@ -110,7 +111,7 @@ def make_voronoi(root = (), data_in = (), model_param = (), trueLabel = np.nan, 
 
     # Seaborn scatter Plot
     X = data_in[:,:2]
-    df = pd.DataFrame(data = np.hstack((X,y[:,np.newaxis])), columns = ["$x_1$","$x_2$",_hue])
+    df = pd.DataFrame(data=np.hstack((X,y[:,np.newaxis])), columns=["$x_1$","$x_2$",_hue])
     # Generate seaborn plot
     g = sns.FacetGrid(df, hue=_hue, palette="Set1", size=5, legend_out=False)
     g.map(plt.scatter, "$x_1$", "$x_2$", s=100, linewidth=.5, edgecolor="white")
@@ -119,7 +120,7 @@ def make_voronoi(root = (), data_in = (), model_param = (), trueLabel = np.nan, 
 
     # Add centroids
     if hasattr(model, 'cluster_centers_'):
-        plt.scatter(model.cluster_centers_[:,0], model.cluster_centers_[:,1], s = 100, marker = 'h', c = 'w')
+        plt.scatter(model.cluster_centers_[:,0], model.cluster_centers_[:,1], s=100, marker='h', c='w')
 
     # Make and add to the Plot the decision boundary.
     npoints = 1000 # the number of points in that makes the background. Reducing this will decrease the quality of the voronoi background
@@ -135,8 +136,8 @@ def make_voronoi(root = (), data_in = (), model_param = (), trueLabel = np.nan, 
     Z = Z.reshape(xx.shape)
 
     plt.imshow(Z, interpolation='nearest',
-               extent = (xx.min(), xx.max(), yy.min(), yy.max()),
-               cmap=plt.get_cmap('Pastel1'), aspect = 'auto', origin = 'lower')
+               extent=(xx.min(), xx.max(), yy.min(), yy.max()),
+               cmap=plt.get_cmap('Pastel1'), aspect='auto', origin='lower')
 
     plt.xlim([xx.min(), xx.max()])
     plt.ylim([yy.min(), yy.max()])
@@ -177,7 +178,8 @@ def est_clst_perf(root=(), data_in=(), label=(), trueLabel=np.nan, model=(), met
             perf_out['inertia'] = mdl_obj.inertia_
 
         #if not np.isnan(np.array([trueLabel]).any()): # the next indexes need a gold standard
-        if not np.array([trueLabel]).any() == np.nan: # the next indexes need a gold standard
+        # if not np.array([trueLabel]).any() == np.nan: # the next indexes need a gold standard
+        if trueLabel is not None and not trueLabel == np.nan: # the next indexes need a gold standard
             perf_out['ari'] = metrics.adjusted_rand_score(trueLabel, label)
             perf_out['ami'] = metrics.adjusted_mutual_info_score(trueLabel, label)
             perf_out['homogeneity'] = metrics.homogeneity_score(trueLabel, label)
@@ -206,7 +208,7 @@ def est_clst_perf(root=(), data_in=(), label=(), trueLabel=np.nan, model=(), met
     logging.info("Dumped : {}".format(os.path.join(root,fileName+'.pkl')))
 
 
-def get_step_attributes(step = (), pos = ()):
+def get_step_attributes(step=(), pos=()):
     """Get the attributes of the input step.
 
     This function returns the attributes (i.e. level, name, outcome) of the input step. This comes handy when dealing with steps with more than one parameter (e.g. KernelPCA 'poly' or 'rbf').
@@ -268,7 +270,7 @@ def get_step_attributes(step = (), pos = ()):
     logging.info("{} : {}".format(level,name))
     return name, level, param, data_out, data_in, mdl_obj, voronoi_mdl_obj, metric
 
-def make_tree(root = (), data_in = (), model_param = (), trueLabel = np.nan, labels = (), model = ()):
+def make_tree(root=(), data_in=(), model_param=(), trueLabel=np.nan, labels=(), model=()):
     """Generate and save the tree structure obtained from the clustering algorithm.
 
     This function generates the tree obtained from the clustering algorithm applied on the data. The plots will be saved into the appropriate folder of the tree-like structure created into the root folder.
@@ -310,12 +312,12 @@ def make_tree(root = (), data_in = (), model_param = (), trueLabel = np.nan, lab
         if k > MAX_NODES:
             break
 
-    # Define the fileName
-    fileName = os.path.basename(root)
-    graph.write_png(os.path.join(root,fileName+'_tree.png'))
-    logging.info('Figured saved {}'.format(os.path.join(root,fileName+"_tree.png")))
+    # Define the filename
+    filename = os.path.join(root, os.path.basename(root)+'_tree.png')
+    graph.write_png(filename)
+    logging.info('Figured saved {}'.format(filename))
 
-def make_dendrogram(root = (), data_in = (), model_param = (), trueLabel = np.nan, labels = (), model = ()):
+def make_dendrogram(root=(), data_in=(), model_param=(), trueLabel=np.nan, labels=(), model=()):
     """Generate and save the dendrogram obtained from the clustering algorithm.
 
     This function generates the dendrogram obtained from the clustering algorithm applied on the data. The plots will be saved into the appropriate folder of the tree-like structure created into the root folder.
@@ -342,19 +344,23 @@ def make_dendrogram(root = (), data_in = (), model_param = (), trueLabel = np.na
     """
     # tmp = np.hstack((np.arange(0,data_in.shape[0],1)[:,np.newaxis], data_in[:,0][:,np.newaxis], data_in[:,1][:,np.newaxis]))
     tmp = data_in
-    col = ["$x_{"+str(i)+"}$" for i in np.arange(0,data_in.shape[1],1)]
-    df = pd.DataFrame(data = tmp, columns = col)
+    col = ["$x_{"+str(i)+"}$" for i in np.arange(0, data_in.shape[1], 1)]
+    df = pd.DataFrame(data=tmp, columns=col)
 
     sns.set(font="monospace")
-    g = sns.clustermap(df.corr(), method=model.linkage, metric=model.affinity)
+    if model.affinity == 'precomputed':
+        Z = sp_linkage(tmp, method='median', metric='euclidean')
+        g = sns.clustermap(df.corr(), method=model.linkage, row_linkage=Z, col_linkage=Z)
+    else:
+        g = sns.clustermap(df.corr(), method=model.linkage, metric=model.affinity)
 
     # Define the fileName
-    fileName = os.path.basename(root)
-    g.savefig(os.path.join(root,fileName+"_dendrogram.png"))
-    logging.info('Figured saved {}'.format(os.path.join(root,fileName+"_dendrogram.png")))
+    filename = os.path.join(root, os.path.basename(root)+'_dendrogram.png')
+    g.savefig(filename)
+    logging.info('Figured saved {}'.format(filename))
 
 
-def make_scatterplot(root = (), data_in = (), model_param = (), trueLabel = np.nan, labels = (), model = ()):
+def make_scatterplot(root=(), data_in=(), model_param=(), trueLabel=np.nan, labels=(), model=()):
     """Generate and save the scatter plot obtained from the clustering algorithm.
 
     This function generates the scatter plot obtained from the clustering algorithm applied on the data projected on a two-dimensional embedding. The color of the points in the plot is consistent with the label estimated by the algorithm. The plots will be saved into the appropriate folder of the tree-like structure created into the root folder.
@@ -394,7 +400,7 @@ def make_scatterplot(root = (), data_in = (), model_param = (), trueLabel = np.n
 
     # Seaborn scatter Plot
     X = data_in[:,:2]
-    df = pd.DataFrame(data = np.hstack((X,y[:,np.newaxis])), columns = ["$x_1$","$x_2$",_hue])
+    df = pd.DataFrame(data=np.hstack((X,y[:,np.newaxis])), columns=["$x_1$","$x_2$",_hue])
     # Generate seaborn plot
     g = sns.FacetGrid(df, hue=_hue, palette="Set1", size=5, legend_out=False)
     g.map(plt.scatter, "$x_1$", "$x_2$", s=100, linewidth=.5, edgecolor="white")
@@ -406,7 +412,7 @@ def make_scatterplot(root = (), data_in = (), model_param = (), trueLabel = np.n
     logging.info('Figured saved {}'.format(os.path.join(root,fileName+"_scatter")))
 
 
-def start(inputDict = (), rootFolder = (), y = np.nan, feat_names = (), class_names = ()):
+def start(inputDict=(), rootFolder=(), y=np.nan, feat_names=(), class_names=()):
     """Analyze the results of ade_run.
 
     This function analyze the dictionary generated by ade_run, generates the plots, and saves them in a tree-like folder structure in rootFolder.
@@ -429,12 +435,14 @@ def start(inputDict = (), rootFolder = (), y = np.nan, feat_names = (), class_na
         The class names; a range of numbers if missing.
     """
     for pipe in inputDict: # iterating over a dictionary gives you the keys
+        print("Analizing {} ...".format(pipe))
         outFolder = '' # where the results will be placed
         logging.info("------\n{} : \n".format(pipe))
         for i, step in enumerate(sorted(inputDict[pipe].keys())):
 
             # Tree-like folder structure definition
-            step_name, step_level, step_param, step_out, step_in, mdl_obj, voronoi_mdl_obj, metric = get_step_attributes(inputDict[pipe][step], pos = i)
+            step_name, step_level, step_param, step_out, step_in, mdl_obj, voronoi_mdl_obj, metric = get_step_attributes(inputDict[pipe][step], pos=i)
+
 
             # Output folder definition & creation
             outFolder = os.path.join(outFolder,step_name)
@@ -443,16 +451,16 @@ def start(inputDict = (), rootFolder = (), y = np.nan, feat_names = (), class_na
 
             # Launch analysis
             if step_level == 'dimred':
-                make_scatter(root = os.path.join(rootFolder, outFolder), embedding = step_out, trueLabel = y, model_param = step_param)
+                make_scatter(root=os.path.join(rootFolder, outFolder), embedding=step_out, trueLabel=y, model_param=step_param)
                 plt.clf()
             if step_level == 'clustering':
                 if hasattr(mdl_obj, 'cluster_centers_'):
-                    make_voronoi(root = os.path.join(rootFolder, outFolder), labels = step_out, trueLabel = y, model_param = step_param, data_in = step_in, model = voronoi_mdl_obj)
+                    make_voronoi(root=os.path.join(rootFolder, outFolder), labels=step_out, trueLabel=y, model_param=step_param, data_in=step_in, model=voronoi_mdl_obj)
                 elif hasattr(mdl_obj, 'n_leaves_'):
-                    make_tree(root = os.path.join(rootFolder, outFolder), labels = step_out, trueLabel = y, model_param = step_param, data_in = step_in, model = mdl_obj)
+                    make_tree(root=os.path.join(rootFolder, outFolder), labels=step_out, trueLabel=y, model_param=step_param, data_in=step_in, model=mdl_obj)
 
-                    make_dendrogram(root = os.path.join(rootFolder, outFolder), labels = step_out, trueLabel = y, model_param = step_param, data_in = step_in, model = mdl_obj)
+                    make_dendrogram(root=os.path.join(rootFolder, outFolder), labels=step_out, trueLabel=y, model_param=step_param, data_in=step_in, model=mdl_obj)
 
-                make_scatterplot(root = os.path.join(rootFolder, outFolder), labels = step_out, trueLabel = y, model_param = step_param, data_in = step_in, model = mdl_obj)
+                make_scatterplot(root=os.path.join(rootFolder, outFolder), labels=step_out, trueLabel=y, model_param=step_param, data_in=step_in, model=mdl_obj)
 
-                est_clst_perf(root = os.path.join(rootFolder, outFolder), data_in = step_in, label = step_out, trueLabel = y, metric=metric)
+                est_clst_perf(root=os.path.join(rootFolder, outFolder), data_in=step_in, label=step_out, trueLabel=y, metric=metric)

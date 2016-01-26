@@ -152,7 +152,11 @@ def parse_clustering(key, content):
     elif key.lower() == 'spectral':
         cl = SpectralClustering(n_clusters = content)
     elif key.lower() == 'hierarchical':
-        cl = AgglomerativeClustering(n_clusters=content[0], affinity=content[1], linkage=content[2])
+        if len(content) > 2:
+            cl = AgglomerativeClustering(n_clusters=content[0], affinity=content[1], linkage=content[2])
+        else:
+            cl = AgglomerativeClustering(n_clusters=content[0], affinity=content[1])
+
     else:
         cl = DummyNone()
     return (key, cl)
@@ -216,11 +220,16 @@ def parse_steps(steps):
                 if len(clustering[key][1]) > 1: # discrimitate from 1 arg or 2+ args
                     if len(clustering[key][1]) > 2:
                         for k1, k2, k3 in modified_cartesian([clustering[key][1][0]], clustering[key][1][1], clustering[key][1][2]):
-                            if k2 != 'manhattan' and k3 != 'ward': # that doesn't work together
+                            if k2 is 'precomputed':
+                                cl_lst_of_tpls.append(parse_clustering(key, [k1,k2,'complete']))
+                            elif not (k2 is 'manhattan' and k3 is 'ward'): # that doesn't work together
                                 cl_lst_of_tpls.append(parse_clustering(key, [k1,k2,k3]))
                     else: # 2 args case
                         for k1, k2 in zip([clustering[key][1][0]], clustering[key][1][1]):
-                            cl_lst_of_tpls.append(parse_clustering(key, [k1,k2]))
+                            if k2 is 'precomputed':
+                                cl_lst_of_tpls.append(parse_clustering(key, [k1,k2,'complete']))
+                            else:
+                                cl_lst_of_tpls.append(parse_clustering(key, [k1,k2]))
                 else: # 1 arg case
                     for k in clustering[key][1]:
                         cl_lst_of_tpls.append(parse_clustering(key, k))
