@@ -28,7 +28,7 @@ from sklearn.cluster import AgglomerativeClustering
 class DummyNone:
     """Dummy class that does nothing.
 
-    It is an sklearn 'transforms', it implements both a fit and a transform method and it just returns the data in input. It has been created only for consistency with sklearn.
+    It is a sklearn 'transforms', it implements both a fit and a transform method and it just returns the data in input. It has been created only for consistency with sklearn.
     """
     def __init__(self):
         pass

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python -W ignore::DeprecationWarning
 # -*- coding: utf-8 -*-
 
 import os
@@ -349,8 +349,14 @@ def make_dendrogram(root=(), data_in=(), model_param=(), trueLabel=np.nan, label
 
     sns.set(font="monospace")
     if model.affinity == 'precomputed':
-        Z = sp_linkage(tmp, method='median', metric='euclidean')
-        g = sns.clustermap(df.corr(), method=model.linkage, row_linkage=Z, col_linkage=Z)
+        for method in ['single','complete','average','weighted','centroid','median','ward']:
+            print("Compute linkage matrix with metric={} ...".format(method))
+            Z = sp_linkage(tmp, method=method, metric='euclidean')
+            g = sns.clustermap(df.corr(), method=model.linkage, row_linkage=Z, col_linkage=Z)
+            filename = os.path.join(root, os.path.basename(root)+'_'+method+'_dendrogram.png')
+            g.savefig(filename)
+            logging.info('Figured saved {}'.format(filename))
+        return
     else:
         g = sns.clustermap(df.corr(), method=model.linkage, metric=model.affinity)
 

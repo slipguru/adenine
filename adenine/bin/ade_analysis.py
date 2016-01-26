@@ -1,4 +1,4 @@
-#!/usr/bin/ipython
+#!/usr/bin/python -W ignore::DeprecationWarning
 # -*- coding: utf-8 -*-
 
 import imp, sys, os
@@ -20,7 +20,7 @@ def main(dumpfile):
     # Initialize the log file
     fileName = 'results_'+os.path.basename(dumpfile)[0:-4]
     logFileName = os.path.join(os.path.dirname(dumpfile), fileName+'.log')
-    logging.basicConfig(filename=logFileName, level=logging.INFO, filemode = 'w')
+    logging.basicConfig(filename=logFileName, level=logging.INFO, filemode='w')
 
     # Load the results
     with open(dumpfile, 'r') as f:
@@ -28,7 +28,7 @@ def main(dumpfile):
 
     tic = time.time()
     # Analyze the pipelines
-    analyze_results.start(inputDict = res, rootFolder = os.path.dirname(dumpfile), y = y, feat_names = feat_names, class_names = class_names)
+    analyze_results.start(inputDict=res, rootFolder=os.path.dirname(dumpfile), y=y, feat_names=feat_names, class_names=class_names)
     tac = time.time()
     print("\n\nanalyze_results.start: Elapsed time : {}".format(tac-tic))
 
