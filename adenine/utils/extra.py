@@ -6,14 +6,14 @@ import time
 
 def modified_cartesian(*args):
     """Modified Cartesian product.
-    
+
     This function takes two (ore more) lists and returns their Cartesian product, if one of the two list is empty this function returns the non-empty one.
-    
+
     Parameters
     -----------
     *args : lists, length : two or more
         The group of input lists.
-        
+
     Returns
     -----------
     cp : list
@@ -23,18 +23,18 @@ def modified_cartesian(*args):
     nonempty = []
     for arg in args:
         if len(arg)>0:
-            nonempty.append(arg) 
+            nonempty.append(arg)
     # Cartesian product
     cp = []
     for c in product(*nonempty):
-        cp.append(list(c))        
+        cp.append(list(c))
     return cp
-        
+
 def make_time_flag():
     """Generate a time flag.
-    
+
     This function simply generates a time flag using the current time.
-        
+
     Returns
     -----------
     timeFlag : string
@@ -47,5 +47,10 @@ def make_time_flag():
     mi = str(time.localtime().tm_min)
     s = str(time.localtime().tm_sec)
     return h+':'+mi+':'+s+'_'+d+'-'+mo+'-'+y
-    
 
+
+def sec_to_time(seconds):
+    """Transform seconds into formatted time string"""
+    m, s = divmod(seconds, 60)
+    h, m = divmod(m, 60)
+    return "%02d:%02d:%02d" % (h, m, s)
