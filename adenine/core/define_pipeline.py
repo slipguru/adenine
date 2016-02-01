@@ -146,11 +146,17 @@ def parse_clustering(key, content):
         kernel = content[1]
         cl = KMeans(n_clusters=content[0], init='k-means++', n_jobs=-1)
     elif key.lower() == 'ap':
-        cl = AffinityPropagation()
+        if 'precomputed' in content:
+            cl = AffinityPropagation(affinity='precomputed')
+        else:
+            cl = AffinityPropagation()
     elif key.lower() == 'ms':
         cl = MeanShift()
     elif key.lower() == 'spectral':
-        cl = SpectralClustering(n_clusters=content)
+        if 'precomputed' in content:
+            cl = SpectralClustering(n_clusters=content[0], affinity='precomputed')
+        else:
+            cl = SpectralClustering(n_clusters=content)
     elif key.lower() == 'hierarchical':
         if len(content) > 2:
             cl = AgglomerativeClustering(n_clusters=content[0], affinity=content[1], linkage=content[2])
