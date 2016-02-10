@@ -17,6 +17,9 @@ output_root_folder = 'results'
 # X, y, feat_names, class_names = data_source.load('custom', 'X.npy', 'y.npy')
 # X, y, feat_names, class_names = data_source.load('custom', 'X.csv', 'y.csv')
 X, y, feat_names, class_names = data_source.load('custom', '/home/fede/src/adenine/adenine/examples/TM_matrix.csv')
+if not (X.T == X).all():
+    X = (X.T + X) / 2.
+    X = 1. - X
 
 # -----------------------  PIPELINE DEFINITION ------------------------ #
 
@@ -37,7 +40,8 @@ step2 = {'PCA': [False], 'IncrementalPCA': [False], 'RandomizedPCA': [False],
 # --- Clustering --- #
 step3 = {'KMeans': [False, [5]],
          'KernelKMeans': [False, [3,['rbf','poly']]], #TODO
-         'AP': [False], 'MS': [False], 'Spectral': [False, [3]],
+         'AP': [True, ['precomputed']], 'MS': [False],
+         'Spectral': [True, [3, ['precomputed']]],
          #'Hierarchical': [False, [3, ['manhattan','euclidean'], ['ward','complete','average']]]
          'Hierarchical': [True, [3, ['precomputed']]]
          }

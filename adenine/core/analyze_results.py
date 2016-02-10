@@ -361,8 +361,8 @@ def make_dendrogram(root=(), data_in=(), model_param=(), trueLabel=np.nan, label
         else:
             import sys
             sys.path.insert(0, '/home/fede/Dropbox/projects/ig_network')
-            from silhouette_score_plot import main
-            main(tmp)
+            from silhouette_score_plot import plot_avg_silhouette as main
+            main(1. - tmp)
         return
     else:
         g = sns.clustermap(df.corr(), method=model.linkage, metric=model.affinity)
@@ -373,7 +373,7 @@ def make_dendrogram(root=(), data_in=(), model_param=(), trueLabel=np.nan, label
     logging.info('Figured saved {}'.format(filename))
 
 
-def make_scatterplot(root=(), data_in=(), model_param=(), trueLabel=np.nan, labels=(), model=()):
+def make_scatterplot(root=(), data_in=(), model_param=(), trueLabel=np.nan, labels=(), model=(), n_dimensions=2):
     """Generate and save the scatter plot obtained from the clustering algorithm.
 
     This function generates the scatter plot obtained from the clustering algorithm applied on the data projected on a two-dimensional embedding. The color of the points in the plot is consistent with the label estimated by the algorithm. The plots will be saved into the appropriate folder of the tree-like structure created into the root folder.
@@ -412,12 +412,18 @@ def make_scatterplot(root=(), data_in=(), model_param=(), trueLabel=np.nan, labe
     title = str("$\mapsto$").join(root.split(os.sep)[i-2:])
 
     # Seaborn scatter Plot
-    X = data_in[:,:2]
-    df = pd.DataFrame(data=np.hstack((X,y[:,np.newaxis])), columns=["$x_1$","$x_2$",_hue])
-    # Generate seaborn plot
-    g = sns.FacetGrid(df, hue=_hue, palette="Set1", size=5, legend_out=False)
-    g.map(plt.scatter, "$x_1$", "$x_2$", s=100, linewidth=.5, edgecolor="white")
-    if _hue != ' ': g.add_legend() #!! customize legend
+    X = data_in[:,:n_dimensions]
+    if n_dimensions == 2:
+        df = pd.DataFrame(data=np.hstack((X,y[:,np.newaxis])), columns=["$x_1$","$x_2$",_hue])
+        # Generate seaborn plot
+        g = sns.FacetGrid(df, hue=_hue, palette="Set1", size=5, legend_out=False)
+        g.map(plt.scatter, "$x_1$", "$x_2$", s=100, linewidth=.5, edgecolor="white")
+        if _hue != ' ': g.add_legend() #!! customize legend
+    elif n_dimensions == 3:
+        from mpl_toolkits.mplot3d import Axes3D
+        f = plt.figure().gca(projection='3d')
+        f.scatter(X[:,0],X[:,1],X[:,2],y,c=y,cmap='hot')
+
     plt.title(title)
 
     fileName = os.path.basename(root)
