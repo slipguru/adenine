@@ -188,11 +188,7 @@ def parse_steps(steps):
     """
     max_n_pipes = 100 # avoiding unclear (too-long) outputs
     pipes = []       # a list of list of tuples input of sklearn Pipeline
-
-    imputing   = steps[0]
-    preproc    = steps[1]
-    dimred     = steps[2]
-    clustering = steps[3]
+    imputing, preproc, dimred, clustering = steps[:4]
 
     # Parse the imputing options
     i_lst_of_tpls = []
@@ -226,7 +222,7 @@ def parse_steps(steps):
                 if len(clustering[key][1]) > 1: # discrimitate from 1 arg or 2+ args
                     if len(clustering[key][1]) > 2:
                         for k1, k2, k3 in modified_cartesian([clustering[key][1][0]], clustering[key][1][1], clustering[key][1][2]):
-                            if k2 is 'precomputed':
+                            if k2 is 'precomputed': # the third element is ininfluent, but 'ward' would give an error
                                 cl_lst_of_tpls.append(parse_clustering(key, [k1,k2,'complete']))
                             elif not (k2 is 'manhattan' and k3 is 'ward'): # that doesn't work together
                                 cl_lst_of_tpls.append(parse_clustering(key, [k1,k2,k3]))
