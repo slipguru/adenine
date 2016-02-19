@@ -348,21 +348,23 @@ def make_dendrogram(root=(), data_in=(), model_param=(), trueLabel=np.nan, label
     df = pd.DataFrame(data=tmp, columns=col)
 
     if model.affinity == 'precomputed': # TODO sistemare, fede
+        # tmp is the distance matrix
         make_dendrograms = False
         if make_dendrograms:
             sns.set(font="monospace")
             for method in ['single','complete','average','weighted','centroid','median','ward']:
                 print("Compute linkage matrix with metric={} ...".format(method))
                 Z = sp_linkage(tmp, method=method, metric='euclidean')
-                g = sns.clustermap(df.corr(), method=model.linkage, row_linkage=Z, col_linkage=Z)
+                g = sns.clustermap(df.corr(), method=method, row_linkage=Z, col_linkage=Z)
                 filename = os.path.join(root, os.path.basename(root)+'_'+method+'_dendrogram.png')
                 g.savefig(filename)
                 logging.info('Figured saved {}'.format(filename))
         else:
-            import sys
-            sys.path.insert(0, '/home/fede/Dropbox/projects/ig_network')
-            from silhouette_score_plot import plot_avg_silhouette as main
-            main(1. - tmp)
+            try:
+                from plotting.silhouette_score_plot import plot_avg_silhouette
+                plot_avg_silhouette(tmp)
+            except:
+                print("Cannot import name {}".format('plotting'))
         return
     else:
         g = sns.clustermap(df.corr(), method=model.linkage, metric=model.affinity)
