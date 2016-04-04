@@ -1,0 +1,14 @@
+\select@language {english}
+\contentsline {chapter}{\numberline {1}User documentation}{3}{chapter.1}
+\contentsline {section}{\numberline {1.1}Quick start tutorial}{3}{section.1.1}
+\contentsline {subsection}{\numberline {1.1.1}Installation from sources}{3}{subsection.1.1.1}
+\contentsline {subsection}{\numberline {1.1.2}Input data format}{3}{subsection.1.1.2}
+\contentsline {subsection}{\numberline {1.1.3}Configuration File}{4}{subsection.1.1.3}
+\contentsline {subsection}{\numberline {1.1.4}Experiment runner}{4}{subsection.1.1.4}
+\contentsline {subsection}{\numberline {1.1.5}Results analysis}{5}{subsection.1.1.5}
+\contentsline {section}{\numberline {1.2}API}{5}{section.1.2}
+\contentsline {subsection}{\numberline {1.2.1}Pipeline utilities}{5}{subsection.1.2.1}
+\contentsline {subsection}{\numberline {1.2.2}Input Data}{11}{subsection.1.2.2}
+\contentsline {subsection}{\numberline {1.2.3}Extra tools}{12}{subsection.1.2.3}
+\contentsline {chapter}{Python Module Index}{15}{section*.28}
+\contentsline {chapter}{Python Module Index}{17}{section*.29}

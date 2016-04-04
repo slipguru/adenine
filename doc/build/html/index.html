@@ -1,0 +1,890 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ADENINE (A Data ExploratioN pIpeliNE) &mdash; adenine 0.1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/slipGuru.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="adenine 0.1.0 documentation" href="#" />
+    <link rel="next" title="Quick start tutorial" href="tutorial.html" />
+<meta name="keywords"
+      content="SlipGuru, 'University of Genoa', statistical learning,
+      computational biology, Python, distributed, computing, parallel" />
+<map id="logosmap" name="logosmap">
+    <area shape="rect" alt="SlipGURU" title="SlipGURU" coords="0,0,89,112"
+          href="http://slipguru.disi.unige.it/" />
+    <area shape="rect" alt="Dipartimento di Informatica e Scienze dell'Informazione"
+          title="Dipartimento di Informatica e Scienze dell'Informazione"
+          coords="95,4,200,34" href="http://www.disi.unige.it/" />
+    <area shape="rect" alt="Università Degli Studi di Genova"
+          title="Università Degli Studi di Genova" coords="124,48,171,107"
+          href="http://www.unige.it/" />
+</map>
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="np-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="tutorial.html" title="Quick start tutorial"
+             accesskey="N">next</a> |</li>
+        <li><a href="#">adenine 0.1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="adenine-a-data-exploration-pipeline">
+<h1>ADENINE (A Data ExploratioN pIpeliNE)<a class="headerlink" href="#adenine-a-data-exploration-pipeline" title="Permalink to this headline">¶</a></h1>
+<p><strong>adenine</strong> is a machine learning and data mining Python pipeline that helps you to answer this tedious question: are my data relevant with the problem I&#8217;m dealing with?</p>
+<p>The main structure of adenine can be summarized in the following 3 steps.</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><strong>Preprocessing:</strong> Have you ever wondered what would have changed if only  your data have been preprocessed in a different way? Or is data preprocessing is a good idea at all? adenine offers several preprocessing procedures, such as: data centering, Min-Max scaling, standardization or normalization and allows you to compare the results of the analysis conducted with different starting point.</li>
+<li><strong>Dimensionality Reduction:</strong> In the context of data exploration, this  phase becomes particularly helpful for high dimensional data (e.g. -omics scenario). This step, generically named DR, may actually include some manifold learning   (such as Isomap, Multidimensional Scaling, etc), supervised (Linear   Discriminant Analysis) and unsupervised (Principal Component Analysis, kernel PCA) techniques.</li>
+<li><strong>Clustering:</strong> This section aims at grouping data into clusters without taking into account the class labels. Several techniques such as K-Means, Spectral or Hierarchical clustering will work on both original and dimensionality reduced data.</li>
+</ol>
+</div></blockquote>
+<p>The final output of adenine is a compact and textual representation of the results obtained from the pipelines made with each possible combination of the algorithms
+implemented at each step.</p>
+<div class="section" id="user-documentation">
+<h2>User documentation<a class="headerlink" href="#user-documentation" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Quick start tutorial</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#installation-from-sources">Installation from sources</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#input-data-format">Input data format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#configuration-file">Configuration File</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#experiment-runner">Experiment runner</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#results-analysis">Results analysis</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="api">
+<span id="id1"></span><h3>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h3>
+<div class="toctree-wrapper compound">
+<ul class="simple">
+</ul>
+</div>
+<div class="section" id="module-adenine.core.define_pipeline">
+<span id="pipeline-utilities"></span><h4>Pipeline utilities<a class="headerlink" href="#module-adenine.core.define_pipeline" title="Permalink to this headline">¶</a></h4>
+<dl class="class">
+<dt id="adenine.core.define_pipeline.DummyNone">
+<em class="property">class </em><tt class="descclassname">adenine.core.define_pipeline.</tt><tt class="descname">DummyNone</tt><a class="reference internal" href="_modules/adenine/core/define_pipeline.html#DummyNone"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adenine.core.define_pipeline.DummyNone" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dummy class that does nothing.</p>
+<p>It is a sklearn &#8216;transforms&#8217;, it implements both a fit and a transform method and it just returns the data in input. It has been created only for consistency with sklearn.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="adenine.core.define_pipeline.parse_preproc">
+<tt class="descclassname">adenine.core.define_pipeline.</tt><tt class="descname">parse_preproc</tt><big>(</big><em>key</em>, <em>content</em><big>)</big><a class="reference internal" href="_modules/adenine/core/define_pipeline.html#parse_preproc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adenine.core.define_pipeline.parse_preproc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse the options of the preprocessing step.</p>
+<p>This function parses the preprocessing step coded as dictionary in the ade_config file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>key</strong> : {&#8216;None&#8217;, &#8216;Recenter&#8217;, &#8216;Standardize&#8217;, &#8216;Normalize&#8217;, &#8216;MinMax&#8217;}</p>
+<blockquote>
+<div><p>The type of selected preprocessing step.</p>
+</div></blockquote>
+<p><strong>content</strong> : list, len</p>
+<blockquote>
+<div><p>A list containing the On/Off flag and a nested list of extra parameters (e.g. [min,max] for Min-Max scaling).</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>pptpl</strong> : tuple</p>
+<blockquote class="last">
+<div><p>A tuple made like that (&#8216;PreprocName&#8217;, preprocObj), where preprocObj is an sklearn &#8216;transforms&#8217; (i.e. it has bot a .fit and .transform method).</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="adenine.core.define_pipeline.parse_dimred">
+<tt class="descclassname">adenine.core.define_pipeline.</tt><tt class="descname">parse_dimred</tt><big>(</big><em>key</em>, <em>content</em><big>)</big><a class="reference internal" href="_modules/adenine/core/define_pipeline.html#parse_dimred"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adenine.core.define_pipeline.parse_dimred" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse the options of the dimensionality reduction step.</p>
+<p>This function does the same as parse_preproc but works on the dimensionality reduction &amp; manifold learning options.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>key</strong> : {&#8216;None&#8217;, &#8216;PCA&#8217;, &#8216;KernelPCA&#8217;, &#8216;Isomap&#8217;, &#8216;LLE&#8217;, &#8216;SE&#8217;, &#8216;MDS&#8217;, &#8216;tSNE&#8217;}</p>
+<blockquote>
+<div><p>The selected dimensionality reduction algorithm.</p>
+</div></blockquote>
+<p><strong>content</strong> : list, len</p>
+<blockquote>
+<div><p>A list containing the On/Off flag and a nested list of extra parameters (e.g. [&#8216;rbf,&#8217;poly&#8217;] for KernelPCA).</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>drtpl</strong> : tuple</p>
+<blockquote class="last">
+<div><p>A tuple made like that (&#8216;DimRedName&#8217;, dimredObj), where dimredObj is an sklearn &#8216;transforms&#8217; (i.e. it has bot a .fit and .transform method).</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="adenine.core.define_pipeline.parse_clustering">
+<tt class="descclassname">adenine.core.define_pipeline.</tt><tt class="descname">parse_clustering</tt><big>(</big><em>key</em>, <em>content</em><big>)</big><a class="reference internal" href="_modules/adenine/core/define_pipeline.html#parse_clustering"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adenine.core.define_pipeline.parse_clustering" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse the options of the clustering step.</p>
+<p>This function does the same as parse_preproc but works on the clustering options.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>key</strong> : {&#8216;KMeans&#8217;, &#8216;KernelKMeans&#8217;, &#8216;AP&#8217;, &#8216;MS&#8217;, &#8216;Spectral&#8217;, &#8216;Hierarchical&#8217;}</p>
+<blockquote>
+<div><p>The selected dimensionality reduction algorithm.</p>
+</div></blockquote>
+<p><strong>content</strong> : list, len</p>
+<blockquote>
+<div><p>A list containing the On/Off flag and a nested list of extra parameters (e.g. [&#8216;rbf,&#8217;poly&#8217;] for KernelKMeans).</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>cltpl</strong> : tuple</p>
+<blockquote class="last">
+<div><p>A tuple made like that (&#8216;ClusteringName&#8217;, clustObj), where clustObj implements the .fit method.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="adenine.core.define_pipeline.parse_steps">
+<tt class="descclassname">adenine.core.define_pipeline.</tt><tt class="descname">parse_steps</tt><big>(</big><em>steps</em><big>)</big><a class="reference internal" href="_modules/adenine/core/define_pipeline.html#parse_steps"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adenine.core.define_pipeline.parse_steps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse the steps and create the pipelines.</p>
+<p>This function parses the steps coded as dictionaries in the ade_config files and creates a sklearn pipeline objects for each combination of imputing -&gt; preprocessing -&gt; dimensinality reduction -&gt; clustering algorithms.</p>
+<dl class="docutils">
+<dt>A typical step may be of the following form:</dt>
+<dd>stepX = {&#8216;Algorithm&#8217;: [On/Off flag, [variant0, ...]]}</dd>
+</dl>
+<p>where On/Off flag = {True, False} and variantX = &#8216;string&#8217;.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>steps</strong> : list of dictionaries</p>
+<blockquote>
+<div><p>A list of (usually 4) dictionaries that contains the details of the pipelines to implement.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>pipes</strong> : list of sklearn.pipeline.Pipeline</p>
+<blockquote class="last">
+<div><p>The returned list must contain every possible combination of imputing -&gt; preprocessing -&gt; dimensionality reduction -&gt; clustering algorithms. The maximum number of pipelines that could be generated is 20, even if the number of combinations is higher.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<span class="target" id="module-adenine.core.pipelines"></span><dl class="function">
+<dt id="adenine.core.pipelines.create">
+<tt class="descclassname">adenine.core.pipelines.</tt><tt class="descname">create</tt><big>(</big><em>pdef</em><big>)</big><a class="reference internal" href="_modules/adenine/core/pipelines.html#create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adenine.core.pipelines.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Scikit-learn Pipelines objects creation (deprecated).</p>
+<p>This function creates a list of sklearn Pipeline objects starting from the list of list of tuples given in input that could be created using the adenine.core.define_pipeline module.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>pdef</strong> : list of list of tuples</p>
+<blockquote>
+<div><p>This arguments contains the specification needed by sklearn in order to create a working Pipeline object.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>pipes</strong> : list of sklearn.pipeline.Pipeline objects</p>
+<blockquote class="last">
+<div><p>The list of Piplines, each of them can be fitted and trasformed with some data.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="adenine.core.pipelines.which_level">
+<tt class="descclassname">adenine.core.pipelines.</tt><tt class="descname">which_level</tt><big>(</big><em>label</em><big>)</big><a class="reference internal" href="_modules/adenine/core/pipelines.html#which_level"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adenine.core.pipelines.which_level" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define the step level according to the input step label.</p>
+<p>This function return the level (i.e.: imputing, preproc, dimred, clustring, None) according to the step label provided as input.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>label</strong> : string</p>
+<blockquote>
+<div><p>This is the step level as it is reported in the ade_config file.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>level</strong> : {imputing, preproc, dimred, clustering, None}</p>
+<blockquote class="last">
+<div><p>The appropriate level of the input step.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="adenine.core.pipelines.evaluate">
+<tt class="descclassname">adenine.core.pipelines.</tt><tt class="descname">evaluate</tt><big>(</big><em>level</em>, <em>step</em>, <em>X</em><big>)</big><a class="reference internal" href="_modules/adenine/core/pipelines.html#evaluate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adenine.core.pipelines.evaluate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transform or predict according to the input level.</p>
+<p>This function uses the transform or the predict method on the input sklearn-like step according to its level (i.e. imputing, preproc, dimred, clustering, none).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>level</strong> : {&#8216;imputing&#8217;, &#8216;preproc&#8217;, &#8216;dimred&#8217;, &#8216;clustering&#8217;, &#8216;None&#8217;}</p>
+<blockquote>
+<div><p>The step level.</p>
+</div></blockquote>
+<p><strong>step</strong> : sklearn-like object</p>
+<blockquote>
+<div><p>This might be an Imputer, or a PCA, or a KMeans (and so on...) sklearn-like object.</p>
+</div></blockquote>
+<p><strong>X</strong> : array of float, shape</p>
+<blockquote>
+<div><p>The input data matrix.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>res</strong> : array of float</p>
+<blockquote class="last">
+<div><p>A matrix projection in case of dimred, a label vector in case of clustering, and so on.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="adenine.core.pipelines.run">
+<tt class="descclassname">adenine.core.pipelines.</tt><tt class="descname">run</tt><big>(</big><em>pipes=()</em>, <em>X=()</em>, <em>exp_tag='def_tag'</em>, <em>root=''</em><big>)</big><a class="reference internal" href="_modules/adenine/core/pipelines.html#run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adenine.core.pipelines.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit and transform/predict some pipelines on some data.</p>
+<p>This function fits each pipeline in the input list on the provided data. The results are dumped into a pkl file as a dictionary of dictionaries of the form {&#8216;pipeID&#8217;: {&#8216;stepID&#8217; : [alg_name, level, params, data_out, data_in, model_obj, voronoi_suitable_object], ...}, ...}. The model_obj is the sklearn model which has been fit on the dataset, the voronoi_suitable_object is the very same model but fitted on just the first two dimensions of the dataset. If a pipeline fails for some reasons the content of the stepID key is a list of np.nan.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>pipes</strong> : list of list of tuples</p>
+<blockquote>
+<div><p>Each tuple contains a label and a sklearn Pipeline object.</p>
+</div></blockquote>
+<p><strong>X</strong> : array of float, shape</p>
+<blockquote>
+<div><p>The input data matrix.</p>
+</div></blockquote>
+<p><strong>exp_tag</strong> : string</p>
+<blockquote>
+<div><p>An intuitive tag for the current experiment.</p>
+</div></blockquote>
+<p><strong>root</strong> : string</p>
+<blockquote>
+<div><p>The root folder to save the results.</p>
+</div></blockquote>
+<p><strong>parallel</strong> : bool</p>
+<blockquote>
+<div><p>Run all the pipelines in parallel on the cores of your machine (if True, it requires pplus).</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>outputFolderName</strong> : string</p>
+<blockquote class="last">
+<div><p>The path of the output folder.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<span class="target" id="module-adenine.core.analyze_results"></span><dl class="function">
+<dt id="adenine.core.analyze_results.make_scatter">
+<tt class="descclassname">adenine.core.analyze_results.</tt><tt class="descname">make_scatter</tt><big>(</big><em>root=()</em>, <em>embedding=()</em>, <em>model_param=()</em>, <em>trueLabel=nan</em><big>)</big><a class="reference internal" href="_modules/adenine/core/analyze_results.html#make_scatter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adenine.core.analyze_results.make_scatter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate and save the scatter plot of the dimensionality reduced data set.</p>
+<p>This function generates the scatter plot representing the dimensionality reduced data set. The plots will be saved into the root folder in a tree-like structure.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>root</strong> : string</p>
+<blockquote>
+<div><p>The root path for the output creation</p>
+</div></blockquote>
+<p><strong>embedding</strong> : array of float, shape</p>
+<blockquote>
+<div><p>The low space embedding estimated by the dimensinality reduction and manifold learning algorithm.</p>
+</div></blockquote>
+<p><strong>model_param</strong> : dictionary</p>
+<blockquote>
+<div><p>The parameters of the dimensionality reduciont and manifold learning algorithm.</p>
+</div></blockquote>
+<p><strong>trueLabel</strong> : array of float, shape</p>
+<blockquote class="last">
+<div><p>The true label vector; np.nan if missing (useful for plotting reasons).</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="adenine.core.analyze_results.make_voronoi">
+<tt class="descclassname">adenine.core.analyze_results.</tt><tt class="descname">make_voronoi</tt><big>(</big><em>root=()</em>, <em>data_in=()</em>, <em>model_param=()</em>, <em>trueLabel=nan</em>, <em>labels=()</em>, <em>model=()</em><big>)</big><a class="reference internal" href="_modules/adenine/core/analyze_results.html#make_voronoi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adenine.core.analyze_results.make_voronoi" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate and save the Voronoi tessellation obtained from the clustering algorithm.</p>
+<p>This function generates the Voronoi tessellation obtained from the clustering algorithm applied on the data projected on a two-dimensional embedding. The plots will be saved into the appropriate folder of the tree-like structure created into the root folder.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>root</strong> : string</p>
+<blockquote>
+<div><p>The root path for the output creation</p>
+</div></blockquote>
+<p><strong>data_in</strong> : array of float, shape</p>
+<blockquote>
+<div><p>The low space embedding estimated by the dimensinality reduction and manifold learning algorithm.</p>
+</div></blockquote>
+<p><strong>model_param</strong> : dictionary</p>
+<blockquote>
+<div><p>The parameters of the dimensionality reduciont and manifold learning algorithm.</p>
+</div></blockquote>
+<p><strong>trueLabel</strong> : array of float, shape</p>
+<blockquote>
+<div><p>The true label vector; np.nan if missing (useful for plotting reasons).</p>
+</div></blockquote>
+<p><strong>labels</strong> : array of int, shape</p>
+<blockquote>
+<div><p>The result of the clustering step.</p>
+</div></blockquote>
+<p><strong>model</strong> : sklearn or sklearn-like object</p>
+<blockquote class="last">
+<div><p>An instance of the class that evaluates a step. In particular this must be a clustering model provided with the <a href="#id2"><span class="problematic" id="id3">clusters_centers_</span></a> attribute (e.g. KMeans).</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="adenine.core.analyze_results.est_clst_perf">
+<tt class="descclassname">adenine.core.analyze_results.</tt><tt class="descname">est_clst_perf</tt><big>(</big><em>root=()</em>, <em>data_in=()</em>, <em>label=()</em>, <em>trueLabel=nan</em>, <em>model=()</em>, <em>metric='euclidean'</em><big>)</big><a class="reference internal" href="_modules/adenine/core/analyze_results.html#est_clst_perf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adenine.core.analyze_results.est_clst_perf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Estimate the clustering performance.</p>
+<p>This function estimate the clustering performance by means of several indexes. Then eventually saves the results in a tree-like structure in the root folder.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>root</strong> : string</p>
+<blockquote>
+<div><p>The root path for the output creation</p>
+</div></blockquote>
+<p><strong>data_in</strong> : array of float, shape</p>
+<blockquote>
+<div><p>The low space embedding estimated by the dimensinality reduction and manifold learning algorithm.</p>
+</div></blockquote>
+<p><strong>label</strong> : array of float, shape</p>
+<blockquote>
+<div><p>The label assignment performed by the clusterin algorithm.</p>
+</div></blockquote>
+<p><strong>trueLabel</strong> : array of float, shape</p>
+<blockquote>
+<div><p>The true label vector; np.nan if missing.</p>
+</div></blockquote>
+<p><strong>model</strong> : sklearn or sklearn-like object</p>
+<blockquote class="last">
+<div><p>An instance of the class that evaluates a step. In particular this must be a clustering model provided with the <a href="#id4"><span class="problematic" id="id5">clusters_centers_</span></a> attribute (e.g. KMeans).</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="adenine.core.analyze_results.get_step_attributes">
+<tt class="descclassname">adenine.core.analyze_results.</tt><tt class="descname">get_step_attributes</tt><big>(</big><em>step=()</em>, <em>pos=()</em><big>)</big><a class="reference internal" href="_modules/adenine/core/analyze_results.html#get_step_attributes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adenine.core.analyze_results.get_step_attributes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the attributes of the input step.</p>
+<p>This function returns the attributes (i.e. level, name, outcome) of the input step. This comes handy when dealing with steps with more than one parameter (e.g. KernelPCA &#8216;poly&#8217; or &#8216;rbf&#8217;).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>step</strong> : list</p>
+<blockquote>
+<div><p>A step coded by ade_run.py as [name, level, results, parameters]</p>
+</div></blockquote>
+<p><strong>pos</strong> : int</p>
+<blockquote>
+<div><p>The position of the step inside the pipeline.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>name</strong> : string</p>
+<blockquote>
+<div><p>A unique name for the step (e.g. KernelPCA_rbf).</p>
+</div></blockquote>
+<p><strong>level</strong> : {imputing, preproc, dimred, clustering}</p>
+<blockquote>
+<div><p>The step level.</p>
+</div></blockquote>
+<p><strong>data_out</strong> : array of float, shape</p>
+<blockquote>
+<div><p>Where n_out is n_dimensions for dimensionality reduction step, or 1 for clustering.</p>
+</div></blockquote>
+<p><strong>data_in</strong> : array of float, shape</p>
+<blockquote>
+<div><p>Where n_in is n_dimensions for preprocessing/imputing/dimensionality reduction step, or n_dim for clustering (because the data have already been dimensionality reduced).</p>
+</div></blockquote>
+<p><strong>param</strong> : dictionary</p>
+<blockquote>
+<div><p>The parameters of the sklearn object implementing the algorithm.</p>
+</div></blockquote>
+<p><strong>mdl_obj</strong> : sklearn or sklearn-like object</p>
+<blockquote class="last">
+<div><p>This is an instance of the class that evaluates a step.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="adenine.core.analyze_results.make_tree">
+<tt class="descclassname">adenine.core.analyze_results.</tt><tt class="descname">make_tree</tt><big>(</big><em>root=()</em>, <em>data_in=()</em>, <em>model_param=()</em>, <em>trueLabel=nan</em>, <em>labels=()</em>, <em>model=()</em><big>)</big><a class="reference internal" href="_modules/adenine/core/analyze_results.html#make_tree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adenine.core.analyze_results.make_tree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate and save the tree structure obtained from the clustering algorithm.</p>
+<p>This function generates the tree obtained from the clustering algorithm applied on the data. The plots will be saved into the appropriate folder of the tree-like structure created into the root folder.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>root</strong> : string</p>
+<blockquote>
+<div><p>The root path for the output creation</p>
+</div></blockquote>
+<p><strong>data_in</strong> : array of float, shape</p>
+<blockquote>
+<div><p>The low space embedding estimated by the dimensinality reduction and manifold learning algorithm.</p>
+</div></blockquote>
+<p><strong>model_param</strong> : dictionary</p>
+<blockquote>
+<div><p>The parameters of the dimensionality reduciont and manifold learning algorithm.</p>
+</div></blockquote>
+<p><strong>trueLabel</strong> : array of float, shape</p>
+<blockquote>
+<div><p>The true label vector; np.nan if missing (useful for plotting reasons).</p>
+</div></blockquote>
+<p><strong>labels</strong> : array of int, shape</p>
+<blockquote>
+<div><p>The result of the clustering step.</p>
+</div></blockquote>
+<p><strong>model</strong> : sklearn or sklearn-like object</p>
+<blockquote class="last">
+<div><p>An instance of the class that evaluates a step. In particular this must be a clustering model provided with the <a href="#id6"><span class="problematic" id="id7">clusters_centers_</span></a> attribute (e.g. KMeans).</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="adenine.core.analyze_results.make_dendrogram">
+<tt class="descclassname">adenine.core.analyze_results.</tt><tt class="descname">make_dendrogram</tt><big>(</big><em>root=()</em>, <em>data_in=()</em>, <em>model_param=()</em>, <em>trueLabel=nan</em>, <em>labels=()</em>, <em>model=()</em><big>)</big><a class="reference internal" href="_modules/adenine/core/analyze_results.html#make_dendrogram"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adenine.core.analyze_results.make_dendrogram" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate and save the dendrogram obtained from the clustering algorithm.</p>
+<p>This function generates the dendrogram obtained from the clustering algorithm applied on the data. The plots will be saved into the appropriate folder of the tree-like structure created into the root folder.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>root</strong> : string</p>
+<blockquote>
+<div><p>The root path for the output creation</p>
+</div></blockquote>
+<p><strong>data_in</strong> : array of float, shape</p>
+<blockquote>
+<div><p>The low space embedding estimated by the dimensinality reduction and manifold learning algorithm.</p>
+</div></blockquote>
+<p><strong>model_param</strong> : dictionary</p>
+<blockquote>
+<div><p>The parameters of the dimensionality reduciont and manifold learning algorithm.</p>
+</div></blockquote>
+<p><strong>trueLabel</strong> : array of float, shape</p>
+<blockquote>
+<div><p>The true label vector; np.nan if missing (useful for plotting reasons).</p>
+</div></blockquote>
+<p><strong>labels</strong> : array of int, shape</p>
+<blockquote>
+<div><p>The result of the clustering step.</p>
+</div></blockquote>
+<p><strong>model</strong> : sklearn or sklearn-like object</p>
+<blockquote class="last">
+<div><p>An instance of the class that evaluates a step. In particular this must be a clustering model provided with the <a href="#id8"><span class="problematic" id="id9">clusters_centers_</span></a> attribute (e.g. KMeans).</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="adenine.core.analyze_results.make_scatterplot">
+<tt class="descclassname">adenine.core.analyze_results.</tt><tt class="descname">make_scatterplot</tt><big>(</big><em>root=()</em>, <em>data_in=()</em>, <em>model_param=()</em>, <em>trueLabel=nan</em>, <em>labels=()</em>, <em>model=()</em>, <em>n_dimensions=2</em><big>)</big><a class="reference internal" href="_modules/adenine/core/analyze_results.html#make_scatterplot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adenine.core.analyze_results.make_scatterplot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate and save the scatter plot obtained from the clustering algorithm.</p>
+<p>This function generates the scatter plot obtained from the clustering algorithm applied on the data projected on a two-dimensional embedding. The color of the points in the plot is consistent with the label estimated by the algorithm. The plots will be saved into the appropriate folder of the tree-like structure created into the root folder.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>root</strong> : string</p>
+<blockquote>
+<div><p>The root path for the output creation</p>
+</div></blockquote>
+<p><strong>data_in</strong> : array of float, shape</p>
+<blockquote>
+<div><p>The low space embedding estimated by the dimensinality reduction and manifold learning algorithm.</p>
+</div></blockquote>
+<p><strong>model_param</strong> : dictionary</p>
+<blockquote>
+<div><p>The parameters of the dimensionality reduciont and manifold learning algorithm.</p>
+</div></blockquote>
+<p><strong>trueLabel</strong> : array of float, shape</p>
+<blockquote>
+<div><p>The true label vector; np.nan if missing (useful for plotting reasons).</p>
+</div></blockquote>
+<p><strong>labels</strong> : array of int, shape</p>
+<blockquote>
+<div><p>The result of the clustering step.</p>
+</div></blockquote>
+<p><strong>model</strong> : sklearn or sklearn-like object</p>
+<blockquote class="last">
+<div><p>An instance of the class that evaluates a step. In particular this must be a clustering model provided with the <a href="#id10"><span class="problematic" id="id11">clusters_centers_</span></a> attribute (e.g. KMeans).</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="adenine.core.analyze_results.start">
+<tt class="descclassname">adenine.core.analyze_results.</tt><tt class="descname">start</tt><big>(</big><em>inputDict=()</em>, <em>rootFolder=()</em>, <em>y=nan</em>, <em>feat_names=()</em>, <em>class_names=()</em><big>)</big><a class="reference internal" href="_modules/adenine/core/analyze_results.html#start"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adenine.core.analyze_results.start" title="Permalink to this definition">¶</a></dt>
+<dd><p>Analyze the results of ade_run.</p>
+<p>This function analyze the dictionary generated by ade_run, generates the plots, and saves them in a tree-like folder structure in rootFolder.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>inputDict</strong> : dictionary</p>
+<blockquote>
+<div><p>The dictionary created by ade_run.py on some data.</p>
+</div></blockquote>
+<p><strong>rootFolder</strong> : string</p>
+<blockquote>
+<div><p>The root path for the output creation</p>
+</div></blockquote>
+<p><strong>y</strong> : array of float, shape</p>
+<blockquote>
+<div><p>The label vector; np.nan if missing.</p>
+</div></blockquote>
+<p><strong>feature_names</strong> : array of integers (or strings), shape</p>
+<blockquote>
+<div><p>The feature names; a range of numbers if missing.</p>
+</div></blockquote>
+<p><strong>class_names</strong> : array of integers (or strings), shape</p>
+<blockquote class="last">
+<div><p>The class names; a range of numbers if missing.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-adenine.utils.data_source">
+<span id="input-data"></span><h4>Input Data<a class="headerlink" href="#module-adenine.utils.data_source" title="Permalink to this headline">¶</a></h4>
+<dl class="function">
+<dt id="adenine.utils.data_source.MixGauss">
+<tt class="descclassname">adenine.utils.data_source.</tt><tt class="descname">MixGauss</tt><big>(</big><em>mu=()</em>, <em>std=()</em>, <em>n_sample=()</em><big>)</big><a class="reference internal" href="_modules/adenine/utils/data_source.html#MixGauss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adenine.utils.data_source.MixGauss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a Gaussian dataset.</p>
+<p>Generates a dataset with n_sample * n_class examples and n_dim dimensions. Mu, the mean vector, is n_class x n_dim.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>mu</strong> : array of float, shape</p>
+<blockquote>
+<div><p>The mean of each class.</p>
+</div></blockquote>
+<p><strong>std</strong> :  array of float, shape</p>
+<blockquote>
+<div><p>The standard deviation of each Gaussian distribution.</p>
+</div></blockquote>
+<p><strong>n_sample</strong> : int</p>
+<blockquote class="last">
+<div><p>Number of point per class.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="adenine.utils.data_source.load_custom">
+<tt class="descclassname">adenine.utils.data_source.</tt><tt class="descname">load_custom</tt><big>(</big><em>fileName_X</em>, <em>fileName_y</em><big>)</big><a class="reference internal" href="_modules/adenine/utils/data_source.html#load_custom"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adenine.utils.data_source.load_custom" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load a custom dataset.</p>
+<p>This function loads the data matrix and the label vector returning a unique sklearn-like object dataSetObj.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>fileName_X</strong> : string</p>
+<blockquote>
+<div><p>The data matrix file name.</p>
+</div></blockquote>
+<p><strong>fileName_y</strong> : string</p>
+<blockquote>
+<div><p>The label vector file name.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>data</strong> : sklearn.datasets.base.Bunch</p>
+<blockquote class="last">
+<div><p>An instance of the sklearn.datasets.base.Bunch class, the meaningful attributes are .data, the data matrix, and .target, the label vector</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="adenine.utils.data_source.load">
+<tt class="descclassname">adenine.utils.data_source.</tt><tt class="descname">load</tt><big>(</big><em>opt='custom'</em>, <em>fileName_X=None</em>, <em>fileName_y=None</em><big>)</big><a class="reference internal" href="_modules/adenine/utils/data_source.html#load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adenine.utils.data_source.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load a specified dataset.</p>
+<p>This function can be used either to load one of the standard scikit-learn datasets or a different dataset saved as X.npy Y.npy in the working directory.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>opt</strong> : {&#8216;iris&#8217;, &#8216;digits&#8217;, &#8216;diabetes&#8217;, &#8216;boston&#8217;, &#8216;blobs&#8217;,&#8217;custom&#8217;}, default: &#8216;custom&#8217;</p>
+<p><strong>fileName_X</strong> : string, default</p>
+<blockquote>
+<div><p>The data matrix file name.</p>
+</div></blockquote>
+<p><strong>fileName_y</strong> : string, default</p>
+<blockquote>
+<div><p>The label vector file name.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>X</strong> : array of float, shape</p>
+<blockquote>
+<div><p>The input data matrix.</p>
+</div></blockquote>
+<p><strong>y</strong> : array of float, shape</p>
+<blockquote>
+<div><p>The label vector; np.nan if missing.</p>
+</div></blockquote>
+<p><strong>feature_names</strong> : array of integers (or strings), shape</p>
+<blockquote class="last">
+<div><p>The feature names; a range of number if missing.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-adenine.utils.extra">
+<span id="extra-tools"></span><h4>Extra tools<a class="headerlink" href="#module-adenine.utils.extra" title="Permalink to this headline">¶</a></h4>
+<dl class="function">
+<dt id="adenine.utils.extra.modified_cartesian">
+<tt class="descclassname">adenine.utils.extra.</tt><tt class="descname">modified_cartesian</tt><big>(</big><em>*args</em><big>)</big><a class="reference internal" href="_modules/adenine/utils/extra.html#modified_cartesian"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adenine.utils.extra.modified_cartesian" title="Permalink to this definition">¶</a></dt>
+<dd><p>Modified Cartesian product.</p>
+<p>This function takes two (ore more) lists and returns their Cartesian product, if one of the two list is empty this function returns the non-empty one.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>*args</strong> : lists, length</p>
+<blockquote>
+<div><p>The group of input lists.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>cp</strong> : list</p>
+<blockquote class="last">
+<div><p>The Cartesian Product of the two (or more) nonempty input lists.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="adenine.utils.extra.make_time_flag">
+<tt class="descclassname">adenine.utils.extra.</tt><tt class="descname">make_time_flag</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/adenine/utils/extra.html#make_time_flag"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adenine.utils.extra.make_time_flag" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a time flag.</p>
+<p>This function simply generates a time flag using the current time.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>timeFlag</strong> : string</p>
+<blockquote class="last">
+<div><p>A unique time flag.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="adenine.utils.extra.sec_to_time">
+<tt class="descclassname">adenine.utils.extra.</tt><tt class="descname">sec_to_time</tt><big>(</big><em>seconds</em><big>)</big><a class="reference internal" href="_modules/adenine/utils/extra.html#sec_to_time"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adenine.utils.extra.sec_to_time" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transform seconds into formatted time string</p>
+</dd></dl>
+
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+   
+      <h3>Download</h3>
+      <p>Current version: <b>0.1.0</b></p>
+      <p>Get adenine from the
+         <a href="http://pypi.python.org/pypi/adenine">Python Package Index</a>,
+         or install it with:
+      </p>
+      <pre>pip install --upgrade adenine</pre>
+      <!--or:-->
+      <!--<pre>easy_install -U adenine</pre>-->
+      <p>Latest
+         <a href="https://bitbucket.org/slipguru/adenine/downloads/adenine.pdf">
+            documentation in pdf
+         </a>
+         is also available.
+      </p>
+   
+
+   
+   
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/index.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+    
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+    <p class="logo">
+       <img class="logo" src="_static/logos.png" alt="Logos" usemap="#logosmap" />
+    </p>
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="np-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="tutorial.html" title="Quick start tutorial"
+             >next</a> |</li>
+        <li><a href="#">adenine 0.1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, Samuele Fiorini.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>
