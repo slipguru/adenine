@@ -18,7 +18,7 @@ output_root_folder = 'results'
 # X, y, feat_names, class_names = data_source.load('custom', 'X.csv', 'y.csv')
 X, y, feat_names, class_names = data_source.load('custom', '/home/fede/src/adenine/adenine/examples/TM_matrix.csv')
 if not (X.T == X).all():
-    X = (X.T + X) / 2.
+    X = (X.T + X) / 2.0
     X = 1. - X
 
 # -----------------------  PIPELINE DEFINITION ------------------------ #
