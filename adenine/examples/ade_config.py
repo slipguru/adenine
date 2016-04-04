@@ -40,8 +40,8 @@ step2 = {'PCA': [False], 'IncrementalPCA': [False], 'RandomizedPCA': [False],
 # --- Clustering --- #
 step3 = {'KMeans': [False, [5]],
          'KernelKMeans': [False, [3,['rbf','poly']]], #TODO
-         'AP': [True, ['precomputed']], 'MS': [False],
-         'Spectral': [True, [3, ['precomputed']]],
+         'AP': [False, ['precomputed']], 'MS': [False],
+         'Spectral': [True, [50, ['precomputed']]],
          #'Hierarchical': [False, [3, ['manhattan','euclidean'], ['ward','complete','average']]]
-         'Hierarchical': [True, [3, ['precomputed']]]
+         'Hierarchical': [False, [3, ['precomputed']]]
          }
