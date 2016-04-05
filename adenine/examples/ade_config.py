@@ -38,10 +38,11 @@ step2 = {'PCA': [False], 'IncrementalPCA': [False], 'RandomizedPCA': [False],
          'tSNE': [False], 'None': [True]}
 
 # --- Clustering --- #
-step3 = {'KMeans': [False, [5]],
-         'KernelKMeans': [False, [3,['rbf','poly']]], #TODO
-         'AP': [False, ['precomputed']], 'MS': [False],
-         'Spectral': [True, [50, ['precomputed']]],
+step3 = {'KMeans': [False, [5]], # cannot be 'precomputed'
+        #  'KernelKMeans': [False, [3,['rbf','poly']]], #TODO
+         'AP': [False, ['precomputed']], # can be 'precomputed'
+         'MS': [False], # cannot be 'precomputed'
+         'Spectral': [True, [50, ['precomputed']]], # can be 'precomputed'
          #'Hierarchical': [False, [3, ['manhattan','euclidean'], ['ward','complete','average']]]
-         'Hierarchical': [False, [3, ['precomputed']]]
+         'Hierarchical': [False, [3, ['precomputed']]] # can be 'precomputed'
          }
