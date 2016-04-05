@@ -142,9 +142,6 @@ def parse_clustering(key, content):
     """
     if key.lower() == 'kmeans':
         cl = KMeans(n_clusters=content, init='k-means++', n_jobs=-1)
-    elif key.lower() == 'kernelkmeans': # TODO
-        kernel = content[1]
-        cl = KMeans(n_clusters=content[0], init='k-means++', n_jobs=-1)
     elif key.lower() == 'ap':
         if 'precomputed' in content:
             cl = AffinityPropagation(affinity='precomputed')

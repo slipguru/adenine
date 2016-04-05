@@ -38,6 +38,7 @@ step2 = {'PCA': [False], 'IncrementalPCA': [False], 'RandomizedPCA': [False],
          'tSNE': [False], 'None': [True]}
 
 # --- Clustering --- #
+<<<<<<< HEAD
 step3 = {'KMeans': [False, [5]], # cannot be 'precomputed'
         #  'KernelKMeans': [False, [3,['rbf','poly']]], #TODO
          'AP': [False, ['precomputed']], # can be 'precomputed'

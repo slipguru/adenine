@@ -1,0 +1,28 @@
+### Welcome to adenine.
+**Adenine** is a machine learning and data mining framework that helps you answering the tedious question: are my data relevant for the problem I'm dealing with?
+
+### Implementation
+With **Adenine** you can build different unsupervised data analysis pipelines made of the following steps:
+
+1. missing values imputing
+2. preprocessing
+3. dimensionality reduction
+4. clustering
+
+a list of the most common state-of-the-art methods is available for each step.
+
+### Dependencies
+**Adenine** is developed using Python 2.7 and inherits its main functionalities from:
+* numpy
+* scipy
+* scikit-learn
+* matplotlib
+* seaborn
+
+### Authors and Contributors
+Current developers: Samuele Fiorini (@samuelefiorini) and Federico Tomasi (@fdtomasi).
+
+### Support or Contact
+Having trouble with adenine? Check out our [documentation](http://www.slipguru.unige.it/Software/adenine/) or contact us:
+* samuele [dot] fiorini [at] dibris [dot] unige [dot] it
+* federico [dot] tomasi [at] dibris [dot] unige [dot] it
