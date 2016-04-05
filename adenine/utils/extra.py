@@ -50,7 +50,34 @@ def make_time_flag():
 
 
 def sec_to_time(seconds):
-    """Transform seconds into formatted time string"""
+    """Transform seconds into a formatted time string.
+
+    Parameters
+    -----------
+    seconds : int
+        Seconds to be transformed.
+
+    Returns
+    -----------
+    time : string
+        A well formatted time string.
+    """
     m, s = divmod(seconds, 60)
     h, m = divmod(m, 60)
     return "%02d:%02d:%02d" % (h, m, s)
+
+def ensure_symmetry(X):
+    """Ensure matrix symmetry.
+
+    Parameters
+    -----------
+    X : numpy.ndarray
+        Input matrix of precomputed pairwise distances.
+
+    Returns
+    -----------
+    new_X : numpy.ndarray
+        Symmetric distance matrix. Values are averaged.
+    """
+    if not (X.T == X).all():
+        return (X.T + X) / 2.
