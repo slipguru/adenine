@@ -1,4 +1,4 @@
-#!/usr/bin/python -W ignore::DeprecationWarning
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 import imp, sys, os

@@ -1,4 +1,4 @@
-#!/usr/bin/ipython
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 import imp, sys, os, shutil
