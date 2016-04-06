@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 from adenine.utils import data_source
-from adenine.utils import extra
 
 # --------------------------  EXPERMIENT INFO ------------------------- #
 exp_tag = 'debug_csv'
@@ -16,10 +15,10 @@ X, y, feat_names, class_names = data_source.load('gauss')
 # X, y, feat_names, class_names = data_source.load('boston')
 # X, y, feat_names, class_names = data_source.load('custom', 'X.npy', 'y.npy')
 # X, y, feat_names, class_names = data_source.load('custom', 'X.csv', 'y.csv')
-
 # X, y, feat_names, class_names = data_source.load('custom', '/home/fede/src/adenine/adenine/examples/TM_matrix.csv')
-# X = extra.ensure_symmetry(X)
-# X = 1. - X  # i want affinity
+# if not (X.T == X).all():
+#     X = (X.T + X) / 2.0
+#     X = 1. - X
 
 # -----------------------  PIPELINE DEFINITION ------------------------ #
 

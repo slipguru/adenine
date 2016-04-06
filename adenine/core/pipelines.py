@@ -4,6 +4,7 @@
 import os
 import copy
 import logging
+import multiprocessing
 import cPickle as pkl
 import numpy as np
 from adenine.utils.extra import make_time_flag
@@ -89,6 +90,58 @@ def evaluate(level, step, X):
             res = step.predict(X)
     return res
 
+def pipe_worker(pipeID, pipe, pipes_dump, X):
+    """Parallel pipelines execution.
+
+    Parameters
+    -----------
+    pipeID : string
+        Pipeline identifier.
+
+    pipe : list of tuples
+        Tuple containing a label and a sklearn Pipeline object.
+
+    pipes_dump : multiprocessing.Manager.dict
+        Dictionary containing the results of the parallel execution.
+
+    X : array of float, shape : n_samples x n_features, default : ()
+        The input data matrix.
+    """
+    step_dump = dict()
+    X_curr = np.array(X) # COPY X as X_curr (to avoid that the next pipeline works on the results of the previuos one)
+    for j, step in enumerate(pipe): # step[0] -> step_label | step[1] -> sklearn (or sklearn-like) object (model)
+        stepID = 'step'+str(j)
+        # 1. define which level of step is this (i.e.: imputing, preproc, dimred, clustering, none)
+        level = which_level(step[0])
+        # 2. fit the model (whatever it is)
+        if step[1].get_params().get('method') == 'hessian': # check hessian lle constraints
+            n_components = step[1].get_params().get('n_components')
+            step[1].set_params(n_neighbors=1 + (n_components * (n_components + 3) / 2))
+        try:
+            step[1].fit(X_curr)
+            # 3. evaluate (i.e. transform or predict according to the level)
+            # X_curr = evaluate(level, step[1], X_curr)
+            X_next = evaluate(level, step[1], X_curr)
+            # 3.1 if the model is suitable for voronoi tessellation: fit also on 2D
+            if hasattr(step[1], 'cluster_centers_'):
+                mdl_voronoi = copy.copy(step[1])
+                mdl_voronoi.fit(X_curr[:,:2])
+            else:
+                mdl_voronoi = np.nan
+            # 4. save the results in a dictionary of dictionary of the form:
+            # {'pipeID': {'stepID' : [alg_name, level, params, res, Xnext, Xcurr, stepObj, voronoi_suitable_model]}}
+            step_dump[stepID] = [step[0], level, step[1].get_params(), X_next, X_curr, step[1], mdl_voronoi]
+            X_curr = np.array(X_next) # update the matrix
+
+        except AssertionError as e:
+            logging.critical("Pipeline {} failed at step {}".format(pipeID, step[0]))
+            step_dump[stepID] = [step[0], level, step[1].get_params(), np.nan, np.nan, np.nan]
+            # break # skip this pipeline
+
+    pipes_dump[pipeID] = step_dump
+    logging.debug("DUMP: \n {} \n #########".format(pipes_dump))
+
+
 def run(pipes=(), X=(), exp_tag='def_tag', root=''):
     """Fit and transform/predict some pipelines on some data.
 
@@ -123,41 +176,31 @@ def run(pipes=(), X=(), exp_tag='def_tag', root=''):
         os.makedirs(root)        # and make the folder
         logging.warn("No root folder supplied, folder {} created".format(os.path.abspath(root)))
 
-    # Eval pipes
-    pipes_dump = dict()
+    # Eval pipes in parallel
+    jobs = [] # the empty list of job to submit
+
+    # pipes_dump = dict()
+    manager = multiprocessing.Manager()
+    pipes_dump = manager.dict()
+
+    # Submit jobs
     for i, pipe in enumerate(pipes):
         pipeID = 'pipe'+str(i)
-        step_dump = dict()
-        X_curr = np.array(X) # COPY X as X_curr (to avoid that the next pipeline works on the results of the previuos one)
-        for j, step in enumerate(pipe): # step[0] -> step_label | step[1] -> sklearn (or sklearn-like) object (model)
-            stepID = 'step'+str(j)
-            # 1. define which level of step is this (i.e.: imputing, preproc, dimred, clustering, none)
-            level = which_level(step[0])
-            # 2. fit the model (whatever it is)
-            if step[1].get_params().get('method') == 'hessian': # check hessian lle constraints
-                n_components = step[1].get_params().get('n_components')
-                step[1].set_params(n_neighbors=1 + (n_components * (n_components + 3) / 2))
-            try:
-                step[1].fit(X_curr)
-                # 3. evaluate (i.e. transform or predict according to the level)
-                # X_curr = evaluate(level, step[1], X_curr)
-                X_next = evaluate(level, step[1], X_curr)
-                # 3.1 if the model is suitable for voronoi tessellation: fit also on 2D
-                if hasattr(step[1], 'cluster_centers_'):
-                    mdl_voronoi = copy.copy(step[1])
-                    mdl_voronoi.fit(X_curr[:,:2])
-                else:
-                    mdl_voronoi = np.nan
-                # 4. save the results in a dictionary of dictionary of the form:
-                # {'pipeID': {'stepID' : [alg_name, level, params, res, Xnext, Xcurr, stepObj, voronoi_suitable_model]}}
-                step_dump[stepID] = [step[0], level, step[1].get_params(), X_next, X_curr, step[1], mdl_voronoi]
-                X_curr = np.array(X_next) # update the matrix
-            except AssertionError as e:
-                logging.critical("Pipeline {} failed at step {}".format(pipeID, step[0]))
-                step_dump[stepID] = [step[0], level, step[1].get_params(), np.nan, np.nan, np.nan]
-                break # skip this pipeline
-        pipes_dump[pipeID] = step_dump
-        logging.debug("DUMP: \n {} \n #########".format(pipes_dump))
+        p = multiprocessing.Process(target = pipe_worker,
+                                    args = (pipeID, pipe, pipes_dump, X))
+        jobs.append(p)
+        p.start()
+        logging.info("Job: {} submitted\n".format(pipeID))
+
+    # Collect results
+    ret_count = 0
+    for proc in jobs:
+        proc.join()
+        ret_count += 1
+    logging.info("{} jobs collected\n".format(ret_count))
+
+    # Convert the DictProxy to standard dict
+    pipes_dump = dict(pipes_dump)
 
     # Output Name
     outputFileName = exp_tag
