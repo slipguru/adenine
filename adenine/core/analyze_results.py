@@ -433,16 +433,30 @@ def make_scatterplot(root=(), data_in=(), model_param=(), trueLabel=np.nan, labe
     try:
         from mpl_toolkits.mplot3d import Axes3D
         ax = plt.figure().gca(projection='3d')
-        ax.scatter(X[:,0], X[:,1], X[:,2], y, c=y, cmap='hot', s=100, linewidth=.5, edgecolor="white")
+        # ax.scatter(X[:,0], X[:,1], X[:,2], y, c=y, cmap='hot', s=100, linewidth=.5, edgecolor="white")
+        from collections import Counter
+        d = Counter(y)
+        y = np.array(y)
+        palette = sns.color_palette("Set1")
+        def next_color():
+            palette = palette[1:]+palette[0]
+            return palette[-1]
+
+        for colorid, k in enumerate(d):
+            idx = np.where(y==k)[0]
+            ax.plot(X[:,0][idx], X[:,1][idx], X[:,2][idx], 'o', c=next_color(), label=str(k),s=100, linewidth=.5, edgecolor="white")
+
         ax.set_xlabel(r'$x_1$')
         ax.set_ylabel(r'$x_2$')
         ax.set_zlabel(r'$x_3$')
         ax.set_title(title)
+        ax.legend(loc='upper left', numpoints=1, ncol=10, fontsize=8, bbox_to_anchor=(0, 0))
+        # plt.legend(loc='upper left', numpoints=1, ncol=3, fontsize=8, bbox_to_anchor=(0, 0111))
         filename = os.path.join(root,os.path.basename(root)+"_scatter3D")
         plt.savefig(filename)
         logging.info('Figured saved {}'.format(filename))
-    except:
-        logging.info('Error in 3D plot')
+    except Exception as e:
+        logging.info('Error in 3D plot: ' + str(e))
 
 
 def analysis_worker(elem,rootFolder,y,feat_names,class_names):
