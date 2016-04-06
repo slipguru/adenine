@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from adenine.utils import data_source
+from adenine.utils import extra
 
 # --------------------------  EXPERMIENT INFO ------------------------- #
 exp_tag = 'debug_csv'
@@ -10,16 +11,16 @@ output_root_folder = 'results'
 
 # ----------------------------  INPUT DATA ---------------------------- #
 # X, y, feat_names, class_names = data_source.load('iris')
-# X, y, feat_names, class_names = data_source.load('gauss')
+X, y, feat_names, class_names = data_source.load('gauss')
 # X, y, feat_names, class_names = data_source.load('digits')
 # X, y, feat_names, class_names = data_source.load('diabetes')
 # X, y, feat_names, class_names = data_source.load('boston')
 # X, y, feat_names, class_names = data_source.load('custom', 'X.npy', 'y.npy')
 # X, y, feat_names, class_names = data_source.load('custom', 'X.csv', 'y.csv')
-X, y, feat_names, class_names = data_source.load('custom', '/home/fede/src/adenine/adenine/examples/TM_matrix.csv')
-if not (X.T == X).all():
-    X = (X.T + X) / 2.0
-    X = 1. - X
+
+# X, y, feat_names, class_names = data_source.load('custom', '/home/fede/src/adenine/adenine/examples/TM_matrix.csv')
+# X = extra.ensure_symmetry(X)
+# X = 1. - X  # i want affinity
 
 # -----------------------  PIPELINE DEFINITION ------------------------ #
 
@@ -28,21 +29,20 @@ step0 = {'Impute': [False], 'Missing': [-1], 'Replacement': ['median','mean']}
 
 # --- Data Preprocessing --- #
 step1 = {'None': [True], 'Recenter': [False], 'Standardize': [False],
-         'Normalize': [False, ['l2']], 'MinMax': [False, [0,1]]}
+         'Normalize': [True, ['l2']], 'MinMax': [False, [0,1]]}
 
 # --- Dimensionality Reduction & Manifold Learning --- #
 step2 = {'PCA': [False], 'IncrementalPCA': [False], 'RandomizedPCA': [False],
-         'KernelPCA': [False, ['linear','rbf','poly']], 'Isomap': [False],
+         'KernelPCA': [True, ['linear','rbf','poly']], 'Isomap': [False],
          'LLE': [False, ['standard','modified','hessian', 'ltsa']],
-         'SE': [False], 'MDS': [False, ['metric','nonmetric']],
-         'tSNE': [False], 'None': [True]}
+         'SE': [True], 'MDS': [False, ['metric','nonmetric']],
+         'tSNE': [True], 'None': [True]}
 
 # --- Clustering --- #
-step3 = {'KMeans': [False, [5]], # cannot be 'precomputed'
-        #  'KernelKMeans': [False, [3,['rbf','poly']]], #TODO
-         'AP': [False, ['precomputed']], # can be 'precomputed'
-         'MS': [False], # cannot be 'precomputed'
-         'Spectral': [True, [50, ['precomputed']]], # can be 'precomputed'
+step3 = {'KMeans': [True, [3]], # cannot be 'precomputed'
+         'AP': [True], #['precomputed']], # can be 'precomputed'
+         'MS': [True], # cannot be 'precomputed'
+         'Spectral': [False, [50, ['precomputed']]], # can be 'precomputed'
          #'Hierarchical': [False, [3, ['manhattan','euclidean'], ['ward','complete','average']]]
          'Hierarchical': [False, [3, ['precomputed']]] # can be 'precomputed'
          }
