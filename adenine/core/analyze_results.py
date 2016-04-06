@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+from joblib import Parallel, delayed
 import logging
 import cPickle as pkl
 import numpy as np
@@ -11,7 +12,7 @@ import matplotlib.pyplot as plt
 from sklearn import metrics
 from scipy.cluster.hierarchy import linkage as sp_linkage
 
-def make_scatter(root=(), embedding=(), model_param=(), trueLabel=np.nan):
+def make_scatter(root=(), embedding=(), model_param=(), trueLabel=None):
     """Generate and save the scatter plot of the dimensionality reduced data set.
 
     This function generates the scatter plot representing the dimensionality reduced data set. The plots will be saved into the root folder in a tree-like structure.
@@ -65,7 +66,7 @@ def make_scatter(root=(), embedding=(), model_param=(), trueLabel=np.nan):
     logging.info('Figured saved {}'.format(os.path.join(root,fileName)))
     plt.close()
 
-def make_voronoi(root=(), data_in=(), model_param=(), trueLabel=np.nan, labels=(), model=()):
+def make_voronoi(root=(), data_in=(), model_param=(), trueLabel=None, labels=(), model=()):
     """Generate and save the Voronoi tessellation obtained from the clustering algorithm.
 
     This function generates the Voronoi tessellation obtained from the clustering algorithm applied on the data projected on a two-dimensional embedding. The plots will be saved into the appropriate folder of the tree-like structure created into the root folder.
@@ -95,7 +96,7 @@ def make_voronoi(root=(), data_in=(), model_param=(), trueLabel=np.nan, labels=(
     # Define plot color
     #if not np.isnan(trueLabel[0]):
 
-    if trueLabel is None or trueLabel == np.nan:
+    if trueLabel is None or trueLabel[0] == np.nan:
         y = np.zeros((n_samples))
         _hue = ' '
     else:
@@ -147,7 +148,7 @@ def make_voronoi(root=(), data_in=(), model_param=(), trueLabel=np.nan, labels=(
     logging.info('Figured saved {}'.format(os.path.join(root,fileName)))
 
 
-def est_clst_perf(root=(), data_in=(), label=(), trueLabel=np.nan, model=(), metric='euclidean'):
+def est_clst_perf(root=(), data_in=(), label=(), trueLabel=None, model=(), metric='euclidean'):
     """Estimate the clustering performance.
 
     This function estimate the clustering performance by means of several indexes. Then eventually saves the results in a tree-like structure in the root folder.
@@ -432,8 +433,58 @@ def make_scatterplot(root=(), data_in=(), model_param=(), trueLabel=np.nan, labe
     plt.savefig(os.path.join(root,fileName+"_scatter"))
     logging.info('Figured saved {}'.format(os.path.join(root,fileName+"_scatter")))
 
+def analysis_worker(elem,rootFolder,y,feat_names,class_names):
+    """Parallel pipelines analysis.
 
-def start(inputDict=(), rootFolder=(), y=np.nan, feat_names=(), class_names=()):
+    Parameters
+    -----------
+
+    rootFolder : string
+        The root path for the output creation
+
+    y : array of float, shape : n_samples
+        The label vector; None if missing.
+
+    feature_names : array of integers (or strings), shape : n_features
+        The feature names; a range of numbers if missing.
+
+    class_names : array of integers (or strings), shape : n_features
+        The class names; a range of numbers if missing.
+    """
+    # Getting pipeID and content
+    pipe = elem[0]
+    content = elem[1]
+
+    outFolder = '' # where the results will be placed
+    logging.info("------\n{} : \n".format(pipe))
+    for i, step in enumerate(sorted(content.keys())):
+
+        # Tree-like folder structure definition
+        step_name, step_level, step_param, step_out, step_in, mdl_obj, voronoi_mdl_obj, metric = get_step_attributes(content[step], pos=i)
+
+        # Output folder definition & creation
+        outFolder = os.path.join(outFolder,step_name)
+        if not os.path.exists(os.path.join(rootFolder, outFolder)):
+            os.makedirs(os.path.join(rootFolder, outFolder))
+
+        # Launch analysis
+        if step_level == 'dimred':
+            make_scatter(root=os.path.join(rootFolder, outFolder), embedding=step_out, trueLabel=y, model_param=step_param)
+            plt.clf()
+        if step_level == 'clustering':
+            if hasattr(mdl_obj, 'cluster_centers_'):
+                make_voronoi(root=os.path.join(rootFolder, outFolder), labels=step_out, trueLabel=y, model_param=step_param, data_in=step_in, model=voronoi_mdl_obj)
+            elif hasattr(mdl_obj, 'n_leaves_'):
+                make_tree(root=os.path.join(rootFolder, outFolder), labels=step_out, trueLabel=y, model_param=step_param, data_in=step_in, model=mdl_obj)
+
+                make_dendrogram(root=os.path.join(rootFolder, outFolder), labels=step_out, trueLabel=y, model_param=step_param, data_in=step_in, model=mdl_obj)
+
+            make_scatterplot(root=os.path.join(rootFolder, outFolder), labels=step_out, trueLabel=y, model_param=step_param, data_in=step_in, model=mdl_obj)
+
+            est_clst_perf(root=os.path.join(rootFolder, outFolder), data_in=step_in, label=step_out, trueLabel=y, metric=metric)
+
+
+def start(inputDict=(), rootFolder=(), y=None, feat_names=(), class_names=()):
     """Analyze the results of ade_run.
 
     This function analyze the dictionary generated by ade_run, generates the plots, and saves them in a tree-like folder structure in rootFolder.
@@ -447,7 +498,7 @@ def start(inputDict=(), rootFolder=(), y=np.nan, feat_names=(), class_names=()):
         The root path for the output creation
 
     y : array of float, shape : n_samples
-        The label vector; np.nan if missing.
+        The label vector; None if missing.
 
     feature_names : array of integers (or strings), shape : n_features
         The feature names; a range of numbers if missing.
@@ -455,33 +506,4 @@ def start(inputDict=(), rootFolder=(), y=np.nan, feat_names=(), class_names=()):
     class_names : array of integers (or strings), shape : n_features
         The class names; a range of numbers if missing.
     """
-    for pipe in inputDict: # iterating over a dictionary gives you the keys
-        print("Analizing {} ...".format(pipe))
-        outFolder = '' # where the results will be placed
-        logging.info("------\n{} : \n".format(pipe))
-        for i, step in enumerate(sorted(inputDict[pipe].keys())):
-
-            # Tree-like folder structure definition
-            step_name, step_level, step_param, step_out, step_in, mdl_obj, voronoi_mdl_obj, metric = get_step_attributes(inputDict[pipe][step], pos=i)
-
-
-            # Output folder definition & creation
-            outFolder = os.path.join(outFolder,step_name)
-            if not os.path.exists(os.path.join(rootFolder, outFolder)):
-                os.makedirs(os.path.join(rootFolder, outFolder))
-
-            # Launch analysis
-            if step_level == 'dimred':
-                make_scatter(root=os.path.join(rootFolder, outFolder), embedding=step_out, trueLabel=y, model_param=step_param)
-                plt.clf()
-            if step_level == 'clustering':
-                if hasattr(mdl_obj, 'cluster_centers_'):
-                    make_voronoi(root=os.path.join(rootFolder, outFolder), labels=step_out, trueLabel=y, model_param=step_param, data_in=step_in, model=voronoi_mdl_obj)
-                elif hasattr(mdl_obj, 'n_leaves_'):
-                    make_tree(root=os.path.join(rootFolder, outFolder), labels=step_out, trueLabel=y, model_param=step_param, data_in=step_in, model=mdl_obj)
-
-                    make_dendrogram(root=os.path.join(rootFolder, outFolder), labels=step_out, trueLabel=y, model_param=step_param, data_in=step_in, model=mdl_obj)
-
-                make_scatterplot(root=os.path.join(rootFolder, outFolder), labels=step_out, trueLabel=y, model_param=step_param, data_in=step_in, model=mdl_obj)
-
-                est_clst_perf(root=os.path.join(rootFolder, outFolder), data_in=step_in, label=step_out, trueLabel=y, metric=metric)
+    Parallel(n_jobs=len(inputDict))(delayed(analysis_worker)(elem,rootFolder,y,feat_names,class_names) for elem in inputDict.iteritems())
