@@ -66,6 +66,9 @@ def sec_to_time(seconds):
     h, m = divmod(m, 60)
     return "%02d:%02d:%02d" % (h, m, s)
 
+def get_time():
+    return datetime.datetime.fromtimestamp(time()).strftime('%Y-%m-%d_%H:%M:%S')
+
 def ensure_symmetry(X):
     """Ensure matrix symmetry.
 
