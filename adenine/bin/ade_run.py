@@ -7,6 +7,7 @@ import logging
 from adenine.utils.extra import make_time_flag
 from adenine.core import define_pipeline
 from adenine.core import pipelines
+from adenine.utils.extra import sec_to_time
 
 def main(config_file):
 
@@ -40,7 +41,7 @@ def main(config_file):
     shutil.copy(config_path, os.path.join(outFolder, 'ade_config.py'))
     # Move the logging file into the outFolder
     shutil.move(logFileName, outFolder)
-    print("\n\npipelines.run: Elapsed time : {}".format(tac-tic))
+    print("\n\npipelines.run: Elapsed time : {}".format(sec_to_time(tac-tic)))
 
 # ----------------------------  RUN MAIN ---------------------------- #
 if __name__ == '__main__':
