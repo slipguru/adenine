@@ -45,9 +45,32 @@ def main(config_file):
 
 # ----------------------------  RUN MAIN ---------------------------- #
 if __name__ == '__main__':
+    from optparse import OptionParser
+    from adenine import __version__
+
+    usage = "usage: %prog [-c] adenine-configuration-file.py"
+    parser = OptionParser(usage=usage, version='%prog ' +  __version__)
+    parser.add_option("-c", "--create", dest="create",
+                      action="store_true",
+                      help="create config file", default=False)
+    (options, args) = parser.parse_args()
 
     if len(sys.argv) < 2:
-        print("USAGE: ade_run.py <CONFIG_FILE> ")
+        parser.error("incorrect number of arguments")
         sys.exit(-1)
     else:
-        main(sys.argv[1])
+        config_file_path = args[0]
+
+        if options.create:
+            import adenine as ade
+            std_config_path = os.path.join(ade.__path__[0], 'ade_config.py')
+            # Check for .pyc
+            if std_config_path.endswith('.pyc'):
+                std_config_path = std_config_path[:-1]
+            # Check if the file already exists
+            if os.path.exists(config_file_path):
+                parser.error("adenine configuration file already exists")
+            # Copy the config file
+            shutil.copy(std_config_path, config_file_path)
+        else:
+            main(sys.argv[1])

@@ -298,7 +298,7 @@ def make_tree(root=(), data_in=(), model_param=(), trueLabel=None, labels=(), mo
     import itertools
     import pydot
 
-    MAX_NODES = 150
+    MAX_NODES = 50
 
     graph = pydot.Dot(graph_type='graph')
 
@@ -527,7 +527,7 @@ def analysis_worker(elem, rootFolder, y, feat_names, class_names):
             elif hasattr(mdl_obj, 'n_leaves_'):
                 make_tree(root=os.path.join(rootFolder, outFolder), labels=step_out, trueLabel=y, model_param=step_param, data_in=step_in, model=mdl_obj)
 
-                make_dendrogram(root=os.path.join(rootFolder, outFolder), labels=step_out, trueLabel=y, model_param=step_param, data_in=step_in, model=mdl_obj)
+                # make_dendrogram(root=os.path.join(rootFolder, outFolder), labels=step_out, trueLabel=y, model_param=step_param, data_in=step_in, model=mdl_obj)
 
             make_scatterplot(root=os.path.join(rootFolder, outFolder), labels=step_out, trueLabel=y, model_param=step_param, data_in=step_in, model=mdl_obj)
 
