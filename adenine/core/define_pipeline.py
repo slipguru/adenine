@@ -95,8 +95,7 @@ def parse_dimred(key, content):
     if key.lower() == 'none':
         dr = DummyNone()
     elif key.lower() == 'pca':
-        #dr = PCA(n_components = 'mle')
-        dr = PCA(n_components=2)
+        dr = PCA() # this by default takes all the components it can
     elif key.lower() == 'incrementalpca':
         dr = IncrementalPCA()
     elif key.lower() == 'randomizedpca':
@@ -113,9 +112,9 @@ def parse_dimred(key, content):
         dr = SpectralEmbedding()
     elif key.lower() == 'mds':
         if content == 'nonmetric':
-            dr = MDS(metric='False')
+            dr = MDS(metric=False)
         else:
-            dr = MDS(metric='True')
+            dr = MDS(metric=True)
     elif key.lower() == 'tsne':
         dr = TSNE()
     else:
@@ -153,7 +152,6 @@ def parse_clustering(key, content):
     elif key.lower() == 'ms':
         cl = MeanShift()
     elif key.lower() == 'spectral':
-        flat_content = [item for sublist in content for item in sublist]
         if 'precomputed' in flatten(content):
             cl = SpectralClustering(n_clusters=content[0], affinity='precomputed')
         else:
