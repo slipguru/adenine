@@ -40,15 +40,13 @@ def make_scatter(root=(), embedding=(), model_param=(), trueLabel=None):
     n_samples, n_dim = embedding.shape
 
     # Define plot color
-    if trueLabel is None or trueLabel[0] == np.nan:
+    if trueLabel is None:# or trueLabel[0] == np.nan:
         y = np.zeros((n_samples))
         _hue = ' '
     else:
         y = trueLabel # use the labels if provided
         _hue = 'Classes'
 
-    # Define the fileName
-    fileName = os.path.basename(root)
     # Define the plot title
     for i, t in enumerate(root.split(os.sep)): # something like ['results', 'ade_debug_', 'Standardize', 'PCA']
         if t[0:5] == '_ade': break
@@ -64,8 +62,9 @@ def make_scatter(root=(), embedding=(), model_param=(), trueLabel=None):
     # g.set_xticklabels([])
     # g.set_yticklabels([])
     plt.title(title)
-    plt.savefig(os.path.join(root,fileName))
-    logging.info('Figured saved {}'.format(os.path.join(root,fileName)))
+    filename = os.path.join(root,os.path.basename(root))
+    plt.savefig(filename)
+    logging.info('Figured saved {}'.format(filename))
     plt.close()
 
 def make_voronoi(root=(), data_in=(), model_param=(), trueLabel=None, labels=(), model=()):
@@ -98,15 +97,13 @@ def make_voronoi(root=(), data_in=(), model_param=(), trueLabel=None, labels=(),
     # Define plot color
     #if not np.isnan(trueLabel[0]):
 
-    if trueLabel is None or trueLabel[0] == np.nan:
+    if trueLabel is None:# or trueLabel[0] == np.nan:
         y = np.zeros((n_samples))
         _hue = ' '
     else:
         y = trueLabel # use the labels if provided
         _hue = 'Classes'
 
-    # Define the fileName
-    fileName = os.path.basename(root)
     # Define the plot title
     for i, t in enumerate(root.split(os.sep)): # something like ['results', 'ade_debug_', 'Standardize', 'PCA']
         if t[0:5] == '_ade': break
@@ -145,9 +142,9 @@ def make_voronoi(root=(), data_in=(), model_param=(), trueLabel=None, labels=(),
     plt.xlim([xx.min(), xx.max()])
     plt.ylim([yy.min(), yy.max()])
 
-    fileName = os.path.basename(root)
-    plt.savefig(os.path.join(root,fileName))
-    logging.info('Figured saved {}'.format(os.path.join(root,fileName)))
+    filename = os.path.join(root,os.path.basename(root))
+    plt.savefig(filename)
+    logging.info('Figured saved {}'.format(filename))
 
 
 def est_clst_perf(root=(), data_in=(), label=(), trueLabel=None, model=(), metric='euclidean'):
@@ -178,11 +175,11 @@ def est_clst_perf(root=(), data_in=(), label=(), trueLabel=None, model=(), metri
         perf_out['silhouette'] = metrics.silhouette_score(data_in, label, metric=metric)
 
         if hasattr(model, 'inertia_'): # Sum of distances of samples to their closest cluster center.
-            perf_out['inertia'] = mdl_obj.inertia_
+            perf_out['inertia'] = model.inertia_
 
         #if not np.isnan(np.array([trueLabel]).any()): # the next indexes need a gold standard
         # if not np.array([trueLabel]).any() == np.nan: # the next indexes need a gold standard
-        if trueLabel is not None and not trueLabel == np.nan: # the next indexes need a gold standard
+        if trueLabel is not None:# and not trueLabel == np.nan: # the next indexes need a gold standard
             perf_out['ari'] = metrics.adjusted_rand_score(trueLabel, label)
             perf_out['ami'] = metrics.adjusted_mutual_info_score(trueLabel, label)
             perf_out['homogeneity'] = metrics.homogeneity_score(trueLabel, label)
@@ -193,9 +190,9 @@ def est_clst_perf(root=(), data_in=(), label=(), trueLabel=None, model=(), metri
         logging.info("Clustering performance evaluation failed for {}".format(model))
         perf_out = {'empty': 0.0}
 
-    # Define the fileName
-    fileName = os.path.basename(root)
-    with open(os.path.join(root,fileName+".txt"), "w") as f:
+    # Define the filename
+    filename = os.path.join(root,os.path.basename(root))
+    with open(filename+'.txt', 'w') as f:
         f.write("------------------------------------\n")
         f.write("Adenine: Clustering Performance\n")
         f.write("------------------------------------\n")
@@ -206,9 +203,9 @@ def est_clst_perf(root=(), data_in=(), label=(), trueLabel=None, model=(), metri
             f.write("------------------------------------\n")
 
     # pkl Dump
-    with open(os.path.join(root,fileName+'.pkl'), 'w+') as f:
+    with open(filename+'.pkl', 'w+') as f:
         pkl.dump(perf_out, f)
-    logging.info("Dumped : {}".format(os.path.join(root,fileName+'.pkl')))
+    logging.info("Dumped : {}".format(filename+'.pkl'))
 
 
 def get_step_attributes(step=(), pos=()):
@@ -273,7 +270,7 @@ def get_step_attributes(step=(), pos=()):
     logging.info("{} : {}".format(level,name))
     return name, level, param, data_out, data_in, mdl_obj, voronoi_mdl_obj, metric
 
-def make_tree(root=(), data_in=(), model_param=(), trueLabel=np.nan, labels=(), model=()):
+def make_tree(root=(), data_in=(), model_param=(), trueLabel=None, labels=(), model=()):
     """Generate and save the tree structure obtained from the clustering algorithm.
 
     This function generates the tree obtained from the clustering algorithm applied on the data. The plots will be saved into the appropriate folder of the tree-like structure created into the root folder.
@@ -320,7 +317,7 @@ def make_tree(root=(), data_in=(), model_param=(), trueLabel=np.nan, labels=(), 
     graph.write_png(filename)
     logging.info('Figured saved {}'.format(filename))
 
-def make_dendrogram(root=(), data_in=(), model_param=(), trueLabel=np.nan, labels=(), model=()):
+def make_dendrogram(root=(), data_in=(), model_param=(), trueLabel=None, labels=(), model=()):
     """Generate and save the dendrogram obtained from the clustering algorithm.
 
     This function generates the dendrogram obtained from the clustering algorithm applied on the data. The plots will be saved into the appropriate folder of the tree-like structure created into the root folder.
@@ -378,7 +375,7 @@ def make_dendrogram(root=(), data_in=(), model_param=(), trueLabel=np.nan, label
     logging.info('Figured saved {}'.format(filename))
 
 
-def make_scatterplot(root=(), data_in=(), model_param=(), trueLabel=np.nan, labels=(), model=()):
+def make_scatterplot(root=(), data_in=(), model_param=(), trueLabel=None, labels=(), model=()):
     """Generate and save the scatter plot obtained from the clustering algorithm.
 
     This function generates the scatter plot obtained from the clustering algorithm applied on the data projected on a two-dimensional embedding. The color of the points in the plot is consistent with the label estimated by the algorithm. The plots will be saved into the appropriate folder of the tree-like structure created into the root folder.
