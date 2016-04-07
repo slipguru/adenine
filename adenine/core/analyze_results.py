@@ -19,7 +19,7 @@ def nxtc():
     return palette[-1]
 
 def make_scatter(root=(), embedding=(), model_param=(), trueLabel=None):
-    """Generate and save the scatter plot of the dimensionality reduced data set.
+    """Generates and saves the scatter plot of the dimensionality reduced data set.
 
     This function generates the scatter plot representing the dimensionality reduced data set. The plots will be saved into the root folder in a tree-like structure.
 
@@ -39,11 +39,7 @@ def make_scatter(root=(), embedding=(), model_param=(), trueLabel=None):
     """
     n_samples, n_dim = embedding.shape
 
-    # print trueLabel
-    # raise ValueError('DEBUG')
-
     # Define plot color
-#    if not np.isnan(trueLabel[0]):
     if trueLabel is None:# or trueLabel[0] == np.nan:
         y = np.zeros((n_samples))
         _hue = ' '
@@ -411,8 +407,8 @@ def make_scatterplot(root=(), data_in=(), model_param=(), trueLabel=None, labels
     y = labels
     _hue = 'Estimated Labels'
 
-    # Define the filename
-    #filename = os.path.basename(root)
+    # Define the fileName
+    # fileName = os.path.basename(root)
     # Define the plot title
     for i, t in enumerate(root.split(os.sep)): # something like ['results', 'ade_debug_', 'Standardize', 'PCA']
         if t[0:5] == '_ade': break
@@ -422,7 +418,8 @@ def make_scatterplot(root=(), data_in=(), model_param=(), trueLabel=None, labels
     X = data_in[:,:2]
 
     #2D plot
-    df = pd.DataFrame(data=np.hstack((X,y[:,np.newaxis])), columns=["$x_1$","$x_2$",_hue])
+    idx = np.argsort(y)
+    df = pd.DataFrame(data=np.hstack((X[idx,:],y[idx,np.newaxis])), columns=["$x_1$","$x_2$",_hue])
     # Generate seaborn plot
     g = sns.FacetGrid(df, hue=_hue, palette="Set1", size=5, legend_out=False)
     g.map(plt.scatter, "$x_1$", "$x_2$", s=100, linewidth=.5, edgecolor="white")
@@ -459,8 +456,30 @@ def make_scatterplot(root=(), data_in=(), model_param=(), trueLabel=None, labels
         except Exception as e:
             logging.info('Error in 3D plot: ' + str(e))
 
+def plot_PCmagnitude(root=(), points=(), title=()):
+    """Generate and save the plot representing the trend of principal components magnitude.
 
-def analysis_worker(elem,rootFolder,y,feat_names,class_names):
+    Parameters
+    -----------
+
+    rootFolder : string
+        The root path for the output creation
+
+    points : array of float, shape : n_components
+        This could be the explained variance ratio or the eigenvalues of the centered matrix, according to the PCA algorithm of choice, respectively: PCA or KernelPCA.
+
+    title : string
+        Plot title
+    """
+    fileName = os.path.join(root,os.path.basename(root)+"_magnitude")
+    plt.plot(np.arange(1, len(points)+1), points, '-o')
+    plt.title(title)
+    plt.grid('on')
+    plt.ylabel("%")
+    plt.xlim([1,min(20,len(points)+1)]) # Show maximum 20 components
+    plt.savefig(fileName)
+
+def analysis_worker(elem, rootFolder, y, feat_names, class_names):
     """Parallel pipelines analysis.
 
     Parameters
@@ -497,7 +516,12 @@ def analysis_worker(elem,rootFolder,y,feat_names,class_names):
         # Launch analysis
         if step_level == 'dimred':
             make_scatter(root=os.path.join(rootFolder, outFolder), embedding=step_out, trueLabel=y, model_param=step_param)
-            plt.clf()
+            plt.close()
+            if hasattr(mdl_obj, 'explained_variance_ratio_'):
+                plot_PCmagnitude(root=os.path.join(rootFolder, outFolder), points=mdl_obj.explained_variance_ratio_, title='Explained variance ratio')
+            if hasattr(mdl_obj, 'lambdas_'):
+                plot_PCmagnitude(root=os.path.join(rootFolder, outFolder), points=mdl_obj.lambdas_/np.sum(mdl_obj.lambdas_), title='Normalized eigenvalues of the centered kernel matrix')
+            plt.close()
         if step_level == 'clustering':
             if hasattr(mdl_obj, 'cluster_centers_'):
                 make_voronoi(root=os.path.join(rootFolder, outFolder), labels=step_out, trueLabel=y, model_param=step_param, data_in=step_in, model=voronoi_mdl_obj)
