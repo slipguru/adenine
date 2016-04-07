@@ -44,7 +44,7 @@ def make_scatter(root=(), embedding=(), model_param=(), trueLabel=None):
 
     # Define plot color
 #    if not np.isnan(trueLabel[0]):
-    if trueLabel is None or trueLabel[0] == np.nan:
+    if trueLabel is None:# or trueLabel[0] == np.nan:
         y = np.zeros((n_samples))
         _hue = ' '
     else:
@@ -102,7 +102,7 @@ def make_voronoi(root=(), data_in=(), model_param=(), trueLabel=None, labels=(),
     # Define plot color
     #if not np.isnan(trueLabel[0]):
 
-    if trueLabel is None or trueLabel[0] == np.nan:
+    if trueLabel is None:# or trueLabel[0] == np.nan:
         y = np.zeros((n_samples))
         _hue = ' '
     else:
@@ -186,7 +186,7 @@ def est_clst_perf(root=(), data_in=(), label=(), trueLabel=None, model=(), metri
 
         #if not np.isnan(np.array([trueLabel]).any()): # the next indexes need a gold standard
         # if not np.array([trueLabel]).any() == np.nan: # the next indexes need a gold standard
-        if trueLabel is not None and not trueLabel == np.nan: # the next indexes need a gold standard
+        if trueLabel is not None:# and not trueLabel == np.nan: # the next indexes need a gold standard
             perf_out['ari'] = metrics.adjusted_rand_score(trueLabel, label)
             perf_out['ami'] = metrics.adjusted_mutual_info_score(trueLabel, label)
             perf_out['homogeneity'] = metrics.homogeneity_score(trueLabel, label)
@@ -277,7 +277,7 @@ def get_step_attributes(step=(), pos=()):
     logging.info("{} : {}".format(level,name))
     return name, level, param, data_out, data_in, mdl_obj, voronoi_mdl_obj, metric
 
-def make_tree(root=(), data_in=(), model_param=(), trueLabel=np.nan, labels=(), model=()):
+def make_tree(root=(), data_in=(), model_param=(), trueLabel=None, labels=(), model=()):
     """Generate and save the tree structure obtained from the clustering algorithm.
 
     This function generates the tree obtained from the clustering algorithm applied on the data. The plots will be saved into the appropriate folder of the tree-like structure created into the root folder.
@@ -324,7 +324,7 @@ def make_tree(root=(), data_in=(), model_param=(), trueLabel=np.nan, labels=(), 
     graph.write_png(filename)
     logging.info('Figured saved {}'.format(filename))
 
-def make_dendrogram(root=(), data_in=(), model_param=(), trueLabel=np.nan, labels=(), model=()):
+def make_dendrogram(root=(), data_in=(), model_param=(), trueLabel=None, labels=(), model=()):
     """Generate and save the dendrogram obtained from the clustering algorithm.
 
     This function generates the dendrogram obtained from the clustering algorithm applied on the data. The plots will be saved into the appropriate folder of the tree-like structure created into the root folder.
@@ -382,7 +382,7 @@ def make_dendrogram(root=(), data_in=(), model_param=(), trueLabel=np.nan, label
     logging.info('Figured saved {}'.format(filename))
 
 
-def make_scatterplot(root=(), data_in=(), model_param=(), trueLabel=np.nan, labels=(), model=()):
+def make_scatterplot(root=(), data_in=(), model_param=(), trueLabel=None, labels=(), model=()):
     """Generate and save the scatter plot obtained from the clustering algorithm.
 
     This function generates the scatter plot obtained from the clustering algorithm applied on the data projected on a two-dimensional embedding. The color of the points in the plot is consistent with the label estimated by the algorithm. The plots will be saved into the appropriate folder of the tree-like structure created into the root folder.
