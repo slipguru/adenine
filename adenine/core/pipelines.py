@@ -128,7 +128,7 @@ def pipe_worker(pipeID, pipe, pipes_dump, X):
                 mdl_voronoi = copy.copy(step[1])
                 mdl_voronoi.fit(X_curr[:,:2])
             else:
-                mdl_voronoi = np.nan
+                mdl_voronoi = None
             # 4. save the results in a dictionary of dictionary of the form:
             # {'pipeID': {'stepID' : [alg_name, level, params, res, Xnext, Xcurr, stepObj, voronoi_suitable_model]}}
             step_dump[stepID] = [step[0], level, step[1].get_params(), X_next, X_curr, step[1], mdl_voronoi]

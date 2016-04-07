@@ -301,6 +301,8 @@ def make_tree(root=(), data_in=(), model_param=(), trueLabel=None, labels=(), mo
 
     MAX_NODES = 50
 
+    print data_in.shape
+
     graph = pydot.Dot(graph_type='graph')
 
     ii = itertools.count(data_in.shape[0])
@@ -370,7 +372,12 @@ def make_dendrogram(root=(), data_in=(), model_param=(), trueLabel=None, labels=
                 print("Cannot import name {}".format('ignet.plotting'))
         return
 
-    g = sns.clustermap(df.corr(), method=model.linkage, metric=model.affinity)
+    # workaround to a different name used for manhatta / cityblock distance
+    if model.affinity == 'manhattan':
+        model.affinity = 'cityblock'
+
+    g = sns.clustermap(df, method=model.linkage, metric=model.affinity, cmap='coolwarm')
+    plt.setp(g.ax_heatmap.yaxis.get_majorticklabels(), rotation=0, fontsize=5)
     filename = os.path.join(root, os.path.basename(root)+'_dendrogram.png')
     g.savefig(filename)
     logging.info('Figured saved {}'.format(filename))
@@ -526,9 +533,9 @@ def analysis_worker(elem, rootFolder, y, feat_names, class_names):
             if hasattr(mdl_obj, 'cluster_centers_'):
                 make_voronoi(root=os.path.join(rootFolder, outFolder), labels=step_out, trueLabel=y, model_param=step_param, data_in=step_in, model=voronoi_mdl_obj)
             elif hasattr(mdl_obj, 'n_leaves_'):
-                make_tree(root=os.path.join(rootFolder, outFolder), labels=step_out, trueLabel=y, model_param=step_param, data_in=step_in, model=mdl_obj)
+                # make_tree(root=os.path.join(rootFolder, outFolder), labels=step_out, trueLabel=y, model_param=step_param, data_in=step_in, model=mdl_obj)
 
-                # make_dendrogram(root=os.path.join(rootFolder, outFolder), labels=step_out, trueLabel=y, model_param=step_param, data_in=step_in, model=mdl_obj)
+                make_dendrogram(root=os.path.join(rootFolder, outFolder), labels=step_out, trueLabel=y, model_param=step_param, data_in=step_in, model=mdl_obj)
 
             make_scatterplot(root=os.path.join(rootFolder, outFolder), labels=step_out, trueLabel=y, model_param=step_param, data_in=step_in, model=mdl_obj)
 
