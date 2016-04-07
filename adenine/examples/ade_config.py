@@ -27,21 +27,21 @@ X, y, feat_names, class_names = data_source.load('gauss')
 step0 = {'Impute': [False], 'Missing': [-1], 'Replacement': ['median','mean']}
 
 # --- Data Preprocessing --- #
-step1 = {'None': [True], 'Recenter': [False], 'Standardize': [False],
+step1 = {'None': [False], 'Recenter': [False], 'Standardize': [False],
          'Normalize': [True, ['l2']], 'MinMax': [False, [0,1]]}
 
 # --- Dimensionality Reduction & Manifold Learning --- #
-step2 = {'PCA': [False], 'IncrementalPCA': [False], 'RandomizedPCA': [False],
-         'KernelPCA': [True, ['linear','rbf','poly']], 'Isomap': [False],
+step2 = {'PCA': [True], 'IncrementalPCA': [False], 'RandomizedPCA': [False],
+         'KernelPCA': [False, ['linear','rbf','poly']], 'Isomap': [False],
          'LLE': [False, ['standard','modified','hessian', 'ltsa']],
-         'SE': [True], 'MDS': [False, ['metric','nonmetric']],
-         'tSNE': [True], 'None': [True]}
+         'SE': [False], 'MDS': [False, ['metric','nonmetric']],
+         'tSNE': [False], 'None': [False]}
 
 # --- Clustering --- #
-step3 = {'KMeans': [True, [3]], # cannot be 'precomputed'
-        #  'AP': [False, ['precomputed']], # can be 'precomputed'
-         'AP': [True], # can be 'precomputed'
-         'MS': [True], # cannot be 'precomputed'
+step3 = {'KMeans': [False, [3]], # cannot be 'precomputed'
+        #  'AP': [False, [1,'precomputed']], # can be 'precomputed'
+         'AP': [True, [-80]], # can be 'precomputed'
+         'MS': [False], # cannot be 'precomputed'
         #  'Spectral': [True, [50, ['precomputed']]], # can be 'precomputed'
          'Spectral': [False, [5]], # can be 'precomputed'
          'Hierarchical': [False, [3, ['manhattan','euclidean'], ['ward','complete','average']]]}

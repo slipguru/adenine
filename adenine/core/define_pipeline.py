@@ -140,17 +140,21 @@ def parse_clustering(key, content):
     cltpl : tuple
         A tuple made like that ('ClusteringName', clustObj), where clustObj implements the .fit method.
     """
+     # list flattening
+    flatten = lambda x: [y for l in x for y in flatten(l)] if type(x) is list else [x]
+
     if key.lower() == 'kmeans':
         cl = KMeans(n_clusters=content, init='k-means++', n_jobs=-1)
     elif key.lower() == 'ap':
-        if 'precomputed' in content:
-            cl = AffinityPropagation(affinity='precomputed')
+        if 'precomputed' in flatten(content):
+            cl = AffinityPropagation(affinity='precomputed',preference=content[0])
         else:
-            cl = AffinityPropagation()
+            cl = AffinityPropagation(preference=content)
     elif key.lower() == 'ms':
         cl = MeanShift()
     elif key.lower() == 'spectral':
-        if 'precomputed' in content:
+        flat_content = [item for sublist in content for item in sublist]
+        if 'precomputed' in flatten(content):
             cl = SpectralClustering(n_clusters=content[0], affinity='precomputed')
         else:
             cl = SpectralClustering(n_clusters=content)
