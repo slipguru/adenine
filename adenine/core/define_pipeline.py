@@ -112,10 +112,7 @@ def parse_dimred(key, content):
     elif key.lower() == 'se':
         dr = SpectralEmbedding()
     elif key.lower() == 'mds':
-        if content == 'nonmetric':
-            dr = MDS(metric='False')
-        else:
-            dr = MDS(metric='True')
+        dr = MDS(metric=(content != 'nonmetric'))
     elif key.lower() == 'tsne':
         dr = TSNE()
     else:
