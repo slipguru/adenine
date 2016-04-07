@@ -51,8 +51,6 @@ def make_scatter(root=(), embedding=(), model_param=(), trueLabel=None):
         y = trueLabel # use the labels if provided
         _hue = 'Classes'
 
-    # Define the fileName
-    fileName = os.path.basename(root)
     # Define the plot title
     for i, t in enumerate(root.split(os.sep)): # something like ['results', 'ade_debug_', 'Standardize', 'PCA']
         if t[0:5] == '_ade': break
@@ -68,8 +66,9 @@ def make_scatter(root=(), embedding=(), model_param=(), trueLabel=None):
     # g.set_xticklabels([])
     # g.set_yticklabels([])
     plt.title(title)
-    plt.savefig(os.path.join(root,fileName))
-    logging.info('Figured saved {}'.format(os.path.join(root,fileName)))
+    filename = os.path.join(root,os.path.basename(root))
+    plt.savefig(filename)
+    logging.info('Figured saved {}'.format(filename))
     plt.close()
 
 def make_voronoi(root=(), data_in=(), model_param=(), trueLabel=None, labels=(), model=()):
@@ -109,8 +108,6 @@ def make_voronoi(root=(), data_in=(), model_param=(), trueLabel=None, labels=(),
         y = trueLabel # use the labels if provided
         _hue = 'Classes'
 
-    # Define the fileName
-    fileName = os.path.basename(root)
     # Define the plot title
     for i, t in enumerate(root.split(os.sep)): # something like ['results', 'ade_debug_', 'Standardize', 'PCA']
         if t[0:5] == '_ade': break
@@ -149,9 +146,9 @@ def make_voronoi(root=(), data_in=(), model_param=(), trueLabel=None, labels=(),
     plt.xlim([xx.min(), xx.max()])
     plt.ylim([yy.min(), yy.max()])
 
-    fileName = os.path.basename(root)
-    plt.savefig(os.path.join(root,fileName))
-    logging.info('Figured saved {}'.format(os.path.join(root,fileName)))
+    filename = os.path.join(root,os.path.basename(root))
+    plt.savefig(filename)
+    logging.info('Figured saved {}'.format(filename))
 
 
 def est_clst_perf(root=(), data_in=(), label=(), trueLabel=None, model=(), metric='euclidean'):
@@ -182,7 +179,7 @@ def est_clst_perf(root=(), data_in=(), label=(), trueLabel=None, model=(), metri
         perf_out['silhouette'] = metrics.silhouette_score(data_in, label, metric=metric)
 
         if hasattr(model, 'inertia_'): # Sum of distances of samples to their closest cluster center.
-            perf_out['inertia'] = mdl_obj.inertia_
+            perf_out['inertia'] = model.inertia_
 
         #if not np.isnan(np.array([trueLabel]).any()): # the next indexes need a gold standard
         # if not np.array([trueLabel]).any() == np.nan: # the next indexes need a gold standard
@@ -197,9 +194,9 @@ def est_clst_perf(root=(), data_in=(), label=(), trueLabel=None, model=(), metri
         logging.info("Clustering performance evaluation failed for {}".format(model))
         perf_out = {'empty': 0.0}
 
-    # Define the fileName
-    fileName = os.path.basename(root)
-    with open(os.path.join(root,fileName+".txt"), "w") as f:
+    # Define the filename
+    filename = os.path.join(root,os.path.basename(root))
+    with open(filename+'.txt', 'w') as f:
         f.write("------------------------------------\n")
         f.write("Adenine: Clustering Performance\n")
         f.write("------------------------------------\n")
@@ -210,9 +207,9 @@ def est_clst_perf(root=(), data_in=(), label=(), trueLabel=None, model=(), metri
             f.write("------------------------------------\n")
 
     # pkl Dump
-    with open(os.path.join(root,fileName+'.pkl'), 'w+') as f:
+    with open(filename+'.pkl', 'w+') as f:
         pkl.dump(perf_out, f)
-    logging.info("Dumped : {}".format(os.path.join(root,fileName+'.pkl')))
+    logging.info("Dumped : {}".format(filename+'.pkl'))
 
 
 def get_step_attributes(step=(), pos=()):
@@ -413,8 +410,8 @@ def make_scatterplot(root=(), data_in=(), model_param=(), trueLabel=None, labels
     y = labels
     _hue = 'Estimated Labels'
 
-    # Define the fileName
-    fileName = os.path.basename(root)
+    # Define the filename
+    #filename = os.path.basename(root)
     # Define the plot title
     for i, t in enumerate(root.split(os.sep)): # something like ['results', 'ade_debug_', 'Standardize', 'PCA']
         if t[0:5] == '_ade': break
