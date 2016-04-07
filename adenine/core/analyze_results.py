@@ -264,8 +264,9 @@ def get_step_attributes(step=(), pos=()):
             name += '_nonmetric'
     elif name == 'Hierarchical':
         name += '_'+param['affinity']+'_'+param['linkage']
-        if param['affinity'] == 'precomputed':
-            metric = 'precomputed'
+
+    if param.get('affinity', '') == 'precomputed':
+        metric = 'precomputed'
 
     logging.info("{} : {}".format(level,name))
     return name, level, param, data_out, data_in, mdl_obj, voronoi_mdl_obj, metric
