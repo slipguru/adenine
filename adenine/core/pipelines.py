@@ -8,6 +8,7 @@ import multiprocessing
 import cPickle as pkl
 import numpy as np
 from adenine.utils.extra import make_time_flag
+from adenine.utils.extra import get_time
 
 def create(pdef):
     """Scikit-learn Pipelines objects creation (deprecated).
@@ -172,7 +173,8 @@ def run(pipes=(), X=(), exp_tag='def_tag', root=''):
     # Check root folder
     if not os.path.exists(root): # if it does not exist
         if not len(root):             # (and the name has not been even specified)
-            root = 'results_'+exp_tag+make_time_flag() # create a standard name
+            # root = 'results_'+exp_tag+make_time_flag() # create a standard name
+            root = 'results_'+exp_tag+get_time() # create a standard name
         os.makedirs(root)        # and make the folder
         logging.warn("No root folder supplied, folder {} created".format(os.path.abspath(root)))
 

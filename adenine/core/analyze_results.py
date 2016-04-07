@@ -11,6 +11,12 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn import metrics
 from scipy.cluster.hierarchy import linkage as sp_linkage
+import collections
+
+palette = sns.color_palette("Set1")
+def nxtc():
+    palette.append(palette.pop(0))
+    return palette[-1]
 
 def make_scatter(root=(), embedding=(), model_param=(), trueLabel=None):
     """Generate and save the scatter plot of the dimensionality reduced data set.
@@ -360,23 +366,23 @@ def make_dendrogram(root=(), data_in=(), model_param=(), trueLabel=np.nan, label
                 filename = os.path.join(root, os.path.basename(root)+'_'+method+'_dendrogram.png')
                 g.savefig(filename)
                 logging.info('Figured saved {}'.format(filename))
-        else:
+        avg_sil = True
+        if avg_sil:
             try:
-                from plotting.silhouette_score_plot import plot_avg_silhouette
-                plot_avg_silhouette(tmp)
+                from ignet.plotting.silhouette_hierarchical import plot_avg_silhouette
+                filename = plot_avg_silhouette(tmp)
+                logging.info('Figured saved {}'.format(filename))
             except:
-                print("Cannot import name {}".format('plotting'))
+                print("Cannot import name {}".format('ignet.plotting'))
         return
-    else:
-        g = sns.clustermap(df.corr(), method=model.linkage, metric=model.affinity)
 
-    # Define the fileName
+    g = sns.clustermap(df.corr(), method=model.linkage, metric=model.affinity)
     filename = os.path.join(root, os.path.basename(root)+'_dendrogram.png')
     g.savefig(filename)
     logging.info('Figured saved {}'.format(filename))
 
 
-def make_scatterplot(root=(), data_in=(), model_param=(), trueLabel=np.nan, labels=(), model=(), n_dimensions=2):
+def make_scatterplot(root=(), data_in=(), model_param=(), trueLabel=np.nan, labels=(), model=()):
     """Generate and save the scatter plot obtained from the clustering algorithm.
 
     This function generates the scatter plot obtained from the clustering algorithm applied on the data projected on a two-dimensional embedding. The color of the points in the plot is consistent with the label estimated by the algorithm. The plots will be saved into the appropriate folder of the tree-like structure created into the root folder.
@@ -415,23 +421,46 @@ def make_scatterplot(root=(), data_in=(), model_param=(), trueLabel=np.nan, labe
     title = str("$\mapsto$").join(root.split(os.sep)[i-2:])
 
     # Seaborn scatter Plot
-    X = data_in[:,:n_dimensions]
-    if n_dimensions == 2:
-        df = pd.DataFrame(data=np.hstack((X,y[:,np.newaxis])), columns=["$x_1$","$x_2$",_hue])
-        # Generate seaborn plot
-        g = sns.FacetGrid(df, hue=_hue, palette="Set1", size=5, legend_out=False)
-        g.map(plt.scatter, "$x_1$", "$x_2$", s=100, linewidth=.5, edgecolor="white")
-        if _hue != ' ': g.add_legend() #!! customize legend
-    elif n_dimensions == 3:
-        from mpl_toolkits.mplot3d import Axes3D
-        f = plt.figure().gca(projection='3d')
-        f.scatter(X[:,0],X[:,1],X[:,2],y,c=y,cmap='hot')
+    X = data_in[:,:2]
 
+    #2D plot
+    df = pd.DataFrame(data=np.hstack((X,y[:,np.newaxis])), columns=["$x_1$","$x_2$",_hue])
+    # Generate seaborn plot
+    g = sns.FacetGrid(df, hue=_hue, palette="Set1", size=5, legend_out=False)
+    g.map(plt.scatter, "$x_1$", "$x_2$", s=100, linewidth=.5, edgecolor="white")
+    if _hue != ' ': g.add_legend() #!! customize legend
     plt.title(title)
+    filename = os.path.join(root,os.path.basename(root)+"_scatter2D")
+    plt.savefig(filename)
+    logging.info('Figured saved {}'.format(filename))
 
-    fileName = os.path.basename(root)
-    plt.savefig(os.path.join(root,fileName+"_scatter"))
-    logging.info('Figured saved {}'.format(os.path.join(root,fileName+"_scatter")))
+    #3D plot
+    X = data_in[:,:3]
+    if X.shape[1] < 3:
+        logging.info(os.path.join(root,os.path.basename(root)+"_scatter3D") + ' cannot be generated (data have less than 3 dimensions)')
+    else:
+        try:
+            from mpl_toolkits.mplot3d import Axes3D
+            ax = plt.figure().gca(projection='3d')
+            # ax.scatter(X[:,0], X[:,1], X[:,2], y, c=y, cmap='hot', s=100, linewidth=.5, edgecolor="white")
+            d = collections.Counter(y)
+            y = np.array(y)
+            for colorid, k in enumerate(d):
+                idx = np.where(y==k)[0]
+                ax.plot(X[:,0][idx], X[:,1][idx], X[:,2][idx], 'o', c=nxtc(), label=str(k), mew=.5, mec="white")
+
+            ax.set_xlabel(r'$x_1$')
+            ax.set_ylabel(r'$x_2$')
+            ax.set_zlabel(r'$x_3$')
+            ax.set_title(title)
+            ax.legend(loc='upper left', numpoints=1, ncol=10, fontsize=8, bbox_to_anchor=(0, 0))
+            # plt.legend(loc='upper left', numpoints=1, ncol=3, fontsize=8, bbox_to_anchor=(0, 0111))
+            filename = os.path.join(root,os.path.basename(root)+"_scatter3D")
+            plt.savefig(filename)
+            logging.info('Figured saved {}'.format(filename))
+        except Exception as e:
+            logging.info('Error in 3D plot: ' + str(e))
+
 
 def analysis_worker(elem,rootFolder,y,feat_names,class_names):
     """Parallel pipelines analysis.
