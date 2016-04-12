@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import os
-from joblib import Parallel, delayed
+# from joblib import Parallel, delayed
 import logging
 import cPickle as pkl
 import numpy as np
@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 from sklearn import metrics
 from scipy.cluster.hierarchy import linkage as sp_linkage
 import collections
+import multiprocessing as mp
 
 palette = sns.color_palette("Set1")
 def nxtc():
@@ -46,6 +47,7 @@ def make_scatter(root=(), embedding=(), model_param=(), trueLabel=None):
     else:
         y = trueLabel # use the labels if provided
         _hue = 'Classes'
+    print y
 
     # Define the plot title
     for i, t in enumerate(root.split(os.sep)): # something like ['results', 'ade_debug_', 'Standardize', 'PCA']
@@ -55,6 +57,7 @@ def make_scatter(root=(), embedding=(), model_param=(), trueLabel=None):
     # Create pandas data frame (needed by sns)
     X = embedding[:,:2]
     df = pd.DataFrame(data=np.hstack((X,y[:,np.newaxis])), columns=["$x_1$","$x_2$",_hue])
+    # print df
     # Generate seaborn plot
     g = sns.FacetGrid(df, hue=_hue, palette="Set1", size=5, legend_out=False)
     g.map(plt.scatter, "$x_1$", "$x_2$", s=100, linewidth=.5, edgecolor="white")
@@ -301,8 +304,6 @@ def make_tree(root=(), data_in=(), model_param=(), trueLabel=None, labels=(), mo
 
     MAX_NODES = 50
 
-    print data_in.shape
-
     graph = pydot.Dot(graph_type='graph')
 
     ii = itertools.count(data_in.shape[0])
@@ -315,8 +316,9 @@ def make_tree(root=(), data_in=(), model_param=(), trueLabel=None, labels=(), mo
         # if k > MAX_NODES: break
 
     # Define the filename
-    filename = os.path.join(root, os.path.basename(root)+'_tree.png')
-    graph.write_pdf(filename+".pdf")
+    filename = os.path.join(root, os.path.basename(root)+'_tree.pdf')
+    # graph.write_png(filename[:-2]+"ng")
+    graph.write_pdf(filename)
     logging.info('Figured saved {}'.format(filename))
 
 def make_dendrogram(root=(), data_in=(), model_param=(), trueLabel=None, labels=(), model=()):
@@ -485,7 +487,7 @@ def plot_PCmagnitude(root=(), points=(), title=()):
     plt.xlim([1,min(20,len(points)+1)]) # Show maximum 20 components
     plt.savefig(fileName)
 
-def analysis_worker(elem, rootFolder, y, feat_names, class_names):
+def analysis_worker(elem, rootFolder, y, feat_names, class_names, lock):
     """Parallel pipelines analysis.
 
     Parameters
@@ -516,8 +518,10 @@ def analysis_worker(elem, rootFolder, y, feat_names, class_names):
 
         # Output folder definition & creation
         outFolder = os.path.join(outFolder,step_name)
-        if not os.path.exists(os.path.join(rootFolder, outFolder)):
-            os.makedirs(os.path.join(rootFolder, outFolder))
+        # print i,os.path.join(rootFolder, outFolder)
+        with lock:
+            if not os.path.exists(os.path.join(rootFolder, outFolder)):
+                os.makedirs(os.path.join(rootFolder, outFolder))
 
         # Launch analysis
         if step_level == 'dimred':
@@ -532,7 +536,7 @@ def analysis_worker(elem, rootFolder, y, feat_names, class_names):
             if hasattr(mdl_obj, 'cluster_centers_'):
                 make_voronoi(root=os.path.join(rootFolder, outFolder), labels=step_out, trueLabel=y, model_param=step_param, data_in=step_in, model=voronoi_mdl_obj)
             elif hasattr(mdl_obj, 'n_leaves_'):
-                # make_tree(root=os.path.join(rootFolder, outFolder), labels=step_out, trueLabel=y, model_param=step_param, data_in=step_in, model=mdl_obj)
+                make_tree(root=os.path.join(rootFolder, outFolder), labels=step_out, trueLabel=y, model_param=step_param, data_in=step_in, model=mdl_obj)
 
                 make_dendrogram(root=os.path.join(rootFolder, outFolder), labels=step_out, trueLabel=y, model_param=step_param, data_in=step_in, model=mdl_obj)
 
@@ -563,4 +567,14 @@ def start(inputDict=(), rootFolder=(), y=None, feat_names=(), class_names=()):
     class_names : array of integers (or strings), shape : n_features
         The class names; a range of numbers if missing.
     """
-    Parallel(n_jobs=len(inputDict))(delayed(analysis_worker)(elem,rootFolder,y,feat_names,class_names) for elem in inputDict.iteritems())
+    lock = mp.Lock()
+    # Parallel(n_jobs=len(inputDict))(delayed(analysis_worker)(elem,rootFolder,y,feat_names,class_names,lock) for elem in inputDict.iteritems())
+    ps = []
+    for elem in inputDict.iteritems():
+        p = mp.Process(target=analysis_worker,
+                       args=(elem,rootFolder,y,feat_names,class_names,lock))
+        p.start()
+        ps.append(p)
+
+    for p in ps:
+        p.join()
