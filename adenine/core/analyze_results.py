@@ -304,7 +304,6 @@ def make_tree(root=(), data_in=(), model_param=(), trueLabel=None, labels=(), mo
     graph = pydot.Dot(graph_type='graph')
 
     ii = itertools.count(data_in.shape[0])
-    print model.children_
     for k, x in enumerate(model.children_):
         root_node = next(ii)
         left_edge = pydot.Edge(root_node, x[0])
