@@ -304,18 +304,18 @@ def make_tree(root=(), data_in=(), model_param=(), trueLabel=None, labels=(), mo
     graph = pydot.Dot(graph_type='graph')
 
     ii = itertools.count(data_in.shape[0])
+    print model.children_
     for k, x in enumerate(model.children_):
-        root_node = str(next(ii))
+        root_node = next(ii)
         left_edge = pydot.Edge(root_node, x[0])
         right_edge = pydot.Edge(root_node, x[1])
         graph.add_edge(right_edge)
         graph.add_edge(left_edge)
-        if k > MAX_NODES:
-            break
+        # if k > MAX_NODES: break
 
     # Define the filename
     filename = os.path.join(root, os.path.basename(root)+'_tree.png')
-    graph.write_png(filename)
+    graph.write_pdf(filename+".pdf")
     logging.info('Figured saved {}'.format(filename))
 
 def make_dendrogram(root=(), data_in=(), model_param=(), trueLabel=None, labels=(), model=()):
