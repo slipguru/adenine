@@ -47,7 +47,6 @@ def make_scatter(root=(), embedding=(), model_param=(), trueLabel=None):
     else:
         y = trueLabel # use the labels if provided
         _hue = 'Classes'
-    print y
 
     # Define the plot title
     for i, t in enumerate(root.split(os.sep)): # something like ['results', 'ade_debug_', 'Standardize', 'PCA']
