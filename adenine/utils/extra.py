@@ -1,8 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from itertools import product
 import time
+from datetime import datetime
+from itertools import product
+
 
 def modified_cartesian(*args):
     """Modified Cartesian product.
@@ -67,7 +69,7 @@ def sec_to_time(seconds):
     return "%02d:%02d:%02d" % (h, m, s)
 
 def get_time():
-    return datetime.datetime.fromtimestamp(time()).strftime('%Y-%m-%d_%H:%M:%S')
+    return datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H:%M:%S')
 
 def ensure_symmetry(X):
     """Ensure matrix symmetry.
