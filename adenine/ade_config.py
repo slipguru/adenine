@@ -31,10 +31,10 @@ step2 = {'PCA': [False], 'IncrementalPCA': [False], 'RandomizedPCA': [False],
 
 # --- Clustering --- #
 step3 = {'KMeans': [True, [5]],
-         'AP': [False]
+         'AP': [False],
         #  'AP': [False, [1, ['precomputed']]],
          'MS': [False],
-         'Spectral': [True, [5]]
+         'Spectral': [True, [5]],
         #  'Spectral': [True, [5, ['precomputed']]],
          'Hierarchical': [False, [3, ['manhattan','euclidean'], ['ward','complete','average']]]}
         #  'Hierarchical': [False, [3, ['precomputed'], ['complete','average']]]}
