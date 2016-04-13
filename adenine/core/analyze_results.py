@@ -299,27 +299,30 @@ def make_tree(root=(), data_in=(), model_param=(), trueLabel=None, labels=(), mo
     model : sklearn or sklearn-like object
         An instance of the class that evaluates a step. In particular this must be a clustering model provided with the clusters_centers_ attribute (e.g. KMeans).
     """
-    import itertools
-    import pydot
-
-    MAX_NODES = 50
-
-    graph = pydot.Dot(graph_type='graph')
-
-    ii = itertools.count(data_in.shape[0])
-    for k, x in enumerate(model.children_):
-        root_node = next(ii)
-        left_edge = pydot.Edge(root_node, x[0])
-        right_edge = pydot.Edge(root_node, x[1])
-        graph.add_edge(right_edge)
-        graph.add_edge(left_edge)
-        # if k > MAX_NODES: break
-
-    # Define the filename
     filename = os.path.join(root, os.path.basename(root)+'_tree.pdf')
-    # graph.write_png(filename[:-2]+"ng")
-    graph.write_pdf(filename)
-    logging.info('Figured saved {}'.format(filename))
+    try:
+        import itertools
+        import pydot
+
+        MAX_NODES = 50
+
+        graph = pydot.Dot(graph_type='graph')
+
+        ii = itertools.count(data_in.shape[0])
+        for k, x in enumerate(model.children_):
+            root_node = next(ii)
+            left_edge = pydot.Edge(root_node, x[0])
+            right_edge = pydot.Edge(root_node, x[1])
+            graph.add_edge(right_edge)
+            graph.add_edge(left_edge)
+            # if k > MAX_NODES: break
+
+        # Define the filename
+        # graph.write_png(filename[:-2]+"ng")
+        graph.write_pdf(filename)
+        logging.info('Figured saved {}'.format(filename))
+    except:
+        logging.info('Cannot create {}'.format(filename))
 
 def make_dendrogram(root=(), data_in=(), model_param=(), trueLabel=None, labels=(), model=()):
     """Generate and save the dendrogram obtained from the clustering algorithm.
