@@ -32,8 +32,14 @@ def make_scatter(root=(), data_in=(), model_param=(), true_labels=False, labels=
     model_param : dictionary
         The parameters of the dimensionality reduciont and manifold learning algorithm.
 
-    trueLabel : array of float, shape : n_samples
-        The true label vector; np.nan if missing (useful for plotting reasons).
+    true_labels : boolean
+        Identify if labels contains true or estimated labels.
+
+    labels : array of float, shape : n_samples
+        The label vector. It can contain true or estimated labels.
+
+    model : sklearn or sklearn-like object
+        An instance of the class that evaluates a step. In particular this must be a clustering model provided with the clusters_centers_ attribute (e.g. KMeans).
     """
     n_samples, n_dim = data_in.shape
 
