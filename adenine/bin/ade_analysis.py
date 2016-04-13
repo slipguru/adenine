@@ -56,7 +56,7 @@ if __name__ == '__main__':
         print("USAGE: ade_analysis.py <RESULTS_FOLDER> ")
         sys.exit(-1)
     else:
-        fileNames = [ f for f in os.listdir(sys.argv[1]) if os.path.isfile(os.path.join(sys.argv[1],f)) ]
+        fileNames = [f for f in os.listdir(sys.argv[1]) if os.path.isfile(os.path.join(sys.argv[1],f))]
         found = False
         for f in fileNames:
             if f.endswith('.pkl') and f !=  "__data.pkl":
