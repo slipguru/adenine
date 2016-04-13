@@ -36,7 +36,6 @@ def main(dumpfile):
     with open(dumpfile, 'r') as f:
         res = pkl.load(f)
 
-
     tic = time.time()
     # Analyze the pipelines
     analyze_results.start(inputDict=res, rootFolder=os.path.dirname(dumpfile), y=y, feat_names=feat_names, class_names=class_names)
@@ -47,21 +46,15 @@ def main(dumpfile):
 
 # ----------------------------  RUN MAIN ---------------------------- #
 if __name__ == '__main__':
-
     if len(sys.argv) < 2:
         print("USAGE: ade_analysis.py <RESULTS_FOLDER> ")
         sys.exit(-1)
-    else:
-        fileNames = [f for f in os.listdir(sys.argv[1]) if os.path.isfile(os.path.join(sys.argv[1],f))]
-        found = False
-        for f in fileNames:
-            if f.endswith('.pkl') and f !=  "__data.pkl":
-                found, fileName = True, f
-                break
 
-        if not found:
-            print("No .pkl file found in {}".format(sys.argv[1]))
-            sys.exit(-1)
-        else:
-            # print("Starting the analysis of {}".format(fileName))
-            main(os.path.join(sys.argv[1],fileName)) # Run analysis
+    filename = [f for f in os.listdir(sys.argv[1]) if os.path.isfile(os.path.join(sys.argv[1], f)) and f.endswith('.pkl') and f !=  "__data.pkl"]
+
+    if not filename:
+        print("No .pkl file found in {}".format(sys.argv[1]))
+        sys.exit(-1)
+
+    # print("Starting the analysis of {}".format(filename))
+    main(os.path.join(sys.argv[1], filename[0])) # Run analysis
