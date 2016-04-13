@@ -2,9 +2,20 @@
 # -*- coding: utf-8 -*-
 
 import time
+import seaborn as sns
+
 from datetime import datetime
 from itertools import product
 
+palette = sns.color_palette("Set1")
+
+def next_color():
+    palette.append(palette.pop(0))
+    return palette[-1]
+
+def reset_palette():
+    global palette
+    palette = sns.color_palette("Set1")
 
 def modified_cartesian(*args):
     """Modified Cartesian product.
