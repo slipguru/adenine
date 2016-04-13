@@ -59,7 +59,6 @@ if __name__ == '__main__':
         fileNames = [ f for f in os.listdir(sys.argv[1]) if os.path.isfile(os.path.join(sys.argv[1],f)) ]
         found = False
         for f in fileNames:
-            print f
             if f.endswith('.pkl') and f !=  "__data.pkl":
                 found, fileName = True, f
                 break
