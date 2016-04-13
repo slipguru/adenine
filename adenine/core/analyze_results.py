@@ -15,9 +15,12 @@ import collections
 import multiprocessing as mp
 
 palette = sns.color_palette("Set1")
-def nxtc():
+def next_color():
     palette.append(palette.pop(0))
     return palette[-1]
+def reset_palette():
+    global palette
+    palette = sns.color_palette("Set1")
 
 def make_scatter(root=(), embedding=(), model_param=(), trueLabel=None):
     """Generates and saves the scatter plot of the dimensionality reduced data set.
@@ -80,9 +83,10 @@ def make_scatter(root=(), embedding=(), model_param=(), trueLabel=None):
             # ax.scatter(X[:,0], X[:,1], X[:,2], y, c=y, cmap='hot', s=100, linewidth=.5, edgecolor="white")
             d = collections.Counter(y)
             y = np.array(y)
+            reset_palette()
             for colorid, k in enumerate(d):
                 idx = np.where(y==k)[0]
-                ax.plot(X[:,0][idx], X[:,1][idx], X[:,2][idx], 'o', c=nxtc(), label=str(k), mew=.5, mec="white")
+                ax.plot(X[:,0][idx], X[:,1][idx], X[:,2][idx], 'o', c=next_color(), label=str(k), mew=.5, mec="white")
 
             ax.set_xlabel(r'$x_1$')
             ax.set_ylabel(r'$x_2$')
@@ -473,9 +477,10 @@ def make_scatterplot(root=(), data_in=(), model_param=(), trueLabel=None, labels
             # ax.scatter(X[:,0], X[:,1], X[:,2], y, c=y, cmap='hot', s=100, linewidth=.5, edgecolor="white")
             d = collections.Counter(y)
             y = np.array(y)
+            reset_palette()
             for colorid, k in enumerate(d):
                 idx = np.where(y==k)[0]
-                ax.plot(X[:,0][idx], X[:,1][idx], X[:,2][idx], 'o', c=nxtc(), label=str(k), mew=.5, mec="white")
+                ax.plot(X[:,0][idx], X[:,1][idx], X[:,2][idx], 'o', c=next_color(), label=str(k), mew=.5, mec="white")
 
             ax.set_xlabel(r'$x_1$')
             ax.set_ylabel(r'$x_2$')
@@ -489,7 +494,7 @@ def make_scatterplot(root=(), data_in=(), model_param=(), trueLabel=None, labels
         except Exception as e:
             logging.info('Error in 3D plot: ' + str(e))
 
-def plot_PCmagnitude(root=(), points=(), title=()):
+def plot_PCmagnitude(root=(), points=(), title='', ylabel=''):
     """Generate and save the plot representing the trend of principal components magnitude.
 
     Parameters
@@ -504,13 +509,49 @@ def plot_PCmagnitude(root=(), points=(), title=()):
     title : string
         Plot title
     """
-    fileName = os.path.join(root,os.path.basename(root)+"_magnitude")
     plt.plot(np.arange(1, len(points)+1), points, '-o')
     plt.title(title)
     plt.grid('on')
-    plt.ylabel("%")
+    plt.ylabel(ylabel)
     plt.xlim([1,min(20,len(points)+1)]) # Show maximum 20 components
-    plt.savefig(fileName)
+    filename = os.path.join(root,os.path.basename(root)+"_magnitude")
+    plt.savefig(filename)
+
+def plot_eigs(root='', affinity=(), n_clusters=0, title='', ylabel='', normalised=True):
+    """Generate and save the plot representing the eigenvalues of the Laplacian
+    associated to data affinity matrix.
+
+    Parameters
+    -----------
+
+    rootFolder : string
+        The root path for the output creation
+
+    points : array of float, shape : n_components
+        This could be the explained variance ratio or the eigenvalues of the centered matrix, according to the PCA algorithm of choice, respectively: PCA or KernelPCA.
+
+    title : string
+        Plot title
+    """
+    W = affinity - np.diag(np.diag(affinity))
+    D = np.diag([np.sum(x) for x in W])
+    L = D - W
+    if normalised:
+        # aux = np.linalg.inv(np.diag([np.sqrt(np.sum(x)) for x in W]))
+        aux =  np.diag(1. / np.array([np.sqrt(np.sum(x)) for x in W]))
+        L = np.eye(L.shape[0]) - (np.dot(np.dot(aux,W),aux)) # normalised L
+
+    w, v = np.linalg.eig(L)
+    w = np.array(sorted(np.abs(w)))
+    plt.plot(np.arange(1, len(w)+1), w, '-o')
+    plt.title(title)
+    plt.grid('on')
+    plt.ylabel(ylabel)
+    plt.xlim([1,min(20,len(w)+1)]) # Show maximum 20 components
+    plt.axvline(x=n_clusters+.5, linestyle='--', color='r', label='selected clusters')
+    plt.legend(loc='upper right', numpoints=1, ncol=10, fontsize=8)#, bbox_to_anchor=(1, 1))
+    filename = os.path.join(root,os.path.basename(root)+"_eigenvals")
+    plt.savefig(filename)
 
 def analysis_worker(elem, rootFolder, y, feat_names, class_names, lock):
     """Parallel pipelines analysis.
@@ -558,6 +599,8 @@ def analysis_worker(elem, rootFolder, y, feat_names, class_names, lock):
                 plot_PCmagnitude(root=os.path.join(rootFolder, outFolder), points=mdl_obj.lambdas_/np.sum(mdl_obj.lambdas_), title='Normalized eigenvalues of the centered kernel matrix')
             plt.close()
         if step_level == 'clustering':
+            if hasattr(mdl_obj, 'affinity_matrix_'):
+                plot_eigs(root=os.path.join(rootFolder, outFolder), affinity=mdl_obj.affinity_matrix_, n_clusters=mdl_obj.get_params()['n_clusters'], title='Eigenvalues of the graph associated to the affinity matrix')
             if hasattr(mdl_obj, 'cluster_centers_'):
                 make_voronoi(root=os.path.join(rootFolder, outFolder), labels=step_out, trueLabel=y, model_param=step_param, data_in=step_in, model=voronoi_mdl_obj)
             elif hasattr(mdl_obj, 'n_leaves_'):
