@@ -303,8 +303,6 @@ def make_tree(root=(), data_in=(), model_param=(), trueLabel=None, labels=(), mo
         import itertools
         import pydot
 
-        MAX_NODES = 50
-
         graph = pydot.Dot(graph_type='graph')
 
         ii = itertools.count(data_in.shape[0])
@@ -314,9 +312,7 @@ def make_tree(root=(), data_in=(), model_param=(), trueLabel=None, labels=(), mo
             right_edge = pydot.Edge(root_node, x[1])
             graph.add_edge(right_edge)
             graph.add_edge(left_edge)
-            # if k > MAX_NODES: break
 
-        # Define the filename
         # graph.write_png(filename[:-2]+"ng")
         graph.write_pdf(filename)
         logging.info('Figured saved {}'.format(filename))
