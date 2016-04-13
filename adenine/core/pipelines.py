@@ -143,7 +143,7 @@ def pipe_worker(pipeID, pipe, pipes_dump, X):
     logging.debug("DUMP: \n {} \n #########".format(pipes_dump))
 
 
-def run(pipes=(), X=(), exp_tag='def_tag', root=''):
+def run(pipes=(), X=(), exp_tag='def_tag', root='', y=None):
     """Fit and transform/predict some pipelines on some data.
 
     This function fits each pipeline in the input list on the provided data. The results are dumped into a pkl file as a dictionary of dictionaries of the form {'pipeID': {'stepID' : [alg_name, level, params, data_out, data_in, model_obj, voronoi_suitable_object], ...}, ...}. The model_obj is the sklearn model which has been fit on the dataset, the voronoi_suitable_object is the very same model but fitted on just the first two dimensions of the dataset. If a pipeline fails for some reasons the content of the stepID key is a list of np.nan.
@@ -215,5 +215,8 @@ def run(pipes=(), X=(), exp_tag='def_tag', root=''):
     with open(os.path.join(outputFolderName,outputFileName+'.pkl'), 'w+') as f:
         pkl.dump(pipes_dump, f)
     logging.info("Dumped : {}".format(os.path.join(outputFolderName,outputFileName+'.pkl')))
+    with open(os.path.join(outputFolderName,'__data.pkl'), 'w+') as f:
+        pkl.dump({'X': X, 'y': y}, f)
+    logging.info("Dumped : {}".format(os.path.join(outputFolderName,'__data.pkl')))
 
     return outputFolderName

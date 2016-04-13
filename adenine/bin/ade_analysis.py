@@ -16,7 +16,20 @@ def main(dumpfile):
     config = imp.load_source('ade_config', config_path)
 
     # Read the variables from the config file
-    X, y, feat_names, class_names = config.X, config.y, config.feat_names, config.class_names
+    # X, y, feat_names, class_names = config.X, config.y, config.feat_names, config.class_names
+    feat_names, class_names = config.feat_names, config.class_names
+    # Load the results used with ade_run.py
+    print os.path.join(os.path.dirname(dumpfile),'__data.pkl')
+    try:
+        with open(os.path.join(os.path.dirname(dumpfile),'__data.pkl'), 'r') as f:
+            data = pkl.load(f)
+            X, y = data['X'], data['y']
+    except:
+        sys.stderr("Cannot load __data.pkl. Reloading data from config file ...")
+        X, y = config.X, config.y
+
+
+    print dumpfile
 
     # Initialize the log file
     fileName = 'results_'+os.path.basename(dumpfile)[0:-4]
@@ -26,6 +39,7 @@ def main(dumpfile):
     # Load the results
     with open(dumpfile, 'r') as f:
         res = pkl.load(f)
+
 
     tic = time.time()
     # Analyze the pipelines
@@ -45,7 +59,8 @@ if __name__ == '__main__':
         fileNames = [ f for f in os.listdir(sys.argv[1]) if os.path.isfile(os.path.join(sys.argv[1],f)) ]
         found = False
         for f in fileNames:
-            if f.endswith('.pkl'):
+            print f
+            if f.endswith('.pkl') and f !=  "__data.pkl":
                 found, fileName = True, f
                 break
 
