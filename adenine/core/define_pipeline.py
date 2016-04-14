@@ -6,7 +6,6 @@ import numpy as np
 from adenine.utils.extra import modified_cartesian
 
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import Imputer
 from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.preprocessing import Normalizer
@@ -25,22 +24,9 @@ from sklearn.cluster import MeanShift
 from sklearn.cluster import SpectralClustering
 from sklearn.cluster import AgglomerativeClustering
 
-class DummyNone:
-    """Dummy class that does nothing.
+from adenine.utils.extensions import DummyNone
+from adenine.utils.extensions import Imputer
 
-    It is a sklearn 'transforms', it implements both a fit and a transform method and it just returns the data in input. It has been created only for consistency with sklearn.
-    """
-    def __init__(self):
-        pass
-
-    def fit(self,X):
-        return self
-
-    def transform(self,X):
-        return X
-
-    def get_params(self):
-        return dict()
 
 def parse_preproc(key, content):
         """Parse the options of the preprocessing step.
