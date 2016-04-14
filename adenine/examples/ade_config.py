@@ -28,7 +28,7 @@ y = y[idx[0:100]]
 # -----------------------  PIPELINE DEFINITION ------------------------ #
 
 # --- Missing Values Imputing --- #
-step0 = {'Impute': [False], 'Missing': [-1], 'Replacement': ['median','mean']}
+step0 = {'Impute': [False], 'Missing': [-1], 'Replacement': ['median','mean','nearest_neighbors']}
 
 # --- Data Preprocessing --- #
 step1 = {'None': [True], 'Recenter': [False], 'Standardize': [False],
