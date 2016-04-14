@@ -16,7 +16,7 @@ import multiprocessing as mp
 
 from adenine.utils.extra import next_color, reset_palette
 
-def make_scatter(root=(), data_in=(), model_param=(), true_labels=False, labels=None, model=()):
+def make_scatter(root=(), data_in=(), model_param=(), labels=None, true_labels=False, model=()):
     """Generates and saves the scatter plot of the dimensionality reduced data set.
 
     This function generates the scatter plot representing the dimensionality reduced data set. The plots will be saved into the root folder in a tree-like structure.
@@ -32,11 +32,11 @@ def make_scatter(root=(), data_in=(), model_param=(), true_labels=False, labels=
     model_param : dictionary
         The parameters of the dimensionality reduciont and manifold learning algorithm.
 
-    true_labels : boolean
-        Identify if labels contains true or estimated labels.
-
     labels : array of float, shape : n_samples
         The label vector. It can contain true or estimated labels.
+
+    true_labels : boolean
+        Identify if labels contains true or estimated labels.
 
     model : sklearn or sklearn-like object
         An instance of the class that evaluates a step. In particular this must be a clustering model provided with the clusters_centers_ attribute (e.g. KMeans).
@@ -51,11 +51,9 @@ def make_scatter(root=(), data_in=(), model_param=(), true_labels=False, labels=
         y = labels
         _hue = 'Classes' if true_labels else 'Estimated Labels'
 
-    # Define the plot title
-    for i, t in enumerate(root.split(os.sep)): # something like ['results', 'ade_debug_', 'Standardize', 'PCA']
-        if t[0:5] == '_ade': break
-    i = i-1 if true_labels else i-2 # if true_labels it is not the result of a clustering algorithm
-    title = str("$\mapsto$").join(root.split(os.sep)[i:])
+    # Define the plot title. List is smth like ['results', 'ade_debug_', 'Standardize', 'PCA']
+    i = [i for i, s in enumerate(root.split(os.sep)) if 'ade_' in s][0]
+    title = str("$\mapsto$").join(root.split(os.sep)[i+1:])
 
     # Seaborn scatter plot
     #2D plot
@@ -103,7 +101,7 @@ def make_scatter(root=(), data_in=(), model_param=(), true_labels=False, labels=
         except Exception as e:
             logging.info('Error in 3D plot: ' + str(e))
 
-def make_voronoi(root=(), data_in=(), model_param=(), trueLabel=None, labels=(), model=()):
+def make_voronoi(root=(), data_in=(), model_param=(), labels=None, true_labels=False, model=()):
     """Generate and save the Voronoi tessellation obtained from the clustering algorithm.
 
     This function generates the Voronoi tessellation obtained from the clustering algorithm applied on the data projected on a two-dimensional embedding. The plots will be saved into the appropriate folder of the tree-like structure created into the root folder.
@@ -119,11 +117,11 @@ def make_voronoi(root=(), data_in=(), model_param=(), trueLabel=None, labels=(),
     model_param : dictionary
         The parameters of the dimensionality reduciont and manifold learning algorithm.
 
-    trueLabel : array of float, shape : n_samples
-        The true label vector; np.nan if missing (useful for plotting reasons).
-
     labels : array of int, shape : n_samples
         The result of the clustering step.
+
+    true_labels : boolean
+        Identify if labels contains true or estimated labels.
 
     model : sklearn or sklearn-like object
         An instance of the class that evaluates a step. In particular this must be a clustering model provided with the clusters_centers_ attribute (e.g. KMeans).
@@ -131,19 +129,16 @@ def make_voronoi(root=(), data_in=(), model_param=(), trueLabel=None, labels=(),
     n_samples, n_dim = data_in.shape
 
     # Define plot color
-    #if not np.isnan(trueLabel[0]):
-
-    if trueLabel is None:# or trueLabel[0] == np.nan:
+    if labels is None:
         y = np.zeros((n_samples))
         _hue = ' '
     else:
-        y = trueLabel # use the labels if provided
+        y = labels # use the labels if provided
         _hue = 'Classes'
 
-    # Define the plot title
-    for i, t in enumerate(root.split(os.sep)): # something like ['results', 'ade_debug_', 'Standardize', 'PCA']
-        if t[0:5] == '_ade': break
-    title = str("$\mapsto$").join(root.split(os.sep)[i-2:])
+    # Define the plot title. List is smth like ['results', 'ade_debug_', 'Standardize', 'PCA']
+    i = [i for i, s in enumerate(root.split(os.sep)) if 'ade_' in s][0]
+    title = str("$\mapsto$").join(root.split(os.sep)[i+1:])
 
     # Seaborn scatter Plot
     X = data_in[:,:2]
@@ -184,7 +179,7 @@ def make_voronoi(root=(), data_in=(), model_param=(), trueLabel=None, labels=(),
     plt.close()
 
 
-def est_clst_perf(root=(), data_in=(), label=(), trueLabel=None, model=(), metric='euclidean'):
+def est_clst_perf(root=(), data_in=(), labels=None, t_labels=None, model=(), metric='euclidean'):
     """Estimate the clustering performance.
 
     This function estimate the clustering performance by means of several indexes. Then eventually saves the results in a tree-like structure in the root folder.
@@ -197,10 +192,10 @@ def est_clst_perf(root=(), data_in=(), label=(), trueLabel=None, model=(), metri
     data_in : array of float, shape : (n_samples, n_dimensions)
         The low space embedding estimated by the dimensinality reduction and manifold learning algorithm.
 
-    label : array of float, shape : n_samples
+    labels : array of float, shape : n_samples
         The label assignment performed by the clusterin algorithm.
 
-    trueLabel : array of float, shape : n_samples
+    t_labels : array of float, shape : n_samples
         The true label vector; np.nan if missing.
 
     model : sklearn or sklearn-like object
@@ -209,23 +204,23 @@ def est_clst_perf(root=(), data_in=(), label=(), trueLabel=None, model=(), metri
     perf_out = dict()
 
     try:
-        perf_out['silhouette'] = metrics.silhouette_score(data_in, label, metric=metric)
-
-        if hasattr(model, 'inertia_'): # Sum of distances of samples to their closest cluster center.
+        perf_out['silhouette'] = metrics.silhouette_score(data_in, labels, metric=metric)
+        if hasattr(model, 'inertia_'):
+            # Sum of distances of samples to their closest cluster center.
             perf_out['inertia'] = model.inertia_
 
-        #if not np.isnan(np.array([trueLabel]).any()): # the next indexes need a gold standard
-        # if not np.array([trueLabel]).any() == np.nan: # the next indexes need a gold standard
-        if trueLabel is not None:# and not trueLabel == np.nan: # the next indexes need a gold standard
-            perf_out['ari'] = metrics.adjusted_rand_score(trueLabel, label)
-            perf_out['ami'] = metrics.adjusted_mutual_info_score(trueLabel, label)
-            perf_out['homogeneity'] = metrics.homogeneity_score(trueLabel, label)
-            perf_out['completeness'] = metrics.completeness_score(trueLabel, label)
-            perf_out['v_measure'] = metrics.v_measure_score(trueLabel, label)
+        if t_labels is not None:
+            # the next indexes need a gold standard
+            perf_out['ari'] = metrics.adjusted_rand_score(t_labels, labels)
+            perf_out['ami'] = metrics.adjusted_mutual_info_score(t_labels, labels)
+            perf_out['homogeneity'] = metrics.homogeneity_score(t_labels, labels)
+            perf_out['completeness'] = metrics.completeness_score(t_labels, labels)
+            perf_out['v_measure'] = metrics.v_measure_score(t_labels, labels)
 
     except ValueError as e:
         logging.info("Clustering performance evaluation failed for {}".format(model))
-        perf_out = {'empty': 0.0}
+        # perf_out = {'empty': 0.0}
+        perf_out['###'] = 0.
 
     # Define the filename
     filename = os.path.join(root,os.path.basename(root))
@@ -393,7 +388,7 @@ def make_dendrogram(root=(), data_in=(), model_param=(), trueLabel=None, labels=
                 print("Compute linkage matrix with metric={} ...".format(method))
                 Z = sp_linkage(tmp, method=method, metric='euclidean')
                 g = sns.clustermap(df.corr(), method=method, row_linkage=Z, col_linkage=Z)
-                filename = os.path.join(root, os.path.basename(root)+'_'+method+'_dendrogram.png')
+                filename = os.path.join(root, '_'.join((os.path.basename(root), method, '_dendrogram.png')))
                 g.savefig(filename)
                 logging.info('Figured saved {}'.format(filename))
                 plt.close()
@@ -408,8 +403,7 @@ def make_dendrogram(root=(), data_in=(), model_param=(), trueLabel=None, labels=
         return
 
     # workaround to a different name used for manhatta / cityblock distance
-    if model.affinity == 'manhattan':
-        model.affinity = 'cityblock'
+    if model.affinity == 'manhattan': model.affinity = 'cityblock'
 
     g = sns.clustermap(df, method=model.linkage, metric=model.affinity, cmap='coolwarm')
     plt.setp(g.ax_heatmap.yaxis.get_majorticklabels(), rotation=0, fontsize=5)
@@ -593,7 +587,7 @@ def analysis_worker(elem, rootFolder, y, feat_names, class_names, lock):
         step_name, step_level, step_param, step_out, step_in, mdl_obj, voronoi_mdl_obj, metric = get_step_attributes(content[step], pos=i)
 
         # Output folder definition & creation
-        outFolder = os.path.join(outFolder,step_name)
+        outFolder = os.path.join(outFolder, step_name)
         rootname = os.path.join(rootFolder, outFolder)
         with lock:
             if not os.path.exists(rootname):
@@ -610,7 +604,8 @@ def analysis_worker(elem, rootFolder, y, feat_names, class_names, lock):
             if hasattr(mdl_obj, 'affinity_matrix_'):
                 plot_eigs(root=rootname, affinity=mdl_obj.affinity_matrix_, n_clusters=mdl_obj.get_params()['n_clusters'], title='Eigenvalues of the graph associated to the affinity matrix')
             if hasattr(mdl_obj, 'cluster_centers_'):
-                make_voronoi(root=rootname, labels=step_out, trueLabel=y, model_param=step_param, data_in=step_in, model=voronoi_mdl_obj)
+                # make_voronoi(root=rootname, labels=step_out, trueLabel=y, model_param=step_param, data_in=step_in, model=voronoi_mdl_obj)
+                make_voronoi(root=rootname, labels=y, true_labels=True, model_param=step_param, data_in=step_in, model=voronoi_mdl_obj)
             elif hasattr(mdl_obj, 'n_leaves_'):
                 make_tree(root=rootname, labels=step_out, trueLabel=y, model_param=step_param, data_in=step_in, model=mdl_obj)
 
@@ -619,7 +614,7 @@ def analysis_worker(elem, rootFolder, y, feat_names, class_names, lock):
             # make_scatterplot(root=rootname, labels=step_out, model_param=step_param, data_in=step_in, model=mdl_obj)
             make_scatter(root=rootname, labels=step_out, model_param=step_param, data_in=step_in, model=mdl_obj)
 
-            est_clst_perf(root=rootname, data_in=step_in, label=step_out, trueLabel=y, metric=metric)
+            est_clst_perf(root=rootname, data_in=step_in, labels=step_out, t_labels=y, metric=metric)
 
 
 def start(inputDict=(), rootFolder=(), y=None, feat_names=(), class_names=()):
