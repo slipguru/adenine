@@ -16,7 +16,7 @@ def main():
     print("{} x {} matrix created".format(n,p))
 
     # Choose the missing rate
-    missing_rate = 0.05
+    missing_rate = 0.01
     n_missing = int(missing_rate * (n*p))
 
     # Create holes in the matrix
@@ -24,6 +24,8 @@ def main():
     xx = X.ravel()
     xx[idx[:n_missing]] = np.nan
     X = np.reshape(xx, (n,p))
+    # X[0,0] = np.nan
+    # X[0,1] = np.nan
     print("{} values deleted".format(n_missing))
 
     # Start test
@@ -37,7 +39,7 @@ def main():
     if len(np.where(np.isnan(X))[0]) == 0:
         print("All values were imputed according to: {}-strategy".format(imp.strategy))
     else:
-        print("Empty values: {}".format(*np.where(np.isnan(X))[0]))
+        print("Empty values: {}".format(len(np.where(np.isnan(X))[0])))
 
 
 
