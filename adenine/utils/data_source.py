@@ -8,7 +8,7 @@ import pandas as pd
 from sklearn import datasets
 from sklearn.preprocessing import Binarizer
 
-def MixGauss(mu=(), std=(), n_sample=()):
+def generate_gauss(mu=(), std=(), n_sample=()):
     """Create a Gaussian dataset.
 
     Generates a dataset with n_sample * n_class examples and n_dim dimensions. Mu, the mean vector, is n_class x n_dim.
@@ -38,17 +38,17 @@ def MixGauss(mu=(), std=(), n_sample=()):
 
     return X, y
 
-def load_custom(fileName_X, fileName_y):
+def load_custom(x_filename, y_filename):
     """Load a custom dataset.
 
     This function loads the data matrix and the label vector returning a unique sklearn-like object dataSetObj.
 
     Parameters
     -----------
-    fileName_X : string
+    x_filename : string
         The data matrix file name.
 
-    fileName_y : string
+    y_filename : string
         The label vector file name.
 
     Returns
@@ -56,32 +56,32 @@ def load_custom(fileName_X, fileName_y):
     data : sklearn.datasets.base.Bunch
         An instance of the sklearn.datasets.base.Bunch class, the meaningful attributes are .data, the data matrix, and .target, the label vector
     """
-    if fileName_X is None:
+    if x_filename is None:
         raise IOError("Filename for X must be specified with mode 'custom'.")
-    if fileName_X.endswith('.npy'): # it an .npy file is provided
+    if x_filename.endswith('.npy'): # it an .npy file is provided
         try: # labels are not mandatory
-            y = np.load(fileName_y)
+            y = np.load(y_filename)
         except IOError as e:
             y = np.nan
             e.strerror = "No labels file provided"
             print("I/O error({0}): {1}".format(e.errno, e.strerror))
 
-        return datasets.base.Bunch(data=np.load(fileName_X), target=y)
-        # return dataSetObj(np.load(fileName_X),y)
+        return datasets.base.Bunch(data=np.load(x_filename), target=y)
+        # return dataSetObj(np.load(x_filename),y)
 
-    elif fileName_X.endswith('.csv') or fileName_X.endswith('.txt'):
+    elif x_filename.endswith('.csv') or x_filename.endswith('.txt'):
         try:
-            dfx = pd.io.parsers.read_csv(fileName_X, header=0, index_col=0)
+            dfx = pd.io.parsers.read_csv(x_filename, header=0, index_col=0)
         except IOError as e:
-            e.strerror = "Can't open {}".format(fileName_X)
+            e.strerror = "Can't open {}".format(x_filename)
             print("I/O error({0}): {1}".format(e.errno, e.strerror))
         y = None
-        if fileName_y is not None:
-            y = pd.io.parsers.read_csv(fileName_y, header=0, index_col=0).as_matrix().ravel()
+        if y_filename is not None:
+            y = pd.io.parsers.read_csv(y_filename, header=0, index_col=0).as_matrix().ravel()
         return datasets.base.Bunch(data=dfx.as_matrix(), target=y)
 
 
-def load(opt='custom', fileName_X=None, fileName_y=None):
+def load(opt='custom', x_filename=None, y_filename=None, n_samples=0):
     """Load a specified dataset.
 
     This function can be used either to load one of the standard scikit-learn datasets or a different dataset saved as X.npy Y.npy in the working directory.
@@ -90,10 +90,10 @@ def load(opt='custom', fileName_X=None, fileName_y=None):
     -----------
     opt : {'iris', 'digits', 'diabetes', 'boston', 'blobs','custom'}, default: 'custom'
 
-    fileName_X : string, default : None
+    x_filename : string, default : None
         The data matrix file name.
 
-    fileName_y : string, default : None
+    y_filename : string, default : None
         The label vector file name.
 
     Returns
@@ -124,16 +124,19 @@ def load(opt='custom', fileName_X=None, fileName_y=None):
         elif opt.lower() == 'gauss':
             means = np.array([[-1,1,1,1],[0,-1,0,0],[1,1,-1,-1]])
             sigmas = np.array([0.33, 0.33, 0.33])
-            n = 333
-            xx, yy = MixGauss(mu=means, std=sigmas, n_sample=n)
+            if n_samples <= 0: n_samples = 333
+            xx, yy = generate_gauss(mu=means, std=sigmas, n_sample=n_samples)
             data = datasets.base.Bunch(data=xx, target=yy)
         elif opt.lower() == 'custom':
-            data = load_custom(fileName_X, fileName_y)
+            data = load_custom(x_filename, y_filename)
     except IOError as e:
          print("I/O error({0}): {1}".format(e.errno, e.strerror))
 
-    # Get X, y and feature_names
     X, y = data.data, data.target
+    if X.shape[0] > n_samples:
+        idx = np.random.permutation(X.shape[0])[:n_samples]
+        X, y = X[idx,:], y[idx]
+
     try:
         feat_names = data.features_names
     except:

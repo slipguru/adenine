@@ -1,8 +1,21 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from itertools import product
 import time
+import seaborn as sns
+
+from datetime import datetime
+from itertools import product
+
+palette = sns.color_palette("Set1")
+
+def next_color():
+    palette.append(palette.pop(0))
+    return palette[-1]
+
+def reset_palette():
+    global palette
+    palette = sns.color_palette("Set1")
 
 def modified_cartesian(*args):
     """Modified Cartesian product.
@@ -67,7 +80,7 @@ def sec_to_time(seconds):
     return "%02d:%02d:%02d" % (h, m, s)
 
 def get_time():
-    return datetime.datetime.fromtimestamp(time()).strftime('%Y-%m-%d_%H:%M:%S')
+    return datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H:%M:%S')
 
 def ensure_symmetry(X):
     """Ensure matrix symmetry.

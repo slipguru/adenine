@@ -4,10 +4,10 @@
 import imp, sys, os, shutil
 import time
 import logging
-from adenine.utils.extra import make_time_flag
+# from adenine.utils.extra import make_time_flag
 from adenine.core import define_pipeline
 from adenine.core import pipelines
-from adenine.utils.extra import sec_to_time
+from adenine.utils import extra
 
 def main(config_file):
 
@@ -24,7 +24,7 @@ def main(config_file):
         os.makedirs(root)
 
     # Define the ade.log file (a new one for each run)
-    fileName = 'ade_'+exp_tag+'_'+make_time_flag()
+    fileName = '_'.join(('ade', exp_tag, extra.get_time()))
     logFileName = os.path.join(root, fileName+'.log')
     logging.basicConfig(filename=logFileName, level=logging.INFO, filemode='w')
 
@@ -34,14 +34,14 @@ def main(config_file):
 
     # Pipelines Evaluation
     tic = time.time()
-    outFolder = pipelines.run(pipes=pipes, X=X, exp_tag=fileName, root=root)
+    outFolder = pipelines.run(pipes=pipes, X=X, exp_tag=fileName, root=root, y=y)
     tac = time.time()
 
     # Copy the ade_config just used into the outFolder
     shutil.copy(config_path, os.path.join(outFolder, 'ade_config.py'))
     # Move the logging file into the outFolder
     shutil.move(logFileName, outFolder)
-    print("\n\npipelines.run: Elapsed time : {}".format(sec_to_time(tac-tic)))
+    print("\n\npipelines.run: Elapsed time : {}".format(extra.sec_to_time(tac-tic)))
 
 # ----------------------------  RUN MAIN ---------------------------- #
 if __name__ == '__main__':
