@@ -9,12 +9,8 @@ exp_tag = 'debug'
 output_root_folder = 'results'
 
 # ----------------------------  INPUT DATA ---------------------------- #
-# X, y, feat_names, class_names = data_source.load('iris')
+# X, y, feat_names, class_names = data_source.load('iris', n_samples=100)
 X, y, feat_names, class_names = data_source.load('gauss')
-import numpy as np
-idx = np.random.permutation(X.shape[0]);
-X = X[idx[0:100],:]
-y = y[idx[0:100]]
 # X, y, feat_names, class_names = data_source.load('digits')
 # X, y, feat_names, class_names = data_source.load('diabetes')
 # X, y, feat_names, class_names = data_source.load('boston')
