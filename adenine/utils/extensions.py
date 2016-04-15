@@ -3,6 +3,8 @@
 
 import logging
 import warnings
+import multiprocessing as mp
+
 import numpy as np
 
 from sklearn.preprocessing import Imputer
@@ -43,8 +45,9 @@ class Imputer(Imputer):
 
     def transform(self,X):
         if self.strategy.lower() in ['nearest_neighbors', 'nn']:
-            X[self.missing] = self.statistics_[self.missing]
-            return X
+            _X = X.copy()
+            _X[self.missing] = self.statistics_[self.missing]
+            return _X
         else:
             return super(Imputer, self).transform(X)
 
@@ -56,12 +59,12 @@ class Imputer(Imputer):
         else:
             return X == value_to_mask
 
-    def _get_row_indexes(self, i, missing, c_idx):
+    def _get_row_indexes(self, i, c_idx):
         """
         Get which samples do not have missing values or have the same missing value as the i-th sample.
         """
         # Drop the column with missing values in the i-th sample
-        _missing = np.array(missing)
+        _missing = self.missing.copy()
         _missing = _missing[:,c_idx]
 
         # Get the filled columns
@@ -73,12 +76,39 @@ class Imputer(Imputer):
 
         return np.array(r_idx)
 
+    def _filling_worker(self, X, row, i):
+        """
+        Worker for parallel execution of self._nn_fit()
+        """
+        neigh = NearestNeighbors(n_neighbors=6, n_jobs=1)
+
+        # the list of non-missing values for the i-th row
+        c_idx = np.where([not j for j in row])[0]
+
+        # Generate the training matrix (only the non-empty columns)
+        r_idx = self._get_row_indexes(i, c_idx)
+        Xtr = X[r_idx[:,np.newaxis],c_idx] # get the full matrix of possible neighbors
+
+        # Get the nearest Neighbors
+        neigh.fit(Xtr)
+
+        with warnings.catch_warnings(): # shut-up deprecation warnings
+            warnings.simplefilter("ignore")
+            _nn_idx = neigh.kneighbors(X[i,c_idx], return_distance=False)
+
+        _nn_idx = _nn_idx[0]
+
+        # Evaluate the average of the nearest Neighbors
+        neighbors = X[r_idx[_nn_idx[1:]],:] # matrix of nearest neighbors, skip the first one which is the same
+        _nanmean = np.nanmean(neighbors[:,np.where(row)[0]], axis=0)
+
+        self.statistics_[i,row] = _nanmean
+
     def _nn_fit(self, X):
         """Impute the input data matrix using the Nearest Neighbors approach.
 
         This implementation follows, approximately, the strategy proposed in: [Hastie, Trevor, et al. "Imputing missing data for gene expression arrays." (1999): 1-7.]
         """
-        neigh = NearestNeighbors(n_neighbors = 6, n_jobs=-1)
         self.statistics_ = np.empty_like(X)
 
         # 1. Find missing values
@@ -86,28 +116,18 @@ class Imputer(Imputer):
 
         # 2. For each row that presents a True value in missing:
         #       drop the True column and get the first K Nearest Neighbors
+        jobs = []
         for i, row in enumerate(self.missing):
             if row.any(): # i.e. if True in row:
-                # the list of non-missing values for the i-th row
-                c_idx = np.where([not j for j in row])[0]
+                # # Submit
+                # p = mp.Process(target=self._filling_worker, args=(X, row, i))
+                # jobs.append(p)
+                # p.start()
+                self._filling_worker(X, row, i)
 
-                # Generate the training matrix (only the non-empty columns)
-                r_idx = self._get_row_indexes(i, self.missing, c_idx)
-                Xtr = X[r_idx[:,np.newaxis],c_idx] # get the full matrix of possible neighbors
+        # # Collect
+        # for p in jobs:
+        #     p.join()
 
-                # Get the nearest Neighbors
-                neigh.fit(Xtr)
-
-                with warnings.catch_warnings(): # shut-up deprecation warnings
-                    warnings.simplefilter("ignore")
-                    _nn_idx = neigh.kneighbors(X[i,c_idx], return_distance=False)
-
-                _nn_idx = _nn_idx[0]
-
-                # Evaluate the average of the nearest Neighbors
-                neighbors = X[r_idx[_nn_idx[1:]],:] # matrix of nearest neighbors, skip the first one which is the same
-                _nanmean = np.nanmean(neighbors[:,np.where(row)[0]], axis=0)
-
-                self.statistics_[i,row] = _nanmean
 
         return self

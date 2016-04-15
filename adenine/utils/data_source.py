@@ -88,7 +88,7 @@ def load(opt='custom', x_filename=None, y_filename=None, n_samples=0):
 
     Parameters
     -----------
-    opt : {'iris', 'digits', 'diabetes', 'boston', 'blobs','custom'}, default: 'custom'
+    opt : {'iris', 'digits', 'diabetes', 'boston','custom'}, default: 'custom'
 
     x_filename : string, default : None
         The data matrix file name.
@@ -133,7 +133,7 @@ def load(opt='custom', x_filename=None, y_filename=None, n_samples=0):
          print("I/O error({0}): {1}".format(e.errno, e.strerror))
 
     X, y = data.data, data.target
-    if X.shape[0] > n_samples:
+    if n_samples > 0 and X.shape[0] > n_samples:
         idx = np.random.permutation(X.shape[0])[:n_samples]
         X, y = X[idx,:], y[idx]
 
