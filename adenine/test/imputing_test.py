@@ -7,19 +7,18 @@ import numpy as np
 
 from adenine.utils import data_source
 from adenine.utils.extensions import Imputer
-# from sklearn.preprocessing import Imputer
 
-def main():
+def test(missing_rate):
     """
     Testing the KNN data imputing.
     """
-    Xreal, y, feat_names, class_names = data_source.load('gauss')
-    [n,p] = Xreal.shape
+    Xreal, y, feat_names, class_names = data_source.load('gauss',n_samples=100)
+    n,p = Xreal.shape
     print("{} x {} matrix loaded".format(n,p))
 
 
     # Choose the missing rate
-    missing_rate = 0.2
+    # missing_rate = 0.5
     n_missing = int(missing_rate * (n*p))
 
     # Create holes in the matrix
@@ -41,13 +40,13 @@ def main():
         print("Empty values: {}".format(len(np.where(np.isnan(Ximp))[0])))
 
     # Check results
-    dist = np.sqrt(np.sum((Xreal.ravel() - Ximp.ravel())**2))
+    dist = np.sqrt(np.sum((Xreal[imp._mask,:].ravel() - Ximp.ravel())**2))
     print("dist(Xreal - Ximp) = {}".format(dist))
 
-    # print "---------------------------------"
-    # print X
-    # print "---------------------------------"
-    # print Ximp
+def main():
+    for missing_rate in np.linspace(0.01,0.7,100):
+        print("\nmissing rate: {}".format(missing_rate))
+        test(missing_rate)
 
 
 if __name__ == '__main__':
