@@ -1,14 +1,23 @@
 #!/usr/bin/python -W ignore::DeprecationWarning
 # -*- coding: utf-8 -*-
 
-import os
+import os, platform
 # from joblib import Parallel, delayed
 import logging
 import cPickle as pkl
 import numpy as np
 import pandas as pd
-import seaborn as sns
+
+# OSX matplotlib issues in multiprocessing
+if platform.system() == 'Darwin':
+    import matplotlib
+    backend = 'Qt4Agg'
+    matplotlib.use(backend)
+    logging.info("matplotlib backend switched to {}".format(backend))
+
 import matplotlib.pyplot as plt
+import seaborn as sns
+
 from sklearn import metrics
 from scipy.cluster.hierarchy import linkage as sp_linkage
 import collections
