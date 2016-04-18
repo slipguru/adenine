@@ -99,7 +99,7 @@ def parse_dimred(key, content):
     elif key.lower() == 'mds':
         dr = MDS(metric=(content != 'nonmetric'))
     elif key.lower() == 'tsne':
-        dr = TSNE()
+        dr = TSNE(n_components=3)
     else:
         dr = DummyNone()
     return (key, dr)

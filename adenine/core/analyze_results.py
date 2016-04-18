@@ -101,6 +101,26 @@ def make_scatter(root=(), data_in=(), model_param=(), labels=None, true_labels=F
         except Exception as e:
             logging.info('Error in 3D plot: ' + str(e))
 
+    # seaborn pairplot
+    n_cols = min(data_in.shape[1], 3)
+    cols = []
+    for i in range(n_cols):
+        cols.append("$x_{}$".format(i+1))
+    X = data_in[:,:3]
+    idx = np.argsort(y)
+    df = pd.DataFrame(data=np.hstack((X[idx,:],y[idx,np.newaxis])), columns=cols+[_hue])
+    g = sns.PairGrid(df, hue=_hue, palette="Set1", vars=cols)
+    g = g.map_diag(plt.hist)#, palette="Set1")
+    g = g.map_offdiag(plt.scatter, s=100, linewidth=.5, edgecolor="white")
+
+    # g = sns.pairplot(df, hue=_hue, palette="Set1", vars=["$x_1$","$x_2$","$x_3$"]), size=5)
+    if _hue != ' ': plt.legend(title=_hue,bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0., fontsize="large")
+    plt.suptitle(title,x=0.6, y=1.01,fontsize="large")
+    filename = os.path.join(root,os.path.basename(root)+"_pairgrid")
+    g.savefig(filename)
+    logging.info('Figured saved {}'.format(filename))
+    plt.close()
+
 def make_voronoi(root=(), data_in=(), model_param=(), labels=None, true_labels=False, model=()):
     """Generate and save the Voronoi tessellation obtained from the clustering algorithm.
 
