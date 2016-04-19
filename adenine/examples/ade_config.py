@@ -10,8 +10,8 @@ output_root_folder = 'results'
 
 # ----------------------------  INPUT DATA ---------------------------- #
 # X, y, feat_names, class_names = data_source.load('iris', n_samples=100)
-# X, y, feat_names, class_names = data_source.load('gauss')
-X, y, feat_names, class_names = data_source.load('digits')
+X, y, feat_names, class_names = data_source.load('gauss')
+# X, y, feat_names, class_names = data_source.load('digits')
 # X, y, feat_names, class_names = data_source.load('diabetes')
 # X, y, feat_names, class_names = data_source.load('boston')
 # X, y, feat_names, class_names = data_source.load('custom', 'X.npy', 'y.npy')
@@ -43,6 +43,6 @@ step3 = {'KMeans': [True, [3]], # cannot be 'precomputed'
          'AP': [False], # can be 'precomputed'
          'MS': [False], # cannot be 'precomputed'
         #  'Spectral': [True, [50, ['precomputed']]], # can be 'precomputed'
-         'Spectral': [True, [3]], # can be 'precomputed'
+         'Spectral': [False, [3]], # can be 'precomputed'
          'Hierarchical': [True, [3, ['manhattan','euclidean'], ['ward','complete','average']]]}
         #  'Hierarchical': [False, [3, ['precomputed']]] # can be 'precomputed'
