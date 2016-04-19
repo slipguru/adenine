@@ -28,7 +28,7 @@ step0 = {'Impute': [False], 'Missing': [-1], 'Replacement': ['median','mean','ne
 
 # --- Data Preprocessing --- #
 step1 = {'None': [True], 'Recenter': [False], 'Standardize': [False],
-         'Normalize': [True, ['l2']], 'MinMax': [False, [0,1]]}
+         'Normalize': [False, ['l2']], 'MinMax': [True, [0,1]]}
 
 # --- Dimensionality Reduction & Manifold Learning --- #
 step2 = {'PCA': [False], 'IncrementalPCA': [False], 'RandomizedPCA': [False],
@@ -43,6 +43,6 @@ step3 = {'KMeans': [True, [3]], # cannot be 'precomputed'
          'AP': [False], # can be 'precomputed'
          'MS': [False], # cannot be 'precomputed'
         #  'Spectral': [True, [50, ['precomputed']]], # can be 'precomputed'
-         'Spectral': [False, [3]], # can be 'precomputed'
+         'Spectral': [True, [3]], # can be 'precomputed'
          'Hierarchical': [True, [3, ['manhattan','euclidean'], ['ward','complete','average']]]}
         #  'Hierarchical': [False, [3, ['precomputed']]] # can be 'precomputed'
