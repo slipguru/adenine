@@ -39,5 +39,5 @@ setup(
               'sklearn (>=0.17)',
               'matplotlib (>=1.5.1)',
               'seaborn (>=0.6.0)'],
-    scripts=['adenine/bin/ade_run.py','adenine/bin/ade_analysis.py'],
+    scripts=['scripts/ade_run.py','scripts/ade_analysis.py'],
 )
