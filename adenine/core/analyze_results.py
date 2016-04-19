@@ -1,14 +1,23 @@
 #!/usr/bin/python -W ignore::DeprecationWarning
 # -*- coding: utf-8 -*-
 
-import os
+import os, platform
 # from joblib import Parallel, delayed
 import logging
 import cPickle as pkl
 import numpy as np
 import pandas as pd
-import seaborn as sns
+
+# OSX matplotlib issues in multiprocessing
+if platform.system() == 'Darwin':
+    import matplotlib
+    backend = 'Qt4Agg'
+    matplotlib.use(backend)
+    logging.info("matplotlib backend switched to {}".format(backend))
+
 import matplotlib.pyplot as plt
+import seaborn as sns
+
 from sklearn import metrics
 from scipy.cluster.hierarchy import linkage as sp_linkage
 import collections
@@ -100,6 +109,26 @@ def make_scatter(root=(), data_in=(), model_param=(), labels=None, true_labels=F
             plt.close()
         except Exception as e:
             logging.info('Error in 3D plot: ' + str(e))
+
+    # seaborn pairplot
+    n_cols = min(data_in.shape[1], 3)
+    cols = []
+    for i in range(n_cols):
+        cols.append("$x_{}$".format(i+1))
+    X = data_in[:,:3]
+    idx = np.argsort(y)
+    df = pd.DataFrame(data=np.hstack((X[idx,:],y[idx,np.newaxis])), columns=cols+[_hue])
+    g = sns.PairGrid(df, hue=_hue, palette="Set1", vars=cols)
+    g = g.map_diag(plt.hist)#, palette="Set1")
+    g = g.map_offdiag(plt.scatter, s=100, linewidth=.5, edgecolor="white")
+
+    # g = sns.pairplot(df, hue=_hue, palette="Set1", vars=["$x_1$","$x_2$","$x_3$"]), size=5)
+    if _hue != ' ': plt.legend(title=_hue,bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0., fontsize="large")
+    plt.suptitle(title,x=0.6, y=1.01,fontsize="large")
+    filename = os.path.join(root,os.path.basename(root)+"_pairgrid")
+    g.savefig(filename)
+    logging.info('Figured saved {}'.format(filename))
+    plt.close()
 
 def make_voronoi(root=(), data_in=(), model_param=(), labels=None, true_labels=False, model=()):
     """Generate and save the Voronoi tessellation obtained from the clustering algorithm.
