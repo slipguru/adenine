@@ -10,8 +10,8 @@ output_root_folder = 'results'
 
 # ----------------------------  INPUT DATA ---------------------------- #
 # X, y, feat_names, class_names = data_source.load('iris', n_samples=100)
-X, y, feat_names, class_names = data_source.load('gauss')
-# X, y, feat_names, class_names = data_source.load('digits')
+# X, y, feat_names, class_names = data_source.load('gauss')
+X, y, feat_names, class_names = data_source.load('digits')
 # X, y, feat_names, class_names = data_source.load('diabetes')
 # X, y, feat_names, class_names = data_source.load('boston')
 # X, y, feat_names, class_names = data_source.load('custom', 'X.npy', 'y.npy')
@@ -35,7 +35,7 @@ step2 = {'PCA': [False], 'IncrementalPCA': [False], 'RandomizedPCA': [False],
          'KernelPCA': [True, ['linear','rbf','poly']], 'Isomap': [False],
          'LLE': [False, ['standard','modified','hessian', 'ltsa']],
          'SE': [False], 'MDS': [False, ['metric','nonmetric']],
-         'tSNE': [False], 'None': [False]}
+         'tSNE': [True], 'None': [False]}
 
 # --- Clustering --- #
 step3 = {'KMeans': [True, [3]], # cannot be 'precomputed'

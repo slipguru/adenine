@@ -112,9 +112,7 @@ def make_scatter(root=(), data_in=(), model_param=(), labels=None, true_labels=F
 
     # seaborn pairplot
     n_cols = min(data_in.shape[1], 3)
-    cols = []
-    for i in range(n_cols):
-        cols.append("$x_{}$".format(i+1))
+    cols = ["$x_{}$".format(i+1) for i in range(n_cols)]
     X = data_in[:,:3]
     idx = np.argsort(y)
     df = pd.DataFrame(data=np.hstack((X[idx,:],y[idx,np.newaxis])), columns=cols+[_hue])
@@ -440,89 +438,6 @@ def make_dendrogram(root=(), data_in=(), model_param=(), trueLabel=None, labels=
     g.savefig(filename)
     logging.info('Figured saved {}'.format(filename))
     plt.close()
-
-
-# def make_scatterplot(root=(), data_in=(), model_param=(), trueLabel=None, labels=(), model=()):
-#     """Generate and save the scatter plot obtained from the clustering algorithm.
-#
-#     This function generates the scatter plot obtained from the clustering algorithm applied on the data projected on a two-dimensional embedding. The color of the points in the plot is consistent with the label estimated by the algorithm. The plots will be saved into the appropriate folder of the tree-like structure created into the root folder.
-#
-#     Parameters
-#     -----------
-#     root : string
-#         The root path for the output creation
-#
-#     data_in : array of float, shape : (n_samples, n_dimensions)
-#         The low space embedding estimated by the dimensinality reduction and manifold learning algorithm.
-#
-#     model_param : dictionary
-#         The parameters of the dimensionality reduciont and manifold learning algorithm.
-#
-#     trueLabel : array of float, shape : n_samples
-#         The true label vector; np.nan if missing (useful for plotting reasons).
-#
-#     labels : array of int, shape : n_samples
-#         The result of the clustering step.
-#
-#     model : sklearn or sklearn-like object
-#         An instance of the class that evaluates a step. In particular this must be a clustering model provided with the clusters_centers_ attribute (e.g. KMeans).
-#     """
-#     n_samples, n_dim = data_in.shape
-#
-#     # Define plot color
-#     y = labels
-#     _hue = 'Estimated Labels'
-#
-#     # Define the fileName
-#     # fileName = os.path.basename(root)
-#     # Define the plot title
-#     for i, t in enumerate(root.split(os.sep)): # something like ['results', 'ade_debug_', 'Standardize', 'PCA']
-#         if t[0:5] == '_ade': break
-#     title = str("$\mapsto$").join(root.split(os.sep)[i-2:])
-#
-#     # Seaborn scatter Plot
-#     X = data_in[:,:2]
-#
-#     #2D plot
-#     idx = np.argsort(y)
-#     df = pd.DataFrame(data=np.hstack((X[idx,:],y[idx,np.newaxis])), columns=["$x_1$","$x_2$",_hue])
-#     # Generate seaborn plot
-#     g = sns.FacetGrid(df, hue=_hue, palette="Set1", size=5, legend_out=False)
-#     g.map(plt.scatter, "$x_1$", "$x_2$", s=100, linewidth=.5, edgecolor="white")
-#     if _hue != ' ': g.add_legend() #!! customize legend
-#     plt.title(title)
-#     filename = os.path.join(root,os.path.basename(root)+"_scatter2D")
-#     plt.savefig(filename)
-#     logging.info('Figured saved {}'.format(filename))
-#     plt.close()
-#
-#     #3D plot
-#     X = data_in[:,:3]
-#     if X.shape[1] < 3:
-#         logging.info(os.path.join(root,os.path.basename(root)+"_scatter3D") + ' cannot be generated (data have less than 3 dimensions)')
-#     else:
-#         try:
-#             from mpl_toolkits.mplot3d import Axes3D
-#             ax = plt.figure().gca(projection='3d')
-#             # ax.scatter(X[:,0], X[:,1], X[:,2], y, c=y, cmap='hot', s=100, linewidth=.5, edgecolor="white")
-#             d = collections.Counter(y)
-#             y = np.array(y)
-#             reset_palette()
-#             for colorid, k in enumerate(d):
-#                 idx = np.where(y==k)[0]
-#                 ax.plot(X[:,0][idx], X[:,1][idx], X[:,2][idx], 'o', c=next_color(), label=str(k), mew=.5, mec="white")
-#
-#             ax.set_xlabel(r'$x_1$')
-#             ax.set_ylabel(r'$x_2$')
-#             ax.set_zlabel(r'$x_3$')
-#             ax.set_title(title)
-#             ax.legend(loc='upper left', numpoints=1, ncol=10, fontsize=8, bbox_to_anchor=(0, 0))
-#             # plt.legend(loc='upper left', numpoints=1, ncol=3, fontsize=8, bbox_to_anchor=(0, 0111))
-#             filename = os.path.join(root,os.path.basename(root)+"_scatter3D")
-#             plt.savefig(filename)
-#             logging.info('Figured saved {}'.format(filename))
-#         except Exception as e:
-#             logging.info('Error in 3D plot: ' + str(e))
 
 def plot_PCmagnitude(root=(), points=(), title='', ylabel=''):
     """Generate and save the plot representing the trend of principal components magnitude.
