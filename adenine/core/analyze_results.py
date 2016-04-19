@@ -63,6 +63,7 @@ def make_scatter(root=(), data_in=(), model_param=(), labels=None, true_labels=F
     # Define the plot title. List is smth like ['results', 'ade_debug_', 'Standardize', 'PCA']
     i = [i for i, s in enumerate(root.split(os.sep)) if 'ade_' in s][0]
     title = str("$\mapsto$").join(root.split(os.sep)[i+1:])
+    title[-1] = ' '.join(root.split(os.sep)[-1].split('_')[::-1])
 
     # Seaborn scatter plot
     #2D plot
