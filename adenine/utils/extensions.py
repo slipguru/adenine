@@ -110,7 +110,9 @@ class Imputer(Imputer):
     def _nn_fit(self, X):
         """Impute the input data matrix using the Nearest Neighbors approach.
 
-        This implementation follows, approximately, the strategy proposed in: [Hastie, Trevor, et al. "Imputing missing data for gene expression arrays." (1999): 1-7.]
+        This implementation follows, approximately, the strategy proposed in:
+        [Hastie, Trevor, et al. "Imputing missing data for gene expression arrays." (1999): 1-7.]
+        [Troyanskaya, Olga, et al. "Missing value estimation methods for DNA microarrays." Bioinformatics 17.6 (2001): 520-525.]
         """
         # 1. Find missing values
 

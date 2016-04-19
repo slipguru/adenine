@@ -204,7 +204,7 @@ def parse_steps(steps):
                 if len(clustering[key][1]) > 1: # discrimitate from 1 arg or 2+ args
                     if len(clustering[key][1]) > 2:
                         for k1, k2, k3 in modified_cartesian([clustering[key][1][0]], clustering[key][1][1], clustering[key][1][2]):
-                            if (k2 == 'precomputed' and k3 != 'ward') or
+                            if (k2 == 'precomputed' and k3 != 'ward') or \
                             not (k2 == 'manhattan' and k3 == 'ward'): # that doesn't work together
                                 cl_lst_of_tpls.append(parse_clustering(key, [k1,k2,k3]))
                     else: # 2 args case
