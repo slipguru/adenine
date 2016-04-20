@@ -124,7 +124,7 @@ def parse_clustering(key, content):
     """
      # list flattening
     flatten = lambda x: [y for l in x for y in flatten(l)] if type(x) is list else [x]
-
+    #TODO fare dict di valori per gestire i default
     if key.lower() == 'kmeans':
         cl = KMeans(n_clusters=content, init='k-means++', n_jobs=-1)
     elif key.lower() == 'ap':
@@ -196,22 +196,21 @@ def parse_steps(steps):
             else:
                 dr_lst_of_tpls.append(parse_dimred(key, dimred[key]))
 
-     # Parse the clustering options
+    # Parse the clustering options
     cl_lst_of_tpls = []
     for key in clustering.keys():
         if clustering[key][0]: # On/Off flag
             if len(clustering[key]) > 1: # Discriminate from just flag or flag + args
-                if len(clustering[key][1]) > 1: # discrimitate from 1 arg or 2+ args
-                    if len(clustering[key][1]) > 2:
-                        for k1, k2, k3 in modified_cartesian([clustering[key][1][0]], clustering[key][1][1], clustering[key][1][2]):
-                            if (k2 == 'precomputed' and k3 != 'ward') or \
-                            not (k2 == 'manhattan' and k3 == 'ward'): # that doesn't work together
-                                cl_lst_of_tpls.append(parse_clustering(key, [k1,k2,k3]))
-                    else: # 2 args case
-                        for k1, k2 in zip([clustering[key][1][0]], clustering[key][1][1]):
-                            tmp_pars = [k1,k2]
-                            if k2 == 'precomputed': tmp_pars.append('complete')
-                            cl_lst_of_tpls.append(parse_clustering(key, tmp_pars))
+                if len(clustering[key][1]) > 2:
+                    for k1, k2, k3 in modified_cartesian(*clustering[key][1][:3]):
+                        if (k2 == 'precomputed' and k3 != 'ward') or \
+                        not (k2 == 'manhattan' and k3 == 'ward'): # that doesn't work together
+                            cl_lst_of_tpls.append(parse_clustering(key, [k1,k2,k3]))
+                elif len(clustering[key][1]) > 1: # discrimitate from 1 arg or 2+ args
+                    for k1, k2 in zip(*clustering[key][1][:2]):
+                        tmp_pars = [k1,k2]
+                        if k2 == 'precomputed': tmp_pars.append('complete')
+                        cl_lst_of_tpls.append(parse_clustering(key, tmp_pars))
                 else: # 1 arg case
                     for k in clustering[key][1]:
                         cl_lst_of_tpls.append(parse_clustering(key, k))

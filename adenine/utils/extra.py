@@ -17,10 +17,15 @@ def reset_palette():
     global palette
     palette = sns.color_palette("Set1")
 
+# ensure_list = lambda x: x if type(x) == list else [x]
+def ensure_list(x):
+    return x if type(x) == list else [x]
+
 def modified_cartesian(*args):
     """Modified Cartesian product.
 
-    This function takes two (ore more) lists and returns their Cartesian product, if one of the two list is empty this function returns the non-empty one.
+    This function takes two (ore more) lists and returns their Cartesian product,
+    if one of the two list is empty this function returns the non-empty one.
 
     Parameters
     -----------
@@ -33,15 +38,10 @@ def modified_cartesian(*args):
         The Cartesian Product of the two (or more) nonempty input lists.
     """
     # Get the non-empty input lists
-    nonempty = []
-    for arg in args:
-        if len(arg)>0:
-            nonempty.append(arg)
+    nonempty = [ensure_list(arg) if len(ensure_list(arg)) > 0 else [None] for arg in args]
+
     # Cartesian product
-    cp = []
-    for c in product(*nonempty):
-        cp.append(list(c))
-    return cp
+    return [list(c) for c in product(*nonempty)]
 
 def make_time_flag():
     """Generate a time flag.
