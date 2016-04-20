@@ -167,10 +167,10 @@ class GridSearchCV(GridSearchCV):
 
     def _min_max_dist_heuristic(self, X, affinity):
         """
-        preference grid for Affinity Propagation: linear scale in [min(similarity matrix),...,max(similarity matrix)]
+        preference grid for Affinity Propagation: linear scale in [min(similarity matrix),...,median(similarity matrix)]
         """
         S = -pairwise_distances(X, metric=affinity, squared=True)
-        return np.unique(map(int, np.linspace(np.min(S), np.max(S), 30)))
+        return np.unique(map(int, np.linspace(np.min(S), np.median(S)), 30))
 
 
     def fit(self, X, y=None):
@@ -192,7 +192,8 @@ class GridSearchCV(GridSearchCV):
             super(GridSearchCV, self).fit(X)
 
         # Propagate the cluster_centers_ attribute (needed for voronoi plot)
-        self.cluster_centers_ = self.best_estimator_.cluster_centers_
+        if hasattr(self.best_estimator_, 'cluster_centers_'): # added for consistency only
+            self.cluster_centers_ = self.best_estimator_.cluster_centers_
 
         return self
 

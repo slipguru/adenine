@@ -41,7 +41,7 @@ step2 = {'PCA': [False], 'IncrementalPCA': [False], 'RandomizedPCA': [False],
 # --- Clustering --- #
 step3 = {'KMeans': [True, ['auto']], # cannot be 'precomputed'
         #  'AP': [False, [1,'precomputed']], # can be 'precomputed'
-         'AP': [False, ['auto']], # can be 'precomputed'
+         'AP': [True, ['auto']], # can be 'precomputed'
          'MS': [False], # cannot be 'precomputed'
         #  'Spectral': [True, [50, ['precomputed']]], # can be 'precomputed'
          'Spectral': [False, [3]], # can be 'precomputed'
