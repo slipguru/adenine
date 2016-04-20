@@ -26,6 +26,8 @@ from sklearn.cluster import AgglomerativeClustering
 
 from adenine.utils.extensions import DummyNone
 from adenine.utils.extensions import Imputer
+from adenine.utils.extensions import GridSearchCV
+from adenine.utils.extensions import silhouette_score
 
 
 def parse_preproc(key, content):
@@ -125,27 +127,38 @@ def parse_clustering(key, content):
      # list flattening
     flatten = lambda x: [y for l in x for y in flatten(l)] if type(x) is list else [x]
     #TODO fare dict di valori per gestire i default
-    if key.lower() == 'kmeans':
-        cl = KMeans(n_clusters=content, init='k-means++', n_jobs=-1)
-    elif key.lower() == 'ap':
-        if 'precomputed' in flatten(content):
-            cl = AffinityPropagation(affinity='precomputed',preference=content[0])
-        else:
-            cl = AffinityPropagation(preference=content)
-    elif key.lower() == 'ms':
-        cl = MeanShift()
-    elif key.lower() == 'spectral':
-        if 'precomputed' in flatten(content):
-            cl = SpectralClustering(n_clusters=content[0], affinity='precomputed')
-        else:
-            cl = SpectralClustering(n_clusters=content)
-    elif key.lower() == 'hierarchical':
-        if len(content) > 2:
-            cl = AgglomerativeClustering(n_clusters=content[0], affinity=content[1], linkage=content[2])
-        else:
-            cl = AgglomerativeClustering(n_clusters=content[0], affinity=content[1])
 
+    if 'auto' in content:
+        # Wrapper class that automatically detects the best number of clusters via 10-Fold CV
+        if key.lower() == 'kmeans':
+            model = KMeans(init='k-means++', n_jobs=1)
+            cl = GridSearchCV(model, param_grid=[], n_jobs=-1, scoring=silhouette_score, cv=10)
+        elif key.lower() == 'ap':
+            model = AffinityPropagation()
+            cl = GridSearchCV(model, param_grid=[], affinity=model.affinity, n_jobs=-1, scoring=silhouette_score, cv=10)
+
+    elif 'auto' not in content:
+        # Just create the standard object
+        if key.lower() == 'kmeans':
+            cl = KMeans(init='k-means++', n_jobs=-1, n_clusters=content)
+        elif key.lower() == 'ap':
+            cl = AffinityPropagation(preference=content[0])
+            if 'precomputed' in flatten(content):
+                cl = AffinityPropagation(affinity='precomputed',preference=content[0])
+        elif key.lower() == 'ms':
+            cl = MeanShift()
+        elif key.lower() == 'spectral':
+            if 'precomputed' in flatten(content):
+                cl = SpectralClustering(n_clusters=content[0], affinity='precomputed')
+            else:
+                cl = SpectralClustering(n_clusters=content)
+        elif key.lower() == 'hierarchical':
+            if len(content) > 2:
+                cl = AgglomerativeClustering(n_clusters=content[0], affinity=content[1], linkage=content[2])
+            else:
+                cl = AgglomerativeClustering(n_clusters=content[0], affinity=content[1])
     else:
+        # use dummynone
         cl = DummyNone()
     return (key, cl)
 

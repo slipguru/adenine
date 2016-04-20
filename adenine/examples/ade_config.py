@@ -9,8 +9,8 @@ exp_tag = 'debug'
 output_root_folder = 'results'
 
 # ----------------------------  INPUT DATA ---------------------------- #
-# X, y, feat_names, class_names = data_source.load('iris', n_samples=100)
-X, y, feat_names, class_names = data_source.load('gauss')
+X, y, feat_names, class_names = data_source.load('iris')
+# X, y, feat_names, class_names = data_source.load('gauss')
 # X, y, feat_names, class_names = data_source.load('digits')
 # X, y, feat_names, class_names = data_source.load('diabetes')
 # X, y, feat_names, class_names = data_source.load('boston')
@@ -27,22 +27,23 @@ X, y, feat_names, class_names = data_source.load('gauss')
 step0 = {'Impute': [False], 'Missing': [-1], 'Replacement': ['median','mean','nearest_neighbors']}
 
 # --- Data Preprocessing --- #
-step1 = {'None': [True], 'Recenter': [False], 'Standardize': [False],
-         'Normalize': [False, ['l2']], 'MinMax': [True, [0,1]]}
+step1 = {'None': [True], 'Recenter': [True], 'Standardize': [True],
+         'Normalize': [True, ['l2']], 'MinMax': [True, [0,1]]}
 
 # --- Dimensionality Reduction & Manifold Learning --- #
 step2 = {'PCA': [False], 'IncrementalPCA': [False], 'RandomizedPCA': [False],
          'KernelPCA': [True, ['linear','rbf','poly']], 'Isomap': [False],
-         'LLE': [False, ['standard','modified','hessian', 'ltsa']],
+        #  'LLE': [True, ['standard','modified','hessian', 'ltsa']],
+         'LLE': [False, ['standard','modified']],
          'SE': [False], 'MDS': [False, ['metric','nonmetric']],
-         'tSNE': [True], 'None': [False]}
+         'tSNE': [False], 'None': [False]}
 
 # --- Clustering --- #
-step3 = {'KMeans': [True, [3]], # cannot be 'precomputed'
+step3 = {'KMeans': [True, ['auto']], # cannot be 'precomputed'
         #  'AP': [False, [1,'precomputed']], # can be 'precomputed'
-         'AP': [False], # can be 'precomputed'
+         'AP': [True, ['auto']], # can be 'precomputed'
          'MS': [False], # cannot be 'precomputed'
         #  'Spectral': [True, [50, ['precomputed']]], # can be 'precomputed'
          'Spectral': [False, [3]], # can be 'precomputed'
-         'Hierarchical': [True, [3, ['manhattan','euclidean'], ['ward','complete','average']]]}
+         'Hierarchical': [False, [3, ['manhattan','euclidean'], ['ward','complete','average']]]}
         #  'Hierarchical': [False, [3, ['precomputed']]] # can be 'precomputed'
