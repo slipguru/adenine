@@ -9,8 +9,8 @@ exp_tag = 'debug'
 output_root_folder = 'results'
 
 # ----------------------------  INPUT DATA ---------------------------- #
-# X, y, feat_names, class_names = data_source.load('iris', n_samples=100)
-X, y, feat_names, class_names = data_source.load('gauss')
+X, y, feat_names, class_names = data_source.load('iris')
+# X, y, feat_names, class_names = data_source.load('gauss')
 # X, y, feat_names, class_names = data_source.load('digits')
 # X, y, feat_names, class_names = data_source.load('diabetes')
 # X, y, feat_names, class_names = data_source.load('boston')
@@ -27,8 +27,8 @@ X, y, feat_names, class_names = data_source.load('gauss')
 step0 = {'Impute': [False], 'Missing': [-1], 'Replacement': ['median','mean','nearest_neighbors']}
 
 # --- Data Preprocessing --- #
-step1 = {'None': [False], 'Recenter': [False], 'Standardize': [False],
-         'Normalize': [True, ['l2']], 'MinMax': [False, [0,1]]}
+step1 = {'None': [True], 'Recenter': [True], 'Standardize': [True],
+         'Normalize': [True, ['l2']], 'MinMax': [True, [0,1]]}
 
 # --- Dimensionality Reduction & Manifold Learning --- #
 step2 = {'PCA': [False], 'IncrementalPCA': [False], 'RandomizedPCA': [False],

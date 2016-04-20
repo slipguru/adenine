@@ -131,10 +131,10 @@ def parse_clustering(key, content):
         # Wrapper class that automatically detects the best number of clusters via 10-Fold CV
         if key.lower() == 'kmeans':
             model = KMeans(init='k-means++', n_jobs=1)
-            cl = GridSearchCV(model, param_grid=[], n_jobs=-1, scoring=silhouette_score)
+            cl = GridSearchCV(model, param_grid=[], n_jobs=-1, scoring=silhouette_score, cv=10)
         elif key.lower() == 'ap':
             model = AffinityPropagation()
-            cl = GridSearchCV(model, param_grid=[], affinity=model.affinity, n_jobs=-1, scoring=silhouette_score)
+            cl = GridSearchCV(model, param_grid=[], affinity=model.affinity, n_jobs=-1, scoring=silhouette_score, cv=10)
 
     elif 'auto' not in content:
         # Just create the standard object

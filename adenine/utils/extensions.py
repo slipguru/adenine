@@ -170,8 +170,7 @@ class GridSearchCV(GridSearchCV):
         preference grid for Affinity Propagation: linear scale in [min(similarity matrix),...,median(similarity matrix)]
         """
         S = -pairwise_distances(X, metric=affinity, squared=True)
-        return np.unique(map(int, np.linspace(np.min(S), np.median(S)), 30))
-
+        return np.unique(map(int, np.linspace(np.min(S), np.median(S), 30)))
 
     def fit(self, X, y=None):
         """
@@ -202,4 +201,9 @@ def silhouette_score(estimator, X, y=None):
     scorer wrapper for metrics.silhouette_score
     """
     _y = estimator.predict(X)
-    return sil(X, _y)
+    n_labels = len(np.unique(_y))
+    if 1 < n_labels < X.shape[0]:
+        return sil(X, _y)
+    else:
+        logging.info("adenine.utils.extension.silhouette_score() returned NaN because the number of labels is {}. Valid values are 2 to n_samples - 1 (inclusive) = {}".format(n_labels, X.shape[0]-1))
+        return np.nan
