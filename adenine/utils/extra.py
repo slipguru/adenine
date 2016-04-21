@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+import os
 import time
 import seaborn as sns
 
@@ -21,7 +22,7 @@ def reset_palette():
 def ensure_list(x):
     return x if type(x) == list else [x]
 
-def modified_cartesian(*args):
+def modified_cartesian(*args, **kwargs):
     """Modified Cartesian product.
 
     This function takes two (ore more) lists and returns their Cartesian product,
@@ -38,7 +39,10 @@ def modified_cartesian(*args):
         The Cartesian Product of the two (or more) nonempty input lists.
     """
     # Get the non-empty input lists
-    nonempty = [ensure_list(arg) if len(ensure_list(arg)) > 0 else [None] for arg in args]
+    if kwargs.get('pipes_mode', False):
+        nonempty = [ensure_list(arg) for arg in args if len(ensure_list(arg)) > 0]
+    else:
+        nonempty = [ensure_list(arg) if len(ensure_list(arg)) > 0 else [None] for arg in args]
 
     # Cartesian product
     return [list(c) for c in product(*nonempty)]
@@ -81,6 +85,13 @@ def sec_to_time(seconds):
 
 def get_time():
     return datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H:%M:%S')
+
+def title_from_filename(root, step_sep="$\mapsto$"):
+    # Define the plot title. List is smth like ['results', 'ade_debug_', 'Standardize', 'PCA']
+    i = [i for i, s in enumerate(root.split(os.sep)) if 'ade_' in s][0]
+
+    # lambda function below does: ('a_b_c') -> 'c b a'
+    return step_sep.join(map(lambda x: ' '.join(x.split('_')[::-1]), root.split(os.sep)[i+1:]))
 
 def ensure_symmetry(X):
     """Ensure matrix symmetry.

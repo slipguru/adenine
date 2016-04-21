@@ -23,7 +23,7 @@ from scipy.cluster.hierarchy import linkage as sp_linkage
 import collections
 import multiprocessing as mp
 
-from adenine.utils.extra import next_color, reset_palette
+from adenine.utils.extra import next_color, reset_palette, title_from_filename
 
 def make_scatter(root=(), data_in=(), model_param=(), labels=None, true_labels=False, model=()):
     """Generates and saves the scatter plot of the dimensionality reduced data set.
@@ -60,11 +60,7 @@ def make_scatter(root=(), data_in=(), model_param=(), labels=None, true_labels=F
         y = labels
         _hue = 'Classes' if true_labels else 'Estimated Labels'
 
-    # Define the plot title. List is smth like ['results', 'ade_debug_', 'Standardize', 'PCA']
-    i = [i for i, s in enumerate(root.split(os.sep)) if 'ade_' in s][0]
-
-    # lambda function below does: ('a_b_c') -> 'c b a'
-    title = str("$\mapsto$").join(map(lambda s: ' '.join(s.split('_')[::-1]), root.split(os.sep)[i+1:]))
+    title = title_from_filename(root)
 
     # Seaborn scatter plot
     #2D plot
@@ -165,16 +161,13 @@ def make_voronoi(root=(), data_in=(), model_param=(), labels=None, true_labels=F
         y = labels # use the labels if provided
         _hue = 'Classes'
 
-    # Define the plot title. List is smth like ['results', 'ade_debug_', 'Standardize', 'PCA']
-    i = [i for i, s in enumerate(root.split(os.sep)) if 'ade_' in s][0]
-    # lambda function below does: ('a_b_c') -> 'c b a'
-    title = str("$\mapsto$").join(map(lambda s: ' '.join(s.split('_')[::-1]), root.split(os.sep)[i+1:]))
+    title = title_from_filename(root)
 
     # Seaborn scatter Plot
     X = data_in[:,:2]
     idx = np.argsort(y)
     X = X[idx,:]
-    y = [idx,np.newaxis]
+    y = y[idx,np.newaxis]
     df = pd.DataFrame(data=np.hstack((X, y)), columns=["$x_1$","$x_2$",_hue])
     # Generate seaborn plot
     g = sns.FacetGrid(df, hue=_hue, palette="Set1", size=5, legend_out=False)
@@ -257,9 +250,11 @@ def est_clst_perf(root=(), data_in=(), labels=None, t_labels=None, model=(), met
 
     # Define the filename
     filename = os.path.join(root,os.path.basename(root))
-    with open(filename+'.txt', 'w') as f:
+    with open(filename+'_scores.txt', 'w') as f:
         f.write("------------------------------------\n")
-        f.write("Adenine: Clustering Performance\n")
+        f.write("Adenine: Clustering Performance for \n")
+        f.write("\n")
+        f.write(title_from_filename(root, " --> ") + "\n")
         f.write("------------------------------------\n")
         f.write("Index Name{}|{}Index Score\n".format(' '*10,' '*4))
         f.write("------------------------------------\n")
@@ -268,9 +263,9 @@ def est_clst_perf(root=(), data_in=(), labels=None, t_labels=None, model=(), met
             f.write("------------------------------------\n")
 
     # pkl Dump
-    with open(filename+'.pkl', 'w+') as f:
+    with open(filename+'_scores.pkl', 'w+') as f:
         pkl.dump(perf_out, f)
-    logging.info("Dumped : {}".format(filename+'.pkl'))
+    logging.info("Dumped : {}".format(filename+'_scores.pkl'))
 
 
 def get_step_attributes(step=(), pos=()):
@@ -507,6 +502,47 @@ def plot_eigs(root='', affinity=(), n_clusters=0, title='', ylabel='', normalise
     plt.savefig(filename)
     plt.close()
 
+def make_df_clst_perf(rootFolder):
+    df = pd.DataFrame(columns=['pipeline','silhouette', 'inertia', 'ari', 'ami', 'homogeneity', 'completeness', 'v_measure'])
+    for root, directories, filenames in os.walk(rootFolder):
+        for fn in filenames:
+            if fn.endswith('_scores.pkl'):
+                with open(os.path.join(root, fn), 'r') as f:
+                    perf_out = pkl.load(f)
+                perf_out['pipeline'] = title_from_filename(root, step_sep=" --> ")
+                df = df.append(perf_out, ignore_index=True)
+    df = df.fillna('---')
+    size_pipe = max([len(p) for p in df['pipeline']]+[8])
+    with open(os.path.join(rootFolder,'summary_scores.txt'), 'w') as f:
+        header = "pipeline{0}|{1}ami|{1}ari|{2}completeness|{2}homogeneity|{2}inertia|{2}silhouette|{2}v_measure\n".format(' '*(size_pipe-8),' '*4,' ')
+        f.write("-"*len(header) + "\n")
+        f.write("Adenine: Clustering Performance for each pipeline\n")
+        f.write("-"*len(header) + "\n")
+        f.write(header)
+        f.write("-"*len(header) + "\n")
+        for _ in df.iterrows():
+            row = _[1]
+            ami = '{:.3}'.format(row['ami'])
+            ari = '{:.3}'.format(row['ari'])
+            com = '{:.3}'.format(row['completeness'])
+            hom = '{:.3}'.format(row['homogeneity'])
+            ine = '{:.3}'.format(row['inertia'])
+            sil = '{:.3}'.format(row['silhouette'])
+            vme = '{:.3}'.format(row['v_measure'])
+            # f.write("{}{}|{}{:.3f}|{}{:.3f}|{}{:.3f}|{}{:.3f}|{}{:.3f}|{}{:.3f}|{}{:.3f}\n"
+            f.write("{}{}|{}{}|{}{}|{}{}|{}{}|{}{}|{}{}|{}{}\n"
+            .format(row['pipeline'],' '*(size_pipe-len(row['pipeline'])),
+            ' '*(len('    ami')-len(ami)), ami,
+            ' '*(len('    ari')-len(ari)), ari,
+            ' '*(len(' completeness')-len(com)), com,
+            ' '*(len(' homogeneity')-len(hom)), hom,
+            ' '*(len(' inertia')-len(ine)), ine,
+            ' '*(len(' silhouette')-len(sil)), sil,
+            ' '*(len(' v_measure')-len(vme)), vme))
+        f.write("-"*len(header) + "\n")
+    # df.to_csv(os.path.join(rootFolder,'all_scores.csv'), na_rep='-', index_label=False, index=False)
+
+
 def analysis_worker(elem, rootFolder, y, feat_names, class_names, lock):
     """Parallel pipelines analysis.
 
@@ -565,6 +601,8 @@ def analysis_worker(elem, rootFolder, y, feat_names, class_names, lock):
             make_scatter(root=rootname, labels=step_out, model_param=step_param, data_in=step_in, model=mdl_obj)
 
             est_clst_perf(root=rootname, data_in=step_in, labels=step_out, t_labels=y, metric=metric)
+
+    make_df_clst_perf(rootFolder)
 
 
 def start(inputDict=(), rootFolder=(), y=None, feat_names=(), class_names=()):

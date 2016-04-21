@@ -137,7 +137,7 @@ def parse_clustering(key, content):
             model = AffinityPropagation()
             cl = GridSearchCV(model, param_grid=[], affinity=model.affinity, n_jobs=-1, scoring=silhouette_score, cv=10)
 
-    elif 'auto' not in content:
+    else:
         # Just create the standard object
         if key.lower() == 'kmeans':
             cl = KMeans(init='k-means++', n_jobs=-1, n_clusters=content)
@@ -153,13 +153,12 @@ def parse_clustering(key, content):
             else:
                 cl = SpectralClustering(n_clusters=content)
         elif key.lower() == 'hierarchical':
-            if len(content) > 2:
-                cl = AgglomerativeClustering(n_clusters=content[0], affinity=content[1], linkage=content[2])
-            else:
-                cl = AgglomerativeClustering(n_clusters=content[0], affinity=content[1])
-    else:
-        # use dummynone
-        cl = DummyNone()
+            kwargs = {'n_clusters': content[0], 'affinity': content[1]}
+            if len(content) > 2: kwargs['linkage'] = content[2]
+            cl = AgglomerativeClustering(**kwargs)
+        else:
+            # use dummynone
+            cl = DummyNone()
     return (key, cl)
 
 def parse_steps(steps):
@@ -232,7 +231,7 @@ def parse_steps(steps):
 
 
     # Generate the list of list of tuples (i.e. the list of pipelines)
-    pipes = modified_cartesian(i_lst_of_tpls, pp_lst_of_tpls, dr_lst_of_tpls, cl_lst_of_tpls)
+    pipes = modified_cartesian(i_lst_of_tpls, pp_lst_of_tpls, dr_lst_of_tpls, cl_lst_of_tpls, pipes_mode=True)
     for pipe in pipes:
         logging.info("Generated pipeline: \n {} \n".format(pipe))
     logging.info("*** {} pipeline(s) generated ***".format(len(pipes)))
