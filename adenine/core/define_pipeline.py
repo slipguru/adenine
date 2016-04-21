@@ -126,38 +126,41 @@ def parse_clustering(key, content):
     """
      # list flattening
     flatten = lambda x: [y for l in x for y in flatten(l)] if type(x) is list else [x]
-    #TODO fare dict di valori per gestire i default
 
     if 'auto' in content:
         # Wrapper class that automatically detects the best number of clusters via 10-Fold CV
+        kwargs = {'param_grid': [], 'n_jobs': -1,
+                  'scoring': silhouette_score, 'cv': 10}
         if key.lower() == 'kmeans':
-            model = KMeans(init='k-means++', n_jobs=1)
-            cl = GridSearchCV(model, param_grid=[], n_jobs=-1, scoring=silhouette_score, cv=10)
+            kwargs['estimator'] = KMeans(init='k-means++', n_jobs=1)
         elif key.lower() == 'ap':
-            model = AffinityPropagation()
-            cl = GridSearchCV(model, param_grid=[], affinity=model.affinity, n_jobs=-1, scoring=silhouette_score, cv=10)
+            kwargs['estimator'] = AffinityPropagation()
+            kwargs['affinity'] = kwargs['estimator'].affinity
+        cl = GridSearchCV(**kwargs)
 
     else:
         # Just create the standard object
         if key.lower() == 'kmeans':
             cl = KMeans(init='k-means++', n_jobs=-1, n_clusters=content)
         elif key.lower() == 'ap':
-            cl = AffinityPropagation(preference=content[0])
+            kwargs = {'preference': content[0]}
             if 'precomputed' in flatten(content):
-                cl = AffinityPropagation(affinity='precomputed',preference=content[0])
+                kwargs['affinity'] = 'precomputed'
+            cl = AffinityPropagation(**kwargs)
         elif key.lower() == 'ms':
             cl = MeanShift()
         elif key.lower() == 'spectral':
             if 'precomputed' in flatten(content):
-                cl = SpectralClustering(n_clusters=content[0], affinity='precomputed')
+                kwargs = {'n_clusters': content[0], 'affinity': 'precomputed'}
             else:
-                cl = SpectralClustering(n_clusters=content)
+                kwargs = {'n_clusters': content}
+            cl = SpectralClustering(**kwargs)
         elif key.lower() == 'hierarchical':
             kwargs = {'n_clusters': content[0], 'affinity': content[1]}
-            if len(content) > 2: kwargs['linkage'] = content[2]
+            if len(content) > 2:
+                kwargs['linkage'] = content[2]
             cl = AgglomerativeClustering(**kwargs)
         else:
-            # use dummynone
             cl = DummyNone()
     return (key, cl)
 

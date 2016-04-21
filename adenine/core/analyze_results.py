@@ -628,7 +628,7 @@ def start(inputDict=(), rootFolder=(), y=None, feat_names=(), class_names=()):
     class_names : array of integers (or strings), shape : n_features
         The class names; a range of numbers if missing.
     """
-    logging.info(GLOBAL_INFO)
+    if GLOBAL_INFO: logging.info(GLOBAL_INFO)
     lock = mp.Lock()
     # Parallel(n_jobs=len(inputDict))(delayed(analysis_worker)(elem,rootFolder,y,feat_names,class_names,lock) for elem in inputDict.iteritems())
     ps = []

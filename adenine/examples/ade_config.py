@@ -32,7 +32,7 @@ step1 = {'None': [True], 'Recenter': [False], 'Standardize': [False],
 
 # --- Dimensionality Reduction & Manifold Learning --- #
 step2 = {'PCA': [True], 'IncrementalPCA': [False], 'RandomizedPCA': [False],
-         'KernelPCA': [True, ['linear','rbf','poly']], 'Isomap': [False],
+         'KernelPCA': [False, ['linear','rbf','poly']], 'Isomap': [False],
          'LLE': [False, ['standard','modified','hessian', 'ltsa']],
          'SE': [False], 'MDS': [False, ['metric','nonmetric']],
          'tSNE': [False], 'None': [False]}
