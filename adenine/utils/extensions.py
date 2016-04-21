@@ -8,7 +8,7 @@ import numpy as np
 
 from sklearn.preprocessing import Imputer
 from sklearn.neighbors import NearestNeighbors
-from sklearn.grid_search import GridSearchCV
+from sklearn.model_selection import GridSearchCV
 from sklearn.metrics.pairwise import pairwise_distances
 
 from sklearn.metrics import silhouette_score as sil
