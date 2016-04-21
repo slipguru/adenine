@@ -9,11 +9,12 @@ import numpy as np
 import pandas as pd
 
 # OSX matplotlib issues in multiprocessing
+GLOBAL_INFO = ''  # to save info before logging is loaded
 if platform.system() == 'Darwin':
     import matplotlib
     backend = 'Qt4Agg'
     matplotlib.use(backend)
-    logging.info("matplotlib backend switched to {}".format(backend))
+    GLOBAL_INFO = "matplotlib backend switched to {}".format(backend)
 
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -627,6 +628,7 @@ def start(inputDict=(), rootFolder=(), y=None, feat_names=(), class_names=()):
     class_names : array of integers (or strings), shape : n_features
         The class names; a range of numbers if missing.
     """
+    logging.info(GLOBAL_INFO)
     lock = mp.Lock()
     # Parallel(n_jobs=len(inputDict))(delayed(analysis_worker)(elem,rootFolder,y,feat_names,class_names,lock) for elem in inputDict.iteritems())
     ps = []
