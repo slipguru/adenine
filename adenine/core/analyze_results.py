@@ -172,7 +172,10 @@ def make_voronoi(root=(), data_in=(), model_param=(), labels=None, true_labels=F
 
     # Seaborn scatter Plot
     X = data_in[:,:2]
-    df = pd.DataFrame(data=np.hstack((X,y[:,np.newaxis])), columns=["$x_1$","$x_2$",_hue])
+    idx = np.argsort(y)
+    X = X[idx,:]
+    y = [idx,np.newaxis]
+    df = pd.DataFrame(data=np.hstack((X, y)), columns=["$x_1$","$x_2$",_hue])
     # Generate seaborn plot
     g = sns.FacetGrid(df, hue=_hue, palette="Set1", size=5, legend_out=False)
     g.map(plt.scatter, "$x_1$", "$x_2$", s=100, linewidth=.5, edgecolor="white")
