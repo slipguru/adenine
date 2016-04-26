@@ -20,21 +20,21 @@ step0 = {'Impute': [False], 'Missing': [-1], 'Replacement': ['median','mean','ne
 
 # --- Data Preprocessing --- #
 step1 = {'None': [False], 'Recenter': [False], 'Standardize': [False],
-         'Normalize': [True, ['l2']], 'MinMax': [False, [0,1]]}
+         'Normalize': [False, ['l2']], 'MinMax': [False, [0,1]]}
 
 # --- Dimensionality Reduction & Manifold Learning --- #
 step2 = {'PCA': [False], 'IncrementalPCA': [False], 'RandomizedPCA': [False],
-         'KernelPCA': [True, ['linear','rbf','poly']], 'Isomap': [False],
+         'KernelPCA': [False, ['linear','rbf','poly']], 'Isomap': [False],
          'LLE': [False, ['standard','modified','hessian', 'ltsa']],
          'SE': [False], 'MDS': [False, ['metric','nonmetric']],
          'tSNE': [False], 'None': [False]}
 
 # --- Clustering --- #
-step3 = {'KMeans': [True, [5]],
-         'AP': [False],
-        #  'AP': [False, [1, ['precomputed']]],
-         'MS': [False],
-         'Spectral': [True, [5]],
-        #  'Spectral': [True, [5, ['precomputed']]],
-         'Hierarchical': [False, [3, ['manhattan','euclidean'], ['ward','complete','average']]]}
-        #  'Hierarchical': [False, [3, ['precomputed'], ['complete','average']]]}
+step3 = {'KMeans': [False, {'n_clusters': [3, 'auto']}],
+         'AP': [False, {'preference': ['auto']}],                        # affinity can be 'precomputed'
+         'MS': [False],                                                  # affinity can be 'precomputed'
+         'Spectral': [False, {'n_clusters': [3, 8]}],                    # affinity can be 'precomputed'
+         'Hierarchical': [False, {'n_clusters': [3, 8],
+                                  'affinity': ['manhattan','euclidean'], # affinity can be 'precomputed'
+                                  'linkage':  ['ward','complete','average']}]
+        }
