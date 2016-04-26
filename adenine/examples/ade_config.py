@@ -31,18 +31,23 @@ step1 = {'None': [True], 'Recenter': [False], 'Standardize': [False],
          'Normalize': [False, ['l2']], 'MinMax': [False, [0,1]]}
 
 # --- Dimensionality Reduction & Manifold Learning --- #
-step2 = {'PCA': [True], 'IncrementalPCA': [False], 'RandomizedPCA': [False],
+step2 = {'PCA': [False], 'IncrementalPCA': [False], 'RandomizedPCA': [False],
          'KernelPCA': [False, ['linear','rbf','poly']], 'Isomap': [False],
          'LLE': [False, ['standard','modified','hessian', 'ltsa']],
          'SE': [False], 'MDS': [False, ['metric','nonmetric']],
-         'tSNE': [False], 'None': [False]}
+         'tSNE': [False], 'None': [True]}
 
 # --- Clustering --- #
-step3 = {'KMeans': [True, ['auto']], # cannot be 'precomputed'
+step3 = {'KMeans': [False, ['auto']], # cannot be 'precomputed'
         #  'AP': [False, [1,'precomputed']], # can be 'precomputed'
          'AP': [False], # can be 'precomputed'
          'MS': [False], # cannot be 'precomputed'
         #  'Spectral': [True, [50, ['precomputed']]], # can be 'precomputed'
          'Spectral': [False, [3]], # can be 'precomputed'
-         'Hierarchical': [False, [3, ['manhattan','euclidean'], ['ward','complete','average']]]}
+        #  'Hierarchical': [False, [3, ['manhattan','euclidean'], ['ward','complete','average']]]}
+         'Hierarchical': [True, {'n_clusters': [3, 40],
+                                  'affinity': ['manhattan','euclidean'],
+                                  'linkage':  ['ward','complete','average'],
+                                  'compute_full_tree': True}
+         ]}
         #  'Hierarchical': [False, [3, ['precomputed']]] # can be 'precomputed'

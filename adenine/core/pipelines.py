@@ -192,14 +192,14 @@ def run(pipes=(), X=(), exp_tag='def_tag', root='', y=None):
                                     args = (pipeID, pipe, pipes_dump, X))
         jobs.append(p)
         p.start()
-        logging.info("Job: {} submitted\n".format(pipeID))
+        logging.info("Job: {} submitted".format(pipeID))
 
     # Collect results
     ret_count = 0
     for proc in jobs:
         proc.join()
         ret_count += 1
-    logging.info("{} jobs collected\n".format(ret_count))
+    logging.info("{} jobs collected".format(ret_count))
 
     # Convert the DictProxy to standard dict
     pipes_dump = dict(pipes_dump)
