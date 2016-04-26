@@ -3,7 +3,7 @@
 
 import logging
 import numpy as np
-from adenine.utils.extra import modified_cartesian
+from adenine.utils.extra import modified_cartesian, ensure_list
 
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
@@ -164,6 +164,55 @@ def parse_clustering(key, content):
             cl = DummyNone()
     return (key, cl)
 
+def parse_clustering_dict(key, content):
+    """Parse the options of the clustering step.
+
+    This function does the same as parse_preproc but works on the clustering options.
+
+    Parameters
+    -----------
+    key : {'KMeans', 'KernelKMeans', 'AP', 'MS', 'Spectral', 'Hierarchical'}
+        The selected dimensionality reduction algorithm.
+
+    content : list, len : 2
+        A list containing the On/Off flag and a nested list of extra parameters (e.g. ['rbf,'poly'] for KernelKMeans).
+
+    Returns
+    -----------
+    cltpl : tuple
+        A tuple made like that ('ClusteringName', clustObj), where clustObj implements the .fit method.
+    """
+    if content.get('n_clusters', '') == 'auto':
+        # Wrapper class that automatically detects the best number of clusters via 10-Fold CV
+        content.pop('n_clusters')
+        kwargs = {'param_grid': [], 'n_jobs': -1,
+                  'scoring': silhouette_score, 'cv': 10}
+        if key.lower() == 'kmeans':
+            content.setdefault('init', 'k-means++')
+            content.setdefault('n_jobs', 1)
+            kwargs['estimator'] = KMeans(**content)
+        elif key.lower() == 'ap':
+            kwargs['estimator'] = AffinityPropagation(**content)
+            kwargs['affinity'] = kwargs['estimator'].affinity
+        cl = GridSearchCV(**kwargs)
+
+    else:
+        if key.lower() == 'kmeans':
+            content.setdefault('n_jobs', -1)
+            cl = KMeans(**content)
+        elif key.lower() == 'ap':
+            content.setdefault('preference', 1)
+            cl = AffinityPropagation(**content)
+        elif key.lower() == 'ms':
+            cl = MeanShift(**content)
+        elif key.lower() == 'spectral':
+            cl = SpectralClustering(**content)
+        elif key.lower() == 'hierarchical':
+            cl = AgglomerativeClustering(**content)
+        else:
+            cl = DummyNone()
+    return (key, cl)
+
 def parse_steps(steps):
     """Parse the steps and create the pipelines.
 
@@ -216,7 +265,15 @@ def parse_steps(steps):
     for key in clustering.keys():
         if clustering[key][0]: # On/Off flag
             if len(clustering[key]) > 1: # Discriminate from just flag or flag + args
-                if len(clustering[key][1]) > 2:
+                if type(clustering[key][1]) == dict:
+                    _dict_content = clustering[key][1]
+                    for ll in modified_cartesian(*map(ensure_list,
+                                                      list(_dict_content.itervalues()))):
+                        _single_content = {_k_:_v_ for _k_, _v_ in zip(list(_dict_content), ll)}
+                        if not (_single_content.get('affinity','') in ['manhattan', 'precomputed'] and _single_content.get('linkage','') == 'ward'):
+                            print _single_content
+                            cl_lst_of_tpls.append(parse_clustering_dict(key, _single_content))
+                elif len(clustering[key][1]) > 2:
                     for k1, k2, k3 in modified_cartesian(*clustering[key][1][:3]):
                         if (k2 == 'precomputed' and k3 != 'ward') or \
                         not (k2 == 'manhattan' and k3 == 'ward'): # that doesn't work together

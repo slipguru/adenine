@@ -333,6 +333,10 @@ def get_step_attributes(step=(), pos=()):
     if param.get('affinity', '') == 'precomputed':
         metric = 'precomputed'
 
+    n_clusters = param.get('n_clusters', 0)
+    if n_clusters > 0:
+        name += '_' + str(n_clusters) + '-clusts'
+
     logging.info("{} : {}".format(level,name))
     return name, level, param, data_out, data_in, mdl_obj, voronoi_mdl_obj, metric
 
@@ -518,9 +522,9 @@ def make_df_clst_perf(rootFolder):
                 perf_out['pipeline'] = title_from_filename(root, step_sep=" --> ")
                 df = df.append(perf_out, ignore_index=True)
     df = df.fillna('---')
-    size_pipe = max([len(p) for p in df['pipeline']]+[8])
+    size_pipe = max([len(p) for p in df['pipeline']]+[len('preprocess --> dim red --> clustering')])
     with open(os.path.join(rootFolder,'summary_scores.txt'), 'w') as f:
-        header = "pipeline{0}|{1}ami|{1}ari|{2}completeness|{2}homogeneity|{2}inertia|{2}silhouette|{2}v_measure\n".format(' '*(size_pipe-8),' '*4,' ')
+        header = "preprocess --> dim red --> clustering{0}|{1}ami|{1}ari|{2}completeness|{2}homogeneity|{2}v_measure|{2}inertia|{2}silhouette\n".format(' '*(size_pipe-8),' '*4,' ')
         f.write("-"*len(header) + "\n")
         f.write("Adenine: Clustering Performance for each pipeline\n")
         f.write("-"*len(header) + "\n")
@@ -532,9 +536,9 @@ def make_df_clst_perf(rootFolder):
             ari = '{:.3}'.format(row['ari'])
             com = '{:.3}'.format(row['completeness'])
             hom = '{:.3}'.format(row['homogeneity'])
+            vme = '{:.3}'.format(row['v_measure'])
             ine = '{:.3}'.format(row['inertia'])
             sil = '{:.3}'.format(row['silhouette'])
-            vme = '{:.3}'.format(row['v_measure'])
             # f.write("{}{}|{}{:.3f}|{}{:.3f}|{}{:.3f}|{}{:.3f}|{}{:.3f}|{}{:.3f}|{}{:.3f}\n"
             f.write("{}{}|{}{}|{}{}|{}{}|{}{}|{}{}|{}{}|{}{}\n"
             .format(row['pipeline'],' '*(size_pipe-len(row['pipeline'])),
@@ -542,9 +546,10 @@ def make_df_clst_perf(rootFolder):
             ' '*(len('    ari')-len(ari)), ari,
             ' '*(len(' completeness')-len(com)), com,
             ' '*(len(' homogeneity')-len(hom)), hom,
+            ' '*(len(' v_measure')-len(vme)), vme),
             ' '*(len(' inertia')-len(ine)), ine,
-            ' '*(len(' silhouette')-len(sil)), sil,
-            ' '*(len(' v_measure')-len(vme)), vme))
+            ' '*(len(' silhouette')-len(sil)), sil
+            )
         f.write("-"*len(header) + "\n")
     # df.to_csv(os.path.join(rootFolder,'all_scores.csv'), na_rep='-', index_label=False, index=False)
 
