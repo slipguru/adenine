@@ -27,15 +27,15 @@ X, y, feat_names, class_names = data_source.load('gauss')
 step0 = {'Impute': [False], 'Missing': [-1], 'Replacement': ['median','mean','nearest_neighbors']}
 
 # --- Data Preprocessing --- #
-step1 = {'None': [True], 'Recenter': [False], 'Standardize': [False],
-         'Normalize': [False, ['l2']], 'MinMax': [False, [0,1]]}
+step1 = {'None': [True], 'Recenter': [True], 'Standardize': [False],
+         'Normalize': [True, ['l2']], 'MinMax': [False, [0,1]]}
 
 # --- Dimensionality Reduction & Manifold Learning --- #
-step2 = {'PCA': [True], 'IncrementalPCA': [False], 'RandomizedPCA': [False],
-         'KernelPCA': [False, ['linear','rbf','poly']], 'Isomap': [False],
+step2 = {'PCA': [False], 'IncrementalPCA': [False], 'RandomizedPCA': [False],
+         'KernelPCA': [True, ['linear','rbf','poly']], 'Isomap': [False],
          'LLE': [False, ['standard','modified','hessian', 'ltsa']],
          'SE': [False], 'MDS': [False, ['metric','nonmetric']],
-         'tSNE': [False], 'None': [False]}
+         'tSNE': [True], 'None': [True]}
 
 # --- Clustering --- #
 step3 = {'KMeans': [True, ['auto']], # cannot be 'precomputed'
@@ -44,5 +44,5 @@ step3 = {'KMeans': [True, ['auto']], # cannot be 'precomputed'
          'MS': [False], # cannot be 'precomputed'
         #  'Spectral': [True, [50, ['precomputed']]], # can be 'precomputed'
          'Spectral': [False, [3]], # can be 'precomputed'
-         'Hierarchical': [False, [3, ['manhattan','euclidean'], ['ward','complete','average']]]}
+         'Hierarchical': [True, [3, ['manhattan','euclidean'], ['ward','complete','average']]]}
         #  'Hierarchical': [False, [3, ['precomputed']]] # can be 'precomputed'

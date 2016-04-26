@@ -16,6 +16,10 @@ if platform.system() == 'Darwin':
     matplotlib.use(backend)
     GLOBAL_INFO = "matplotlib backend switched to {}".format(backend)
 
+import matplotlib
+matplotlib.use('AGG')
+#matplotlib.use('GTK')
+
 import matplotlib.pyplot as plt
 import seaborn as sns
 
