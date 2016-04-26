@@ -465,6 +465,7 @@ def plot_PCmagnitude(root=(), points=(), title='', ylabel=''):
     plt.grid('on')
     plt.ylabel(ylabel)
     plt.xlim([1,min(20,len(points)+1)]) # Show maximum 20 components
+    plt.ylim([0,1])
     filename = os.path.join(root,os.path.basename(root)+"_magnitude")
     plt.savefig(filename)
     plt.close()
