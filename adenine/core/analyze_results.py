@@ -10,15 +10,14 @@ import pandas as pd
 
 # OSX matplotlib issues in multiprocessing
 GLOBAL_INFO = ''  # to save info before logging is loaded
-if platform.system() == 'Darwin':
-    import matplotlib
-    backend = 'Qt4Agg'
-    matplotlib.use(backend)
-    GLOBAL_INFO = "matplotlib backend switched to {}".format(backend)
+# if platform.system() == 'Darwin':
+#     import matplotlib
+#     backend = 'Qt4Agg'
+#     matplotlib.use(backend)
+#     GLOBAL_INFO = "matplotlib backend switched to {}".format(backend)
 
 import matplotlib
 matplotlib.use('AGG')
-#matplotlib.use('GTK')
 
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -227,18 +226,26 @@ def est_clst_perf(root=(), data_in=(), labels=None, t_labels=None, model=(), met
         The label assignment performed by the clusterin algorithm.
 
     t_labels : array of float, shape : n_samples
-        The true label vector; np.nan if missing.
+        The true label vector; None if missing.
 
     model : sklearn or sklearn-like object
         An instance of the class that evaluates a step. In particular this must be a clustering model provided with the clusters_centers_ attribute (e.g. KMeans).
     """
+
+    print "******************************"
+    print model
+    print "******************************"
+
     perf_out = dict()
 
     try:
         perf_out['silhouette'] = metrics.silhouette_score(data_in, labels, metric=metric)
+
         if hasattr(model, 'inertia_'):
             # Sum of distances of samples to their closest cluster center.
             perf_out['inertia'] = model.inertia_
+            print model.inertia_
+            print "******************************"
 
         if t_labels is not None:
             # the next indexes need a gold standard
@@ -281,7 +288,7 @@ def get_step_attributes(step=(), pos=()):
     Parameters
     -----------
     step : list
-        A step coded by ade_run.py as [name, level, results, parameters]
+        A step coded by ade_run.py as [name, level, param, data_out, data_in, mdl obj, voronoi_mdl_obj]
 
     pos : int
         The position of the step inside the pipeline.
@@ -333,7 +340,7 @@ def get_step_attributes(step=(), pos=()):
     if param.get('affinity', '') == 'precomputed':
         metric = 'precomputed'
 
-    n_clusters = param.get('n_clusters', 0)
+    n_clusters = param.get('n_clusters', 0) or param.get('estimator__n_clusters', 0)
     if n_clusters > 0:
         name += '_' + str(n_clusters) + '-clusts'
 
@@ -422,7 +429,7 @@ def make_dendrogram(root=(), data_in=(), model_param=(), trueLabel=None, labels=
         if make_dendrograms:
             sns.set(font="monospace")
             for method in ['single','complete','average','weighted','centroid','median','ward']:
-                print("Compute linkage matrix with metric={} ...".format(method))
+                # print("Compute linkage matrix with metric={} ...".format(method))
                 Z = sp_linkage(tmp, method=method, metric='euclidean')
                 g = sns.clustermap(df.corr(), method=method, row_linkage=Z, col_linkage=Z)
                 filename = os.path.join(root, '_'.join((os.path.basename(root), method, '_dendrogram.png')))
@@ -436,7 +443,7 @@ def make_dendrogram(root=(), data_in=(), model_param=(), trueLabel=None, labels=
                 filename = plot_avg_silhouette(tmp)
                 logging.info('Figured saved {}'.format(filename))
             except:
-                print("Cannot import name {}".format('ignet.plotting'))
+                logging.warn("Cannot import name {}".format('ignet.plotting'))
         return
 
     # workaround to a different name used for manhatta / cityblock distance
@@ -524,7 +531,7 @@ def make_df_clst_perf(rootFolder):
     df = df.fillna('---')
     size_pipe = max([len(p) for p in df['pipeline']]+[len('preprocess --> dim red --> clustering')])
     with open(os.path.join(rootFolder,'summary_scores.txt'), 'w') as f:
-        header = "preprocess --> dim red --> clustering{0}|{1}ami|{1}ari|{2}completeness|{2}homogeneity|{2}v_measure|{2}inertia|{2}silhouette\n".format(' '*(size_pipe-8),' '*4,' ')
+        header = "preprocess --> dim red --> clustering{0}|{1}ami|{1}ari|{2}completeness|{2}homogeneity|{2}v_measure|{2}inertia|{2}silhouette\n".format(' '*(size_pipe-len("preprocess --> dim red --> clustering")),' '*4,' ')
         f.write("-"*len(header) + "\n")
         f.write("Adenine: Clustering Performance for each pipeline\n")
         f.write("-"*len(header) + "\n")
@@ -546,10 +553,10 @@ def make_df_clst_perf(rootFolder):
             ' '*(len('    ari')-len(ari)), ari,
             ' '*(len(' completeness')-len(com)), com,
             ' '*(len(' homogeneity')-len(hom)), hom,
-            ' '*(len(' v_measure')-len(vme)), vme),
+            ' '*(len(' v_measure')-len(vme)), vme,
             ' '*(len(' inertia')-len(ine)), ine,
             ' '*(len(' silhouette')-len(sil)), sil
-            )
+            ))
         f.write("-"*len(header) + "\n")
     # df.to_csv(os.path.join(rootFolder,'all_scores.csv'), na_rep='-', index_label=False, index=False)
 
@@ -611,7 +618,7 @@ def analysis_worker(elem, rootFolder, y, feat_names, class_names, lock):
             # make_scatterplot(root=rootname, labels=step_out, model_param=step_param, data_in=step_in, model=mdl_obj)
             make_scatter(root=rootname, labels=step_out, model_param=step_param, data_in=step_in, model=mdl_obj)
 
-            est_clst_perf(root=rootname, data_in=step_in, labels=step_out, t_labels=y, metric=metric)
+            est_clst_perf(root=rootname, data_in=step_in, labels=step_out, t_labels=y, model=mdl_obj, metric=metric)
 
     make_df_clst_perf(rootFolder)
 

@@ -162,6 +162,7 @@ class GridSearchCV(GridSearchCV):
         super(GridSearchCV, self).__init__( estimator, param_grid, scoring, fit_params, n_jobs, iid, refit, cv, verbose, pre_dispatch, error_score)
         self.affinity = affinity # add the attribute affinity
         self.cluster_centers_ = None
+        self.inertia_ = None
 
     def _sqrtn_heuristic(self, n):
         """
@@ -197,6 +198,9 @@ class GridSearchCV(GridSearchCV):
         # Propagate the cluster_centers_ attribute (needed for voronoi plot)
         if hasattr(self.best_estimator_, 'cluster_centers_'): # added for consistency only
             self.cluster_centers_ = self.best_estimator_.cluster_centers_
+
+        if hasattr(self.best_estimator_, 'inertia_'):
+            self.inertia_ = self.best_estimator_.inertia_
 
         return self
 
