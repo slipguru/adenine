@@ -120,6 +120,7 @@ def pipe_worker(pipeID, pipe, pipes_dump, X):
             step[1].set_params(n_neighbors=1 + (n_components * (n_components + 3) / 2))
         try:
             step[1].fit(X_curr)
+
             # 3. evaluate (i.e. transform or predict according to the level)
             # X_curr = evaluate(level, step[1], X_curr)
             X_next = evaluate(level, step[1], X_curr)
@@ -134,6 +135,7 @@ def pipe_worker(pipeID, pipe, pipes_dump, X):
             step_dump[stepID] = [step[0], level, step[1].get_params(), X_next, X_curr, step[1], mdl_voronoi]
             X_curr = np.array(X_next) # update the matrix
 
+
         except AssertionError as e:
             logging.critical("Pipeline {} failed at step {}".format(pipeID, step[0]))
             step_dump[stepID] = [step[0], level, step[1].get_params(), np.nan, np.nan, np.nan]
@@ -141,6 +143,7 @@ def pipe_worker(pipeID, pipe, pipes_dump, X):
 
     pipes_dump[pipeID] = step_dump
     logging.debug("DUMP: \n {} \n #########".format(pipes_dump))
+
 
 
 def run(pipes=(), X=(), exp_tag='def_tag', root='', y=None):

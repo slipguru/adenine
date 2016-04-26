@@ -272,7 +272,7 @@ def parse_steps(steps):
                                                       list(_dict_content.itervalues()))):
                         _single_content = {_k_:_v_ for _k_, _v_ in zip(list(_dict_content), ll)}
                         if not (_single_content.get('affinity','') in ['manhattan', 'precomputed'] and _single_content.get('linkage','') == 'ward'):
-                            print _single_content
+                            # print _single_content
                             cl_lst_of_tpls.append(parse_clustering_dict(key, _single_content))
 
                 # elif len(clustering[key][1]) > 2:

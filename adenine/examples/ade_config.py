@@ -38,7 +38,7 @@ step2 = {'PCA': [True], 'IncrementalPCA': [False], 'RandomizedPCA': [False],
          'tSNE': [False], 'None': [False]}
 
 # --- Clustering --- #
-step3 = {'KMeans': [True, {'n_clusters': ['auto', 3]}], # cannot be 'precomputed'
+step3 = {'KMeans': [True, {'n_clusters': ['auto', 5]}], # cannot be 'precomputed'
         #  'AP': [False, [1,'precomputed']], # can be 'precomputed'
          'AP': [False, {'preference': ['auto']}], # can be 'precomputed'
          'MS': [False], # cannot be 'precomputed'

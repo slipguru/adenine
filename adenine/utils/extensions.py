@@ -163,6 +163,8 @@ class GridSearchCV(GridSearchCV):
         self.affinity = affinity # add the attribute affinity
         self.cluster_centers_ = None
         self.inertia_ = None
+        self.n_clusters = None
+        self.debug = 100
 
     def _sqrtn_heuristic(self, n):
         """
@@ -199,10 +201,23 @@ class GridSearchCV(GridSearchCV):
         if hasattr(self.best_estimator_, 'cluster_centers_'): # added for consistency only
             self.cluster_centers_ = self.best_estimator_.cluster_centers_
 
+        # Propagate the inertia_ attribute
         if hasattr(self.best_estimator_, 'inertia_'):
             self.inertia_ = self.best_estimator_.inertia_
 
+        # Propagate the n_clusters
+        # self.n_clusters = self.best_params_.get('n_clusters', None)
+        self.n_clusters = self.best_estimator_.n_clusters
+
         return self
+
+    def get_params(self, deep=True):
+        params_ = super(GridSearchCV, self).get_params(deep)
+        params_['n_clusters'] = self.n_clusters
+        params_['inertia_'] = self.inertia_
+        return params_
+
+
 
 def silhouette_score(estimator, X, y=None):
     """

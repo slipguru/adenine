@@ -238,7 +238,7 @@ def est_clst_perf(root=(), data_in=(), labels=None, t_labels=None, model=(), met
 
         if hasattr(model, 'inertia_'):
             # Sum of distances of samples to their closest cluster center.
-            perf_out['inertia'] = model.inertia_        
+            perf_out['inertia'] = model.inertia_
 
         if t_labels is not None:
             # the next indexes need a gold standard
@@ -333,7 +333,7 @@ def get_step_attributes(step=(), pos=()):
     if param.get('affinity', '') == 'precomputed':
         metric = 'precomputed'
 
-    n_clusters = param.get('n_clusters', 0) or param.get('estimator__n_clusters', 0)
+    n_clusters = param.get('n_clusters', 0) or param.get('best_estimator_', dict()).get('n_clusters', 0)
     if n_clusters > 0:
         name += '_' + str(n_clusters) + '-clusts'
 
