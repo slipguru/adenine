@@ -231,11 +231,6 @@ def est_clst_perf(root=(), data_in=(), labels=None, t_labels=None, model=(), met
     model : sklearn or sklearn-like object
         An instance of the class that evaluates a step. In particular this must be a clustering model provided with the clusters_centers_ attribute (e.g. KMeans).
     """
-
-    print "******************************"
-    print model
-    print "******************************"
-
     perf_out = dict()
 
     try:
@@ -243,9 +238,7 @@ def est_clst_perf(root=(), data_in=(), labels=None, t_labels=None, model=(), met
 
         if hasattr(model, 'inertia_'):
             # Sum of distances of samples to their closest cluster center.
-            perf_out['inertia'] = model.inertia_
-            print model.inertia_
-            print "******************************"
+            perf_out['inertia'] = model.inertia_        
 
         if t_labels is not None:
             # the next indexes need a gold standard
