@@ -38,6 +38,6 @@ setup(
               'scipy (>=0.16.1)',
               'sklearn (>=0.17)',
               'matplotlib (>=1.5.1)',
-              'seaborn (>=0.6.0)'],
+              'seaborn (>=0.7.0)'],
     scripts=['scripts/ade_run.py','scripts/ade_analysis.py'],
 )
