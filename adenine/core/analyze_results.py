@@ -501,23 +501,27 @@ def plot_eigs(root='', affinity=(), n_clusters=0, title='', ylabel='', normalise
     D = np.diag([np.sum(x) for x in W])
     L = D - W
 
-    # if normalised:
-    #     # aux = np.linalg.inv(np.diag([np.sqrt(np.sum(x)) for x in W]))
-    #     aux =  np.diag(1. / np.array([np.sqrt(np.sum(x)) for x in W]))
-    #     L = np.eye(L.shape[0]) - (np.dot(np.dot(aux,W),aux)) # normalised L
+    if normalised:
+        # aux = np.linalg.inv(np.diag([np.sqrt(np.sum(x)) for x in W]))
+        aux =  np.diag(1. / np.array([np.sqrt(np.sum(x)) for x in W]))
+        L = np.eye(L.shape[0]) - (np.dot(np.dot(aux,W),aux)) # normalised L
 
-    w, v = np.linalg.eig(L)
-    w = np.array(sorted(np.abs(w)))
-    plt.plot(np.arange(1, len(w)+1), w, '-o')
-    plt.title(title)
-    plt.grid('on')
-    plt.ylabel(ylabel)
-    plt.xlim([1,min(20,len(w)+1)]) # Show maximum 20 components
-    if n_clusters > 0:
-        plt.axvline(x=n_clusters+.5, linestyle='--', color='r', label='selected clusters')
-    plt.legend(loc='upper right', numpoints=1, ncol=10, fontsize=8)#, bbox_to_anchor=(1, 1))
-    filename = os.path.join(root,os.path.basename(root)+"_eigenvals")
-    plt.savefig(filename)
+    try:
+        w, v = np.linalg.eig(L)
+        w = np.array(sorted(np.abs(w)))
+        plt.plot(np.arange(1, len(w)+1), w, '-o')
+        plt.title(title)
+        plt.grid('on')
+        plt.ylabel(ylabel)
+        plt.xlim([1,min(20,len(w)+1)]) # Show maximum 20 components
+        if n_clusters > 0:
+            plt.axvline(x=n_clusters+.5, linestyle='--', color='r', label='selected clusters')
+        plt.legend(loc='upper right', numpoints=1, ncol=10, fontsize=8)#, bbox_to_anchor=(1, 1))
+        filename = os.path.join(root,os.path.basename(root)+"_eigenvals")
+        plt.savefig(filename)
+    except np.linalg.LinAlgError:
+        logging.critical("Error in plot_eigs: Affinity matrix contained negative"
+                         " values. You can try by specifying normalised=False")
     plt.close()
 
 def make_df_clst_perf(rootFolder):
@@ -529,10 +533,10 @@ def make_df_clst_perf(rootFolder):
                     perf_out = pkl.load(f)
                 perf_out['pipeline'] = title_from_filename(root, step_sep=" --> ")
                 df = df.append(perf_out, ignore_index=True)
-    df = df.fillna('---')
+    df = df.fillna(np.nan)
     size_pipe = max([len(p) for p in df['pipeline']]+[len('preprocess --> dim red --> clustering')])
     with open(os.path.join(rootFolder,'summary_scores.txt'), 'w') as f:
-        header = "preprocess --> dim red --> clustering{0}|{1}ami|{1}ari|{2}completeness|{2}homogeneity|{2}v_measure|{2}inertia|{2}silhouette\n".format(' '*(size_pipe-len("preprocess --> dim red --> clustering")),' '*4,' ')
+        header = "preprocess --> dim red --> clustering{0}|{1}ami|{1}ari|{2}completeness|{2}homogeneity|{2}v_measure|{3}inertia|{2}silhouette\n".format(' '*(size_pipe-len("preprocess --> dim red --> clustering")),' '*4,' ','   ')
         f.write("-"*len(header) + "\n")
         f.write("Adenine: Clustering Performance for each pipeline\n")
         f.write("-"*len(header) + "\n")
@@ -540,23 +544,23 @@ def make_df_clst_perf(rootFolder):
         f.write("-"*len(header) + "\n")
         for _ in df.iterrows():
             row = _[1]
-            ami = '{:.3}'.format(row['ami'])
-            ari = '{:.3}'.format(row['ari'])
-            com = '{:.3}'.format(row['completeness'])
-            hom = '{:.3}'.format(row['homogeneity'])
-            vme = '{:.3}'.format(row['v_measure'])
-            ine = '{:.3}'.format(row['inertia'])
-            sil = '{:.3}'.format(row['silhouette'])
+            ami = '{: .3}'.format(row['ami'])
+            ari = '{: .3}'.format(row['ari'])
+            com = '{: .3}'.format(row['completeness'])
+            hom = '{: .3}'.format(row['homogeneity'])
+            vme = '{: .3}'.format(row['v_measure'])
+            ine = '{: .3}'.format(row['inertia'])
+            sil = '{: .3}'.format(row['silhouette'])
             # f.write("{}{}|{}{:.3f}|{}{:.3f}|{}{:.3f}|{}{:.3f}|{}{:.3f}|{}{:.3f}|{}{:.3f}\n"
             f.write("{}{}|{}{}|{}{}|{}{}|{}{}|{}{}|{}{}|{}{}\n"
             .format(row['pipeline'],' '*(size_pipe-len(row['pipeline'])),
-            ' '*(len('    ami')-len(ami)), ami,
-            ' '*(len('    ari')-len(ari)), ari,
-            ' '*(len(' completeness')-len(com)), com,
-            ' '*(len(' homogeneity')-len(hom)), hom,
-            ' '*(len(' v_measure')-len(vme)), vme,
-            ' '*(len(' inertia')-len(ine)), ine,
-            ' '*(len(' silhouette')-len(sil)), sil
+            ' '*abs(len('    ami')-len(ami)), ami,
+            ' '*abs(len('    ari')-len(ari)), ari,
+            ' '*abs(len(' completeness')-len(com)), com,
+            ' '*abs(len(' homogeneity')-len(hom)), hom,
+            ' '*abs(len(' v_measure')-len(vme)), vme,
+            ' '*abs(len('   inertia')-len(ine)), ine,
+            ' '*abs(len(' silhouette')-len(sil)), sil
             ))
         f.write("-"*len(header) + "\n")
     # df.to_csv(os.path.join(rootFolder,'all_scores.csv'), na_rep='-', index_label=False, index=False)
@@ -609,15 +613,14 @@ def analysis_worker(elem, rootFolder, y, feat_names, class_names, lock):
             if hasattr(mdl_obj, 'affinity_matrix_'):
                 # plot_eigs(root=rootname, affinity=mdl_obj.affinity_matrix_, n_clusters=mdl_obj.get_params()['n_clusters'], title='Eigenvalues of the graph associated to the affinity matrix')
 
-                print "*******************************"
+                n_clusters = mdl_obj.__dict__.get('cluster_centers_',np.empty(0)).shape[0]
                 if hasattr(mdl_obj, 'n_clusters'):
                     n_clusters = mdl_obj.n_clusters
-                else:
-                    n_clusters = mdl_obj.__dict__.get('cluster_centers_',np.array([])).shape[0]
 
-                print mdl_obj
-                print n_clusters
-                print "*******************************"
+                # print "*******************************"
+                # print mdl_obj
+                # print n_clusters
+                # print "*******************************"
 
                 plot_eigs(root=rootname, affinity=mdl_obj.affinity_matrix_, n_clusters=n_clusters, title='Eigenvalues of the graph associated to the affinity matrix')
             if hasattr(mdl_obj, 'cluster_centers_'):
