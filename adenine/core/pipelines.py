@@ -10,6 +10,13 @@ import numpy as np
 from adenine.utils.extra import make_time_flag
 from adenine.utils.extra import get_time
 
+##### PyVmMonitor
+import sys
+sys.path.append('/home/samu/Desktop/pyvmmonitor/public_api')
+import pyvmmonitor
+#####
+
+
 def create(pdef):
     """Scikit-learn Pipelines objects creation (deprecated).
 
@@ -91,6 +98,7 @@ def evaluate(level, step, X):
             res = step.predict(X)
     return res
 
+# @pyvmmonitor.profile_method
 def pipe_worker(pipeID, pipe, pipes_dump, X):
     """Parallel pipelines execution.
 
@@ -134,7 +142,6 @@ def pipe_worker(pipeID, pipe, pipes_dump, X):
             # {'pipeID': {'stepID' : [alg_name, level, params, res, Xnext, Xcurr, stepObj, voronoi_suitable_model]}}
             step_dump[stepID] = [step[0], level, step[1].get_params(), X_next, X_curr, step[1], mdl_voronoi]
             X_curr = np.array(X_next) # update the matrix
-
 
         except AssertionError as e:
             logging.critical("Pipeline {} failed at step {}".format(pipeID, step[0]))

@@ -164,7 +164,6 @@ class GridSearchCV(GridSearchCV):
         self.cluster_centers_ = None
         self.inertia_ = None
         self.n_clusters = None
-        self.debug = 100
 
     def _sqrtn_heuristic(self, n):
         """
