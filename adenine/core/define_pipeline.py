@@ -106,65 +106,8 @@ def parse_dimred(key, content):
         dr = DummyNone()
     return (key, dr)
 
-# def parse_clustering(key, content):
-#     """Parse the options of the clustering step.
-#
-#     This function does the same as parse_preproc but works on the clustering options.
-#
-#     Parameters
-#     -----------
-#     key : {'KMeans', 'KernelKMeans', 'AP', 'MS', 'Spectral', 'Hierarchical'}
-#         The selected dimensionality reduction algorithm.
-#
-#     content : list, len : 2
-#         A list containing the On/Off flag and a nested list of extra parameters (e.g. ['rbf,'poly'] for KernelKMeans).
-#
-#     Returns
-#     -----------
-#     cltpl : tuple
-#         A tuple made like that ('ClusteringName', clustObj), where clustObj implements the .fit method.
-#     """
-#      # list flattening
-#     flatten = lambda x: [y for l in x for y in flatten(l)] if type(x) is list else [x]
-#
-#     if 'auto' in content:
-#         # Wrapper class that automatically detects the best number of clusters via 10-Fold CV
-#         kwargs = {'param_grid': [], 'n_jobs': -1,
-#                   'scoring': silhouette_score, 'cv': 10}
-#         if key.lower() == 'kmeans':
-#             kwargs['estimator'] = KMeans(init='k-means++', n_jobs=1)
-#         elif key.lower() == 'ap':
-#             kwargs['estimator'] = AffinityPropagation()
-#             kwargs['affinity'] = kwargs['estimator'].affinity
-#         cl = GridSearchCV(**kwargs)
-#
-#     else:
-#         # Just create the standard object
-#         if key.lower() == 'kmeans':
-#             cl = KMeans(init='k-means++', n_jobs=-1, n_clusters=content)
-#         elif key.lower() == 'ap':
-#             kwargs = {'preference': content[0]}
-#             if 'precomputed' in flatten(content):
-#                 kwargs['affinity'] = 'precomputed'
-#             cl = AffinityPropagation(**kwargs)
-#         elif key.lower() == 'ms':
-#             cl = MeanShift()
-#         elif key.lower() == 'spectral':
-#             if 'precomputed' in flatten(content):
-#                 kwargs = {'n_clusters': content[0], 'affinity': 'precomputed'}
-#             else:
-#                 kwargs = {'n_clusters': content}
-#             cl = SpectralClustering(**kwargs)
-#         elif key.lower() == 'hierarchical':
-#             kwargs = {'n_clusters': content[0], 'affinity': content[1]}
-#             if len(content) > 2:
-#                 kwargs['linkage'] = content[2]
-#             cl = AgglomerativeClustering(**kwargs)
-#         else:
-#             cl = DummyNone()
-#     return (key, cl)
 
-def parse_clustering_dict(key, content):
+def parse_clustering(key, content):
     """Parse the options of the clustering step.
 
     This function does the same as parse_preproc but works on the clustering options.
@@ -277,10 +220,10 @@ def parse_steps(steps):
                     _single_content = {__k: __v for __k, __v in zip(list(_dict_content), ll)}
                     if not (_single_content.get('affinity','') in ['manhattan', 'precomputed'] and _single_content.get('linkage','') == 'ward'):
                         # print _single_content
-                        cl_lst_of_tpls.append(parse_clustering_dict(key, _single_content))
+                        cl_lst_of_tpls.append(parse_clustering(key, _single_content))
 
             else: # just flag case
-                cl_lst_of_tpls.append(parse_clustering_dict(key, dict()))
+                cl_lst_of_tpls.append(parse_clustering(key, dict()))
 
 
     # Generate the list of list of tuples (i.e. the list of pipelines)
