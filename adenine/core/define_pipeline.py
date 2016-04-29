@@ -280,7 +280,7 @@ def parse_steps(steps):
                         cl_lst_of_tpls.append(parse_clustering_dict(key, _single_content))
 
             else: # just flag case
-                cl_lst_of_tpls.append(parse_clustering(key, clustering[key]))
+                cl_lst_of_tpls.append(parse_clustering_dict(key, dict()))
 
 
     # Generate the list of list of tuples (i.e. the list of pipelines)

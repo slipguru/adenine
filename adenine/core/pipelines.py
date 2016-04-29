@@ -133,11 +133,14 @@ def pipe_worker(pipeID, pipe, pipes_dump, X):
             # X_curr = evaluate(level, step[1], X_curr)
             X_next = evaluate(level, step[1], X_curr)
             # 3.1 if the model is suitable for voronoi tessellation: fit also on 2D
+            mdl_voronoi = None
             if hasattr(step[1], 'cluster_centers_'):
-                mdl_voronoi = copy.copy(step[1])
+                if hasattr(step[1], 'best_estimator_'):
+                    mdl_voronoi = copy.copy(step[1].best_estimator_)
+                else:
+                    mdl_voronoi = copy.copy(step[1])
                 mdl_voronoi.fit(X_curr[:,:2])
-            else:
-                mdl_voronoi = None
+
             # 4. save the results in a dictionary of dictionary of the form:
             # {'pipeID': {'stepID' : [alg_name, level, params, res, Xnext, Xcurr, stepObj, voronoi_suitable_model]}}
             step_dump[stepID] = [step[0], level, step[1].get_params(), X_next, X_curr, step[1], mdl_voronoi]

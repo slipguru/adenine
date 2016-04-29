@@ -149,7 +149,7 @@ def make_voronoi(root=(), data_in=(), model_param=(), labels=None, true_labels=F
     labels : array of int, shape : n_samples
         The result of the clustering step.
 
-    true_labels : boolean
+    true_labels : boolean [deprecated]
         Identify if labels contains true or estimated labels.
 
     model : sklearn or sklearn-like object
@@ -333,7 +333,8 @@ def get_step_attributes(step=(), pos=()):
     if param.get('affinity', '') == 'precomputed':
         metric = 'precomputed'
 
-    n_clusters = param.get('n_clusters', 0) or param.get('best_estimator_', dict()).get('n_clusters', 0)
+    # n_clusters = param.get('n_clusters', 0) or param.get('best_estimator_', dict()).get('n_clusters', 0) or param.get('best_estimator_', dict()).get('clusters_centers_', np.array([])).shape[0]
+    n_clusters = param.get('n_clusters', 0) or param.get('best_estimator_', dict()).get('clusters_centers_', np.array([])).shape[0]
     if n_clusters > 0:
         name += '_' + str(n_clusters) + '-clusts'
 
@@ -484,8 +485,14 @@ def plot_eigs(root='', affinity=(), n_clusters=0, title='', ylabel='', normalise
     rootFolder : string
         The root path for the output creation
 
-    points : array of float, shape : n_components
-        This could be the explained variance ratio or the eigenvalues of the centered matrix, according to the PCA algorithm of choice, respectively: PCA or KernelPCA.
+    affinity : array of float, shape : (n_samples, n_samples)
+        The affinity matrix.
+
+    n_clusters : float
+        The number of clusters.
+
+    ylabel : string
+        The label of the vertical axis.
 
     title : string
         Plot title
@@ -493,10 +500,11 @@ def plot_eigs(root='', affinity=(), n_clusters=0, title='', ylabel='', normalise
     W = affinity - np.diag(np.diag(affinity))
     D = np.diag([np.sum(x) for x in W])
     L = D - W
-    if normalised:
-        # aux = np.linalg.inv(np.diag([np.sqrt(np.sum(x)) for x in W]))
-        aux =  np.diag(1. / np.array([np.sqrt(np.sum(x)) for x in W]))
-        L = np.eye(L.shape[0]) - (np.dot(np.dot(aux,W),aux)) # normalised L
+
+    # if normalised:
+    #     # aux = np.linalg.inv(np.diag([np.sqrt(np.sum(x)) for x in W]))
+    #     aux =  np.diag(1. / np.array([np.sqrt(np.sum(x)) for x in W]))
+    #     L = np.eye(L.shape[0]) - (np.dot(np.dot(aux,W),aux)) # normalised L
 
     w, v = np.linalg.eig(L)
     w = np.array(sorted(np.abs(w)))
@@ -599,13 +607,23 @@ def analysis_worker(elem, rootFolder, y, feat_names, class_names, lock):
                 plot_PCmagnitude(root=rootname, points=mdl_obj.lambdas_/np.sum(mdl_obj.lambdas_), title='Normalized eigenvalues of the centered kernel matrix')
         if step_level == 'clustering':
             if hasattr(mdl_obj, 'affinity_matrix_'):
-                plot_eigs(root=rootname, affinity=mdl_obj.affinity_matrix_, n_clusters=mdl_obj.get_params()['n_clusters'], title='Eigenvalues of the graph associated to the affinity matrix')
+                # plot_eigs(root=rootname, affinity=mdl_obj.affinity_matrix_, n_clusters=mdl_obj.get_params()['n_clusters'], title='Eigenvalues of the graph associated to the affinity matrix')
+
+                print "*******************************"
+                if hasattr(mdl_obj, 'n_clusters'):
+                    n_clusters = mdl_obj.n_clusters
+                else:
+                    n_clusters = mdl_obj.__dict__.get('cluster_centers_',np.array([])).shape[0]
+
+                print mdl_obj
+                print n_clusters
+                print "*******************************"
+
+                plot_eigs(root=rootname, affinity=mdl_obj.affinity_matrix_, n_clusters=n_clusters, title='Eigenvalues of the graph associated to the affinity matrix')
             if hasattr(mdl_obj, 'cluster_centers_'):
-                # make_voronoi(root=rootname, labels=step_out, trueLabel=y, model_param=step_param, data_in=step_in, model=voronoi_mdl_obj)
-                make_voronoi(root=rootname, labels=y, true_labels=True, model_param=step_param, data_in=step_in, model=voronoi_mdl_obj)
+                make_voronoi(root=rootname, labels=y, model_param=step_param, data_in=step_in, model=voronoi_mdl_obj)
             elif hasattr(mdl_obj, 'n_leaves_'):
                 make_tree(root=rootname, labels=step_out, trueLabel=y, model_param=step_param, data_in=step_in, model=mdl_obj)
-
                 make_dendrogram(root=rootname, labels=step_out, trueLabel=y, model_param=step_param, data_in=step_in, model=mdl_obj)
 
             # make_scatterplot(root=rootname, labels=step_out, model_param=step_param, data_in=step_in, model=mdl_obj)

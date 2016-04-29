@@ -205,9 +205,11 @@ class GridSearchCV(GridSearchCV):
             self.inertia_ = self.best_estimator_.inertia_
 
         # Propagate the n_clusters
-        # if hasattr(self, 'n_clusters'):
         if hasattr(self.best_estimator_, 'cluster_centers_'):
             self.n_clusters = self.best_estimator_.cluster_centers_.shape[0]
+
+        if hasattr(self.best_estimator_, 'affinity_matrix_'):
+            self.affinity_matrix_ = self.best_estimator_.affinity_matrix_
 
         return self
 
