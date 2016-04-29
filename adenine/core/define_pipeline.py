@@ -106,63 +106,63 @@ def parse_dimred(key, content):
         dr = DummyNone()
     return (key, dr)
 
-def parse_clustering(key, content):
-    """Parse the options of the clustering step.
-
-    This function does the same as parse_preproc but works on the clustering options.
-
-    Parameters
-    -----------
-    key : {'KMeans', 'KernelKMeans', 'AP', 'MS', 'Spectral', 'Hierarchical'}
-        The selected dimensionality reduction algorithm.
-
-    content : list, len : 2
-        A list containing the On/Off flag and a nested list of extra parameters (e.g. ['rbf,'poly'] for KernelKMeans).
-
-    Returns
-    -----------
-    cltpl : tuple
-        A tuple made like that ('ClusteringName', clustObj), where clustObj implements the .fit method.
-    """
-     # list flattening
-    flatten = lambda x: [y for l in x for y in flatten(l)] if type(x) is list else [x]
-
-    if 'auto' in content:
-        # Wrapper class that automatically detects the best number of clusters via 10-Fold CV
-        kwargs = {'param_grid': [], 'n_jobs': -1,
-                  'scoring': silhouette_score, 'cv': 10}
-        if key.lower() == 'kmeans':
-            kwargs['estimator'] = KMeans(init='k-means++', n_jobs=1)
-        elif key.lower() == 'ap':
-            kwargs['estimator'] = AffinityPropagation()
-            kwargs['affinity'] = kwargs['estimator'].affinity
-        cl = GridSearchCV(**kwargs)
-
-    else:
-        # Just create the standard object
-        if key.lower() == 'kmeans':
-            cl = KMeans(init='k-means++', n_jobs=-1, n_clusters=content)
-        elif key.lower() == 'ap':
-            kwargs = {'preference': content[0]}
-            if 'precomputed' in flatten(content):
-                kwargs['affinity'] = 'precomputed'
-            cl = AffinityPropagation(**kwargs)
-        elif key.lower() == 'ms':
-            cl = MeanShift()
-        elif key.lower() == 'spectral':
-            if 'precomputed' in flatten(content):
-                kwargs = {'n_clusters': content[0], 'affinity': 'precomputed'}
-            else:
-                kwargs = {'n_clusters': content}
-            cl = SpectralClustering(**kwargs)
-        elif key.lower() == 'hierarchical':
-            kwargs = {'n_clusters': content[0], 'affinity': content[1]}
-            if len(content) > 2:
-                kwargs['linkage'] = content[2]
-            cl = AgglomerativeClustering(**kwargs)
-        else:
-            cl = DummyNone()
-    return (key, cl)
+# def parse_clustering(key, content):
+#     """Parse the options of the clustering step.
+#
+#     This function does the same as parse_preproc but works on the clustering options.
+#
+#     Parameters
+#     -----------
+#     key : {'KMeans', 'KernelKMeans', 'AP', 'MS', 'Spectral', 'Hierarchical'}
+#         The selected dimensionality reduction algorithm.
+#
+#     content : list, len : 2
+#         A list containing the On/Off flag and a nested list of extra parameters (e.g. ['rbf,'poly'] for KernelKMeans).
+#
+#     Returns
+#     -----------
+#     cltpl : tuple
+#         A tuple made like that ('ClusteringName', clustObj), where clustObj implements the .fit method.
+#     """
+#      # list flattening
+#     flatten = lambda x: [y for l in x for y in flatten(l)] if type(x) is list else [x]
+#
+#     if 'auto' in content:
+#         # Wrapper class that automatically detects the best number of clusters via 10-Fold CV
+#         kwargs = {'param_grid': [], 'n_jobs': -1,
+#                   'scoring': silhouette_score, 'cv': 10}
+#         if key.lower() == 'kmeans':
+#             kwargs['estimator'] = KMeans(init='k-means++', n_jobs=1)
+#         elif key.lower() == 'ap':
+#             kwargs['estimator'] = AffinityPropagation()
+#             kwargs['affinity'] = kwargs['estimator'].affinity
+#         cl = GridSearchCV(**kwargs)
+#
+#     else:
+#         # Just create the standard object
+#         if key.lower() == 'kmeans':
+#             cl = KMeans(init='k-means++', n_jobs=-1, n_clusters=content)
+#         elif key.lower() == 'ap':
+#             kwargs = {'preference': content[0]}
+#             if 'precomputed' in flatten(content):
+#                 kwargs['affinity'] = 'precomputed'
+#             cl = AffinityPropagation(**kwargs)
+#         elif key.lower() == 'ms':
+#             cl = MeanShift()
+#         elif key.lower() == 'spectral':
+#             if 'precomputed' in flatten(content):
+#                 kwargs = {'n_clusters': content[0], 'affinity': 'precomputed'}
+#             else:
+#                 kwargs = {'n_clusters': content}
+#             cl = SpectralClustering(**kwargs)
+#         elif key.lower() == 'hierarchical':
+#             kwargs = {'n_clusters': content[0], 'affinity': content[1]}
+#             if len(content) > 2:
+#                 kwargs['linkage'] = content[2]
+#             cl = AgglomerativeClustering(**kwargs)
+#         else:
+#             cl = DummyNone()
+#     return (key, cl)
 
 def parse_clustering_dict(key, content):
     """Parse the options of the clustering step.
@@ -182,11 +182,14 @@ def parse_clustering_dict(key, content):
     cltpl : tuple
         A tuple made like that ('ClusteringName', clustObj), where clustObj implements the .fit method.
     """
-    if content.get('n_clusters', '') == 'auto':
+    if content.get('n_clusters', '') == 'auto' or content.get('preference', '') == 'auto':
         # Wrapper class that automatically detects the best number of clusters via 10-Fold CV
-        content.pop('n_clusters')
+        content.pop('n_clusters','')
+        content.pop('preference','')
+
         kwargs = {'param_grid': [], 'n_jobs': -1,
                   'scoring': silhouette_score, 'cv': 10}
+
         if key.lower() == 'kmeans':
             content.setdefault('init', 'k-means++')
             content.setdefault('n_jobs', 1)
