@@ -23,11 +23,17 @@ step1 = {'None': [False], 'Recenter': [False], 'Standardize': [False],
          'Normalize': [False, ['l2']], 'MinMax': [False, [0,1]]}
 
 # --- Dimensionality Reduction & Manifold Learning --- #
-step2 = {'PCA': [False], 'IncrementalPCA': [False], 'RandomizedPCA': [False],
-         'KernelPCA': [False, ['linear','rbf','poly']], 'Isomap': [False],
-         'LLE': [False, ['standard','modified','hessian', 'ltsa']],
-         'SE': [False], 'MDS': [False, ['metric','nonmetric']],
-         'tSNE': [False], 'None': [False]}
+step2 = {'PCA': [False, {'n_components': 3}],
+         'IncrementalPCA': [False],
+         'RandomizedPCA': [False],
+         'KernelPCA': [False, {'kernel': ['linear','rbf','poly']}],
+         'Isomap': [False, {'n_neighbors': 5}],
+         'LLE': [True, {'n_neighbors': 5, 'method': ['standard','modified','hessian','ltsa']}],
+         'SE': [False, {'affinity': ['nearest_neighbors','rbf']}], # can be 'precomputed'
+         'MDS': [False, {'metric': True}],
+         'tSNE': [False],
+         'None': [False]
+         }
 
 # --- Clustering --- #
 step3 = {'KMeans': [False, {'n_clusters': [3, 'auto']}],

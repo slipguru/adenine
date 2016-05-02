@@ -80,30 +80,32 @@ def parse_dimred(key, content):
     drtpl : tuple
         A tuple made like that ('DimRedName', dimredObj), where dimredObj is an sklearn 'transforms' (i.e. it has bot a .fit and .transform method).
     """
+    content.setdefault('n_components', 3) # use three cluster as default
+
     if key.lower() == 'none':
-        dr = DummyNone()
+        dr = DummyNone(**content)
     elif key.lower() == 'pca':
-        dr = PCA() # this by default takes all the components it can
+        dr = PCA(**content) # this by default takes all the components it can
     elif key.lower() == 'incrementalpca':
-        dr = IncrementalPCA()
+        dr = IncrementalPCA(**content)
     elif key.lower() == 'randomizedpca':
-        dr = RandomizedPCA()
+        dr = RandomizedPCA(**content)
     elif key.lower() == 'kernelpca':
-        dr = KernelPCA(kernel=content, n_components=None)
+        dr = KernelPCA(**content)
     elif key.lower() == 'isomap':
-        dr = Isomap()
+        dr = Isomap(**content)
     elif key.lower() == 'lle':
-        dr = LocallyLinearEmbedding(method=content)
+        dr = LocallyLinearEmbedding(**content)
     elif key.lower() == 'ltsa':
-        dr = LocallyLinearEmbedding(method=content)
+        dr = LocallyLinearEmbedding(**content)
     elif key.lower() == 'se':
-        dr = SpectralEmbedding()
+        dr = SpectralEmbedding(**content)
     elif key.lower() == 'mds':
-        dr = MDS(metric=(content != 'nonmetric'))
+        dr = MDS(**content)
     elif key.lower() == 'tsne':
-        dr = TSNE(n_components=3)
+        dr = TSNE(**content)
     else:
-        dr = DummyNone()
+        dr = DummyNone(**content)
     return (key, dr)
 
 
@@ -203,11 +205,11 @@ def parse_steps(steps):
     dr_lst_of_tpls = []
     for key in dimred.keys():
         if dimred[key][0]: # On/Off flag
-            if len(dimred[key]) > 1:# For each variant (e.g. 'rbf' or
-                for k in dimred[key][1]: # 'poly' for KernelPCA)
-                    dr_lst_of_tpls.append(parse_dimred(key, k))
-            else:
-                dr_lst_of_tpls.append(parse_dimred(key, dimred[key]))
+            _dict_content = dimred[key][1]
+            for ll in modified_cartesian(*map(ensure_list,
+                                              list(_dict_content.itervalues()))):
+                _single_content = {__k: __v for __k, __v in zip(list(_dict_content), ll)}
+                dr_lst_of_tpls.append(parse_dimred(key, _single_content))
 
     # Parse the clustering options
     cl_lst_of_tpls = []

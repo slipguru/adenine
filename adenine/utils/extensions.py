@@ -23,14 +23,18 @@ class DummyNone:
 
     It is a sklearn 'transforms', it implements both a fit and a transform method and it just returns the data in input. It has been created only for consistency with sklearn.
     """
-    def __init__(self):
-        pass
+    def __init__(self, **kwargs):
+        if kwargs.get('n_components',0) > 0:
+            self.n_components = kwargs.get('n_components')
 
     def fit(self,X):
         return self
 
     def transform(self,X):
-        return X
+        if hasattr(self, 'n_components'):
+            return X[self.n_components:,:]
+        else:
+            return X
 
     def get_params(self):
         return dict()

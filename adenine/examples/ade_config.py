@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 from adenine.utils import data_source
@@ -31,21 +31,29 @@ step1 = {'None': [False], 'Recenter': [False], 'Standardize': [True],
          'Normalize': [False, ['l2']], 'MinMax': [False, [0,1]]}
 
 # --- Dimensionality Reduction & Manifold Learning --- #
-step2 = {'PCA': [True], 'IncrementalPCA': [False], 'RandomizedPCA': [False],
-         'KernelPCA': [False, ['linear','rbf','poly']], 'Isomap': [False],
-         'LLE': [False, ['standard','modified','hessian', 'ltsa']],
-         'SE': [False], 'MDS': [False, ['metric','nonmetric']],
-         'tSNE': [False], 'None': [False]}
+step2 = {'PCA': [False, {'n_components': 3}],
+         'IncrementalPCA': [False, {'n_components': 3}],
+         'RandomizedPCA': [False, {'n_components': 3}],
+         'KernelPCA': [False, {'n_components': 3,
+                              'kernel': ['linear','rbf','poly']}],
+         'Isomap': [False, {'n_components': 3, 'n_neighbors': 5}],
+         'LLE': [True, {'n_components': 3, 'n_neighbors': 5,
+                         'method': ['standard','modified','hessian','ltsa']}],
+         'SE': [False, {'n_components': 3, 'affinity': ['nearest_neighbors','rbf']}], # can be 'precomputed'
+         'MDS': [False, {'n_components': 3, 'metric': True}],
+         'tSNE': [False, {'n_components': 3}],
+         'None': [False, {'n_components': 3}]
+         }
 
 # --- Clustering --- #
 step3 = {'KMeans': [True, {'n_clusters': ['auto', 3]}], # cannot be 'precomputed'
         #  'AP': [False, [1,'precomputed']], # can be 'precomputed'
-         'AP': [True, {'preference': ['auto', -40]}], # can be 'precomputed'
-         'MS': [True], # cannot be 'precomputed'
+         'AP': [False, {'preference': ['auto', -40]}], # can be 'precomputed'
+         'MS': [False], # cannot be 'precomputed'
         #  'Spectral': [True, [50, ['precomputed']]], # can be 'precomputed'
-         'Spectral': [True, {'n_clusters': [3, 8]}], # can be 'precomputed'
+         'Spectral': [False, {'n_clusters': [3, 8]}], # can be 'precomputed'
         #  'Hierarchical': [False, [3, ['manhattan','euclidean'], ['ward','complete','average']]]}
-         'Hierarchical': [True, {'n_clusters': [3, 8],
+         'Hierarchical': [False, {'n_clusters': [3, 8],
                                   'affinity': ['manhattan','euclidean'],
-                                  'linkage':  ['ward','complete','average']}
-         ]}
+                                  'linkage':  ['ward','complete','average']}]
+        }

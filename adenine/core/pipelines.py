@@ -10,13 +10,6 @@ import numpy as np
 from adenine.utils.extra import make_time_flag
 from adenine.utils.extra import get_time
 
-##### PyVmMonitor
-#import sys
-#sys.path.append('/home/samu/Desktop/pyvmmonitor/public_api')
-#import pyvmmonitor
-#####
-
-
 def create(pdef):
     """Scikit-learn Pipelines objects creation (deprecated).
 
