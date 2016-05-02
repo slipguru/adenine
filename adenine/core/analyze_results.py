@@ -533,7 +533,7 @@ def make_df_clst_perf(rootFolder):
                     perf_out = pkl.load(f)
                 perf_out['pipeline'] = title_from_filename(root, step_sep=" --> ")
                 df = df.append(perf_out, ignore_index=True)
-    df = df.fillna(np.nan)
+    df = df.fillna('')
     size_pipe = max([len(p) for p in df['pipeline']]+[len('preprocess --> dim red --> clustering')])
     with open(os.path.join(rootFolder,'summary_scores.txt'), 'w') as f:
         header = "preprocess --> dim red --> clustering{0}|{1}ami|{1}ari|{2}completeness|{2}homogeneity|{2}v_measure|{3}inertia|{2}silhouette\n".format(' '*(size_pipe-len("preprocess --> dim red --> clustering")),' '*4,' ','   ')
@@ -544,13 +544,13 @@ def make_df_clst_perf(rootFolder):
         f.write("-"*len(header) + "\n")
         for _ in df.iterrows():
             row = _[1]
-            ami = '{: .3}'.format(row['ami'])
-            ari = '{: .3}'.format(row['ari'])
-            com = '{: .3}'.format(row['completeness'])
-            hom = '{: .3}'.format(row['homogeneity'])
-            vme = '{: .3}'.format(row['v_measure'])
-            ine = '{: .3}'.format(row['inertia'])
-            sil = '{: .3}'.format(row['silhouette'])
+            ami = '{: .3}'.format(row['ami']) if row['ami'] != '' else '---'
+            ari = '{: .3}'.format(row['ari']) if row['ari'] != '' else '---'
+            com = '{: .3}'.format(row['completeness']) if row['completeness'] != '' else '---'
+            hom = '{: .3}'.format(row['homogeneity']) if row['homogeneity'] != '' else '---'
+            vme = '{: .3}'.format(row['v_measure']) if row['v_measure'] != '' else '---'
+            ine = '{: .3}'.format(row['inertia']) if row['inertia'] != '' else '---'
+            sil = '{: .3}'.format(row['silhouette']) if row['silhouette'] != '' else '---'
             # f.write("{}{}|{}{:.3f}|{}{:.3f}|{}{:.3f}|{}{:.3f}|{}{:.3f}|{}{:.3f}|{}{:.3f}\n"
             f.write("{}{}|{}{}|{}{}|{}{}|{}{}|{}{}|{}{}|{}{}\n"
             .format(row['pipeline'],' '*(size_pipe-len(row['pipeline'])),
