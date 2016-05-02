@@ -216,31 +216,38 @@ def parse_steps(steps):
     dr_lst_of_tpls = []
     for key in dimred.keys():
         if dimred[key][0]: # On/Off flag
-            _dict_content = dimred[key][1]
-            for ll in modified_cartesian(*map(ensure_list,
-                                              list(_dict_content.itervalues()))):
-                _single_content = {__k: __v for __k, __v in zip(list(_dict_content), ll)}
-                dr_lst_of_tpls.append(parse_dimred(key, _single_content))
+            content_d = dimred[key][1]
+            try:
+                content_values = content_d.itervalues()  # python 2
+            except:
+                content_values = content_d.values()  # python 3
+            for ll in modified_cartesian(*map(ensure_list, list(content_values))):
+                content = {__k: __v for __k, __v in zip(list(content_d), ll)}
+                dr_lst_of_tpls.append(parse_dimred(key, content))
 
     # Parse the clustering options
     cl_lst_of_tpls = []
     for key in clustering.keys():
         if clustering[key][0]: # On/Off flag
             if len(clustering[key]) > 1: # Discriminate from just flag or flag + args
-                _dict_content = clustering[key][1]
-                for ll in modified_cartesian(*map(ensure_list,
-                                                  list(_dict_content.itervalues()))):
-                    _single_content = {__k: __v for __k, __v in zip(list(_dict_content), ll)}
-                    if not (_single_content.get('affinity','') in ['manhattan', 'precomputed'] and _single_content.get('linkage','') == 'ward'):
+                content_d = clustering[key][1]
+                try:
+                    content_values = content_d.itervalues()  # python 2
+                except:
+                    content_values = content_d.values()  # python 3
+                for ll in modified_cartesian(*map(ensure_list, list(content_values))):
+                    content = {__k: __v for __k, __v in zip(list(content_d), ll)}
+                    if not (content.get('affinity','') in ['manhattan', 'precomputed'] and content.get('linkage','') == 'ward'):
                         # print _single_content
-                        cl_lst_of_tpls.append(parse_clustering(key, _single_content))
+                        cl_lst_of_tpls.append(parse_clustering(key, content))
 
             else: # just flag case
                 cl_lst_of_tpls.append(parse_clustering(key, dict()))
 
 
     # Generate the list of list of tuples (i.e. the list of pipelines)
-    pipes = modified_cartesian(i_lst_of_tpls, pp_lst_of_tpls, dr_lst_of_tpls, cl_lst_of_tpls, pipes_mode=True)
+    pipes = modified_cartesian(i_lst_of_tpls, pp_lst_of_tpls, dr_lst_of_tpls,
+                               cl_lst_of_tpls, pipes_mode=True)
     for pipe in pipes:
         logging.info("Generated pipeline: \n {} \n".format(pipe))
     logging.info("*** {} pipeline(s) generated ***".format(len(pipes)))
