@@ -38,6 +38,7 @@ setup(
               'scipy (>=0.16.1)',
               'sklearn (>=0.17)',
               'matplotlib (>=1.5.1)',
-              'seaborn (>=0.7.0)'],
+              'seaborn (>=0.7.0)',
+              'fastcluster (>=1.1.20)'],
     scripts=['scripts/ade_run.py','scripts/ade_analysis.py'],
 )
