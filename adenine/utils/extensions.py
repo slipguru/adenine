@@ -31,10 +31,7 @@ class DummyNone:
         return self
 
     def transform(self,X):
-        if hasattr(self, 'n_components'):
-            return X[self.n_components:,:]
-        else:
-            return X
+        return X
 
     def get_params(self):
         return dict()
@@ -168,6 +165,7 @@ class GridSearchCV(GridSearchCV):
         self.cluster_centers_ = None
         self.inertia_ = None
         self.n_clusters = None
+        self.estimator_name = type(self.estimator).__name__
 
     def _sqrtn_heuristic(self, n):
         """
@@ -221,6 +219,7 @@ class GridSearchCV(GridSearchCV):
         params_ = super(GridSearchCV, self).get_params(deep)
         params_['n_clusters'] = self.n_clusters
         params_['inertia_'] = self.inertia_
+        params_['estimator_name'] = self.estimator_name
         return params_
 
 

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 from adenine.utils import data_source
@@ -29,7 +29,7 @@ step2 = {'PCA': [False, {'n_components': 3}],
          'KernelPCA': [False, {'kernel': ['linear','rbf','poly']}],
          'Isomap': [False, {'n_neighbors': 5}],
          'LLE': [True, {'n_neighbors': 5, 'method': ['standard','modified','hessian','ltsa']}],
-         'SE': [False, {'affinity': ['nearest_neighbors','rbf']}], # can be 'precomputed'
+         'SE': [False, {'affinity': ['nearest_neighbors','rbf']}],  # affinity can be 'precomputed'
          'MDS': [False, {'metric': True}],
          'tSNE': [False],
          'None': [False]

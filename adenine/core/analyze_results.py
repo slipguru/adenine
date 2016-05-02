@@ -8,13 +8,7 @@ import cPickle as pkl
 import numpy as np
 import pandas as pd
 
-# OSX matplotlib issues in multiprocessing
 GLOBAL_INFO = ''  # to save info before logging is loaded
-# if platform.system() == 'Darwin':
-#     import matplotlib
-#     backend = 'Qt4Agg'
-#     matplotlib.use(backend)
-#     GLOBAL_INFO = "matplotlib backend switched to {}".format(backend)
 
 import matplotlib
 matplotlib.use('AGG')
@@ -70,7 +64,9 @@ def make_scatter(root=(), data_in=(), model_param=(), labels=None, true_labels=F
     #2D plot
     X = data_in[:,:2]
     idx = np.argsort(y)
-    df = pd.DataFrame(data=np.hstack((X[idx,:],y[idx,np.newaxis])), columns=["$x_1$","$x_2$",_hue])
+
+    # df = pd.DataFrame(data=np.hstack((X[idx,:2],y[idx,np.newaxis])), columns=["$x_1$","$x_2$",_hue])
+    df = pd.DataFrame(data=np.hstack((X[idx,:2],y[idx][:,np.newaxis])), columns=["$x_1$","$x_2$",_hue])
     # Generate seaborn plot
     g = sns.FacetGrid(df, hue=_hue, palette="Set1", size=5, legend_out=False)
     g.map(plt.scatter, "$x_1$", "$x_2$", s=100, linewidth=.5, edgecolor="white")
@@ -323,7 +319,7 @@ def get_step_attributes(step=(), pos=()):
     elif name == 'LLE':
         name += '_'+param['method']
     elif name == 'MDS':
-        if param['metric'] == 'True':
+        if param['metric']:
             name += '_metric'
         else:
             name += '_nonmetric'
@@ -617,14 +613,11 @@ def analysis_worker(elem, rootFolder, y, feat_names, class_names, lock):
                 if hasattr(mdl_obj, 'n_clusters'):
                     n_clusters = mdl_obj.n_clusters
 
-                # print "*******************************"
-                # print mdl_obj
-                # print n_clusters
-                # print "*******************************"
-
                 plot_eigs(root=rootname, affinity=mdl_obj.affinity_matrix_, n_clusters=n_clusters, title='Eigenvalues of the graph associated to the affinity matrix')
             if hasattr(mdl_obj, 'cluster_centers_'):
-                make_voronoi(root=rootname, labels=y, model_param=step_param, data_in=step_in, model=voronoi_mdl_obj)
+                _est_name = mdl_obj.__dict__.get('estimator_name', '') or type(mdl_obj).__name__
+                if _est_name != 'AffinityPropagation': # disable the voronoi plot for affinity prop
+                    make_voronoi(root=rootname, labels=y, model_param=step_param, data_in=step_in, model=voronoi_mdl_obj)
             elif hasattr(mdl_obj, 'n_leaves_'):
                 make_tree(root=rootname, labels=step_out, trueLabel=y, model_param=step_param, data_in=step_in, model=mdl_obj)
                 make_dendrogram(root=rootname, labels=step_out, trueLabel=y, model_param=step_param, data_in=step_in, model=mdl_obj)
