@@ -31,82 +31,93 @@ from adenine.utils.extensions import silhouette_score
 
 
 def parse_preproc(key, content):
-        """Parse the options of the preprocessing step.
+    """Parse the options of the preprocessing step.
 
-        This function parses the preprocessing step coded as dictionary in the ade_config file.
+    This function parses the preprocessing step coded as dictionary in the ade_config file.
 
-        Parameters
-        -----------
-        key : {'None', 'Recenter', 'Standardize', 'Normalize', 'MinMax'}
-            The type of selected preprocessing step.
+    Parameters
+    -----------
+    key : {'None', 'Recenter', 'Standardize', 'Normalize', 'MinMax'}
+        The type of selected preprocessing step.
 
-        content : list, len : 2
-            A list containing the On/Off flag and a nested list of extra parameters (e.g. [min,max] for Min-Max scaling).
+    content : list, len : 2
+        A list containing the On/Off flag and a nested list of extra parameters (e.g. [min,max] for Min-Max scaling).
 
-        Returns
-        -----------
-        pptpl : tuple
-            A tuple made like that ('PreprocName', preprocObj), where preprocObj is an sklearn 'transforms' (i.e. it has bot a .fit and .transform method).
-        """
-        if key.lower() == 'none':
-            pp = DummyNone()
-        elif key.lower() == 'recenter':
-            pp = StandardScaler(with_mean=True, with_std=False)
-        elif key.lower() == 'standardize':
-            pp = StandardScaler(with_mean=True, with_std=True)
-        elif key.lower() == 'normalize':
-            pp = Normalizer(norm=content[1][0])
-        elif key.lower() == 'minmax':
-            pp = MinMaxScaler(feature_range=(content[1][0], content[1][1]))
-        else:
-            pp = DummyNone()
-        return (key, pp)
+    Returns
+    -----------
+    pptpl : tuple
+        A tuple made like that ('PreprocName', preprocObj), where preprocObj is an sklearn 'transforms' (i.e. it has bot a .fit and .transform method).
+    """
+    if key.lower() == 'none':
+        pp = DummyNone()
+    elif key.lower() == 'recenter':
+        pp = StandardScaler(with_mean=True, with_std=False)
+    elif key.lower() == 'standardize':
+        pp = StandardScaler(with_mean=True, with_std=True)
+    elif key.lower() == 'normalize':
+        pp = Normalizer(norm=content[1][0])
+    elif key.lower() == 'minmax':
+        pp = MinMaxScaler(feature_range=(content[1][0], content[1][1]))
+    else:
+        pp = DummyNone()
+    return (key, pp)
 
 def parse_dimred(key, content):
     """Parse the options of the dimensionality reduction step.
 
-    This function does the same as parse_preproc but works on the dimensionality reduction & manifold learning options.
+    This function does the same as parse_preproc but works on the dimensionality
+    reduction & manifold learning options.
 
     Parameters
     -----------
     key : {'None', 'PCA', 'KernelPCA', 'Isomap', 'LLE', 'SE', 'MDS', 'tSNE'}
         The selected dimensionality reduction algorithm.
 
-    content : list, len : 2
-        A list containing the On/Off flag and a nested list of extra parameters (e.g. ['rbf,'poly'] for KernelPCA).
+    content : dict
+        A dictionary containing parameters for each dimensionality reduction
+        class. Each can be also a list; in this case for each combination of
+        parameters a different pipeline will be created.
 
     Returns
     -----------
     drtpl : tuple
-        A tuple made like that ('DimRedName', dimredObj), where dimredObj is an sklearn 'transforms' (i.e. it has bot a .fit and .transform method).
+        A tuple made like that ('DimRedName', dimredObj), where dimredObj is a
+        sklearn 'transforms' (i.e. it has bot a .fit and .transform method).
     """
-    content.setdefault('n_components', 3) # use three cluster as default
+    drs = {'none': DummyNone, 'pca': PCA, 'incrementalpca': IncrementalPCA,
+               'randomizedpca': RandomizedPCA, 'kernelpca': KernelPCA,
+               'isomap': Isomap, 'lle': LocallyLinearEmbedding,
+               'se': SpectralEmbedding, 'mds': MDS, 'tsne': TSNE}
 
-    if key.lower() == 'none':
-        dr = DummyNone(**content)
-    elif key.lower() == 'pca':
-        dr = PCA(**content) # this by default takes all the components it can
-    elif key.lower() == 'incrementalpca':
-        dr = IncrementalPCA(**content)
-    elif key.lower() == 'randomizedpca':
-        dr = RandomizedPCA(**content)
-    elif key.lower() == 'kernelpca':
-        dr = KernelPCA(**content)
-    elif key.lower() == 'isomap':
-        dr = Isomap(**content)
-    elif key.lower() == 'lle':
-        dr = LocallyLinearEmbedding(**content)
-    elif key.lower() == 'ltsa':
-        dr = LocallyLinearEmbedding(**content)
-    elif key.lower() == 'se':
-        dr = SpectralEmbedding(**content)
-    elif key.lower() == 'mds':
-        dr = MDS(**content)
-    elif key.lower() == 'tsne':
-        dr = TSNE(**content)
-    else:
-        dr = DummyNone(**content)
+    content.setdefault('n_components', 3) # use three cluster as default
+    dr = drs.get(key.lower(), DummyNone)(**content)
     return (key, dr)
+
+    # if key.lower() == 'none':
+    #     dr = DummyNone(**content)
+    # elif key.lower() == 'pca':
+    #     dr = PCA(**content) # this by default takes all the components it can
+    # elif key.lower() == 'incrementalpca':
+    #     dr = IncrementalPCA(**content)
+    # elif key.lower() == 'randomizedpca':
+    #     dr = RandomizedPCA(**content)
+    # elif key.lower() == 'kernelpca':
+    #     dr = KernelPCA(**content)
+    # elif key.lower() == 'isomap':
+    #     dr = Isomap(**content)
+    # elif key.lower() == 'lle':
+    #     dr = LocallyLinearEmbedding(**content)
+    # elif key.lower() == 'ltsa':
+    #     dr = LocallyLinearEmbedding(**content)
+    # elif key.lower() == 'se':
+    #     dr = SpectralEmbedding(**content)
+    # elif key.lower() == 'mds':
+    #     dr = MDS(**content)
+    # elif key.lower() == 'tsne':
+    #     dr = TSNE(**content)
+    # else:
+    #     dr = DummyNone(**content)
+    # return (key, dr)
 
 
 def parse_clustering(key, content):
@@ -127,10 +138,10 @@ def parse_clustering(key, content):
     cltpl : tuple
         A tuple made like that ('ClusteringName', clustObj), where clustObj implements the .fit method.
     """
-    if content.get('n_clusters', '') == 'auto' or content.get('preference', '') == 'auto':
+    if 'auto' in [content.get('n_clusters', ''), content.get('preference', '')]:
         # Wrapper class that automatically detects the best number of clusters via 10-Fold CV
-        content.pop('n_clusters','')
-        content.pop('preference','')
+        content.pop('n_clusters', '')
+        content.pop('preference', '')
 
         kwargs = {'param_grid': [], 'n_jobs': -1,
                   'scoring': silhouette_score, 'cv': 10}
@@ -191,8 +202,7 @@ def parse_steps(steps):
     i_lst_of_tpls = []
     if imputing['Impute'][0]: # On/Off flag
         for name in imputing['Replacement']:
-            imp = Imputer(missing_values=imputing['Missing'][0],
-                          strategy=name)
+            imp = Imputer(missing_values=imputing['Missing'][0], strategy=name)
             i_lst_of_tpls.append(("Impute_"+name, imp))
 
     # Parse the preprocessing options
@@ -205,31 +215,38 @@ def parse_steps(steps):
     dr_lst_of_tpls = []
     for key in dimred.keys():
         if dimred[key][0]: # On/Off flag
-            _dict_content = dimred[key][1]
-            for ll in modified_cartesian(*map(ensure_list,
-                                              list(_dict_content.itervalues()))):
-                _single_content = {__k: __v for __k, __v in zip(list(_dict_content), ll)}
-                dr_lst_of_tpls.append(parse_dimred(key, _single_content))
+            content_d = dimred[key][1]
+            try:
+                content_values = content_d.itervalues()  # python 2
+            except:
+                content_values = content_d.values()  # python 3
+            for ll in modified_cartesian(*map(ensure_list, list(content_values))):
+                content = {__k: __v for __k, __v in zip(list(content_d), ll)}
+                dr_lst_of_tpls.append(parse_dimred(key, content))
 
     # Parse the clustering options
     cl_lst_of_tpls = []
     for key in clustering.keys():
         if clustering[key][0]: # On/Off flag
             if len(clustering[key]) > 1: # Discriminate from just flag or flag + args
-                _dict_content = clustering[key][1]
-                for ll in modified_cartesian(*map(ensure_list,
-                                                  list(_dict_content.itervalues()))):
-                    _single_content = {__k: __v for __k, __v in zip(list(_dict_content), ll)}
-                    if not (_single_content.get('affinity','') in ['manhattan', 'precomputed'] and _single_content.get('linkage','') == 'ward'):
+                content_d = clustering[key][1]
+                try:
+                    content_values = content_d.itervalues()  # python 2
+                except:
+                    content_values = content_d.values()  # python 3
+                for ll in modified_cartesian(*map(ensure_list, list(content_values))):
+                    content = {__k: __v for __k, __v in zip(list(content_d), ll)}
+                    if not (content.get('affinity','') in ['manhattan', 'precomputed'] and content.get('linkage','') == 'ward'):
                         # print _single_content
-                        cl_lst_of_tpls.append(parse_clustering(key, _single_content))
+                        cl_lst_of_tpls.append(parse_clustering(key, content))
 
             else: # just flag case
                 cl_lst_of_tpls.append(parse_clustering(key, dict()))
 
 
     # Generate the list of list of tuples (i.e. the list of pipelines)
-    pipes = modified_cartesian(i_lst_of_tpls, pp_lst_of_tpls, dr_lst_of_tpls, cl_lst_of_tpls, pipes_mode=True)
+    pipes = modified_cartesian(i_lst_of_tpls, pp_lst_of_tpls, dr_lst_of_tpls,
+                               cl_lst_of_tpls, pipes_mode=True)
     for pipe in pipes:
         logging.info("Generated pipeline: \n {} \n".format(pipe))
     logging.info("*** {} pipeline(s) generated ***".format(len(pipes)))
