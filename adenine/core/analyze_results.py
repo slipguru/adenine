@@ -4,7 +4,10 @@
 import os, platform
 # from joblib import Parallel, delayed
 import logging
-import cPickle as pkl
+try:
+    import cPickle as pkl # if python 2
+except:
+    import pickle as pkl # if python 3
 import numpy as np
 import pandas as pd
 
@@ -268,7 +271,7 @@ def est_clst_perf(root=(), data_in=(), labels=None, t_labels=None, model=(), met
             f.write("------------------------------------\n")
 
     # pkl Dump
-    with open(filename+'_scores.pkl', 'w+') as f:
+    with open(filename+'_scores.pkl', 'wb+') as f:
         pkl.dump(perf_out, f)
     logging.info("Dumped : {}".format(filename+'_scores.pkl'))
 

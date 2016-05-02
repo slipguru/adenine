@@ -4,7 +4,10 @@
 import imp, sys, os
 import time
 import logging
-import cPickle as pkl
+try:
+    import cPickle as pkl # if python 2
+except:
+    import pickle as pkl # if python 3
 from adenine.core import analyze_results
 from adenine.utils.extra import sec_to_time
 
@@ -20,7 +23,7 @@ def main(dumpfile):
     feat_names, class_names = config.feat_names, config.class_names
     # Load the results used with ade_run.py
     try:
-        with open(os.path.join(os.path.dirname(dumpfile),'__data.pkl'), 'r') as f:
+        with open(os.path.join(os.path.dirname(dumpfile),'__data.pkl'), 'rb') as f:
             data = pkl.load(f)
             X, y = data['X'], data['y']
     except:

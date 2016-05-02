@@ -195,13 +195,13 @@ def parse_steps(steps):
 
     # Parse the preprocessing options
     pp_lst_of_tpls = []
-    for key in list(preproc.keys()):
+    for key in preproc.keys():
         if preproc[key][0]: # On/Off flag
             pp_lst_of_tpls.append(parse_preproc(key, preproc[key]))
 
     # Parse the dimensionality reduction & manifold learning options
     dr_lst_of_tpls = []
-    for key in list(dimred.keys()):
+    for key in dimred.keys():
         if dimred[key][0]: # On/Off flag
             if len(dimred[key]) > 1:# For each variant (e.g. 'rbf' or
                 for k in dimred[key][1]: # 'poly' for KernelPCA)
@@ -211,12 +211,12 @@ def parse_steps(steps):
 
     # Parse the clustering options
     cl_lst_of_tpls = []
-    for key in list(clustering.keys()):
+    for key in clustering.keys():
         if clustering[key][0]: # On/Off flag
             if len(clustering[key]) > 1: # Discriminate from just flag or flag + args
                 _dict_content = clustering[key][1]
                 # for ll in modified_cartesian(*map(ensure_list,list(_dict_content.itervalues()))):
-                for ll in modified_cartesian(*list(map(ensure_list,list(_dict_content.values())))): # python3 TODO: try except here
+                for ll in modified_cartesian(*map(ensure_list,list(_dict_content.values()))): # python3 TODO: try except here
                     _single_content = {__k: __v for __k, __v in zip(list(_dict_content), ll)}
                     if not (_single_content.get('affinity','') in ['manhattan', 'precomputed'] and _single_content.get('linkage','') == 'ward'):
                         # print _single_content
