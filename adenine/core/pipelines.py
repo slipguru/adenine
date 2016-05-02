@@ -5,7 +5,11 @@ import os
 import copy
 import logging
 import multiprocessing
-import cPickle as pkl
+try:
+    import cPickle as pkl # if python 2
+except:
+    import pickle as pkl # if python 3
+
 import numpy as np
 from adenine.utils.extra import make_time_flag
 from adenine.utils.extra import get_time

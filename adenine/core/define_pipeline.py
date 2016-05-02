@@ -215,8 +215,8 @@ def parse_steps(steps):
         if clustering[key][0]: # On/Off flag
             if len(clustering[key]) > 1: # Discriminate from just flag or flag + args
                 _dict_content = clustering[key][1]
-                for ll in modified_cartesian(*map(ensure_list,
-                                                  list(_dict_content.itervalues()))):
+                # for ll in modified_cartesian(*map(ensure_list,list(_dict_content.itervalues()))):
+                for ll in modified_cartesian(*map(ensure_list,list(_dict_content.values()))): # python3 TODO: try except here
                     _single_content = {__k: __v for __k, __v in zip(list(_dict_content), ll)}
                     if not (_single_content.get('affinity','') in ['manhattan', 'precomputed'] and _single_content.get('linkage','') == 'ward'):
                         # print _single_content
