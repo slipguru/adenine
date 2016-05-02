@@ -138,10 +138,10 @@ def parse_clustering(key, content):
     cltpl : tuple
         A tuple made like that ('ClusteringName', clustObj), where clustObj implements the .fit method.
     """
-    if content.get('n_clusters', '') == 'auto' or content.get('preference', '') == 'auto':
+    if 'auto' in [content.get('n_clusters', ''), content.get('preference', '')]:
         # Wrapper class that automatically detects the best number of clusters via 10-Fold CV
-        content.pop('n_clusters','')
-        content.pop('preference','')
+        content.pop('n_clusters', '')
+        content.pop('preference', '')
 
         kwargs = {'param_grid': [], 'n_jobs': -1,
                   'scoring': silhouette_score, 'cv': 10}
@@ -202,8 +202,7 @@ def parse_steps(steps):
     i_lst_of_tpls = []
     if imputing['Impute'][0]: # On/Off flag
         for name in imputing['Replacement']:
-            imp = Imputer(missing_values=imputing['Missing'][0],
-                          strategy=name)
+            imp = Imputer(missing_values=imputing['Missing'][0], strategy=name)
             i_lst_of_tpls.append(("Impute_"+name, imp))
 
     # Parse the preprocessing options
