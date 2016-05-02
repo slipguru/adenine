@@ -31,82 +31,93 @@ from adenine.utils.extensions import silhouette_score
 
 
 def parse_preproc(key, content):
-        """Parse the options of the preprocessing step.
+    """Parse the options of the preprocessing step.
 
-        This function parses the preprocessing step coded as dictionary in the ade_config file.
+    This function parses the preprocessing step coded as dictionary in the ade_config file.
 
-        Parameters
-        -----------
-        key : {'None', 'Recenter', 'Standardize', 'Normalize', 'MinMax'}
-            The type of selected preprocessing step.
+    Parameters
+    -----------
+    key : {'None', 'Recenter', 'Standardize', 'Normalize', 'MinMax'}
+        The type of selected preprocessing step.
 
-        content : list, len : 2
-            A list containing the On/Off flag and a nested list of extra parameters (e.g. [min,max] for Min-Max scaling).
+    content : list, len : 2
+        A list containing the On/Off flag and a nested list of extra parameters (e.g. [min,max] for Min-Max scaling).
 
-        Returns
-        -----------
-        pptpl : tuple
-            A tuple made like that ('PreprocName', preprocObj), where preprocObj is an sklearn 'transforms' (i.e. it has bot a .fit and .transform method).
-        """
-        if key.lower() == 'none':
-            pp = DummyNone()
-        elif key.lower() == 'recenter':
-            pp = StandardScaler(with_mean=True, with_std=False)
-        elif key.lower() == 'standardize':
-            pp = StandardScaler(with_mean=True, with_std=True)
-        elif key.lower() == 'normalize':
-            pp = Normalizer(norm=content[1][0])
-        elif key.lower() == 'minmax':
-            pp = MinMaxScaler(feature_range=(content[1][0], content[1][1]))
-        else:
-            pp = DummyNone()
-        return (key, pp)
+    Returns
+    -----------
+    pptpl : tuple
+        A tuple made like that ('PreprocName', preprocObj), where preprocObj is an sklearn 'transforms' (i.e. it has bot a .fit and .transform method).
+    """
+    if key.lower() == 'none':
+        pp = DummyNone()
+    elif key.lower() == 'recenter':
+        pp = StandardScaler(with_mean=True, with_std=False)
+    elif key.lower() == 'standardize':
+        pp = StandardScaler(with_mean=True, with_std=True)
+    elif key.lower() == 'normalize':
+        pp = Normalizer(norm=content[1][0])
+    elif key.lower() == 'minmax':
+        pp = MinMaxScaler(feature_range=(content[1][0], content[1][1]))
+    else:
+        pp = DummyNone()
+    return (key, pp)
 
 def parse_dimred(key, content):
     """Parse the options of the dimensionality reduction step.
 
-    This function does the same as parse_preproc but works on the dimensionality reduction & manifold learning options.
+    This function does the same as parse_preproc but works on the dimensionality
+    reduction & manifold learning options.
 
     Parameters
     -----------
     key : {'None', 'PCA', 'KernelPCA', 'Isomap', 'LLE', 'SE', 'MDS', 'tSNE'}
         The selected dimensionality reduction algorithm.
 
-    content : list, len : 2
-        A list containing the On/Off flag and a nested list of extra parameters (e.g. ['rbf,'poly'] for KernelPCA).
+    content : dict
+        A dictionary containing parameters for each dimensionality reduction
+        class. Each can be also a list; in this case for each combination of
+        parameters a different pipeline will be created.
 
     Returns
     -----------
     drtpl : tuple
-        A tuple made like that ('DimRedName', dimredObj), where dimredObj is an sklearn 'transforms' (i.e. it has bot a .fit and .transform method).
+        A tuple made like that ('DimRedName', dimredObj), where dimredObj is a
+        sklearn 'transforms' (i.e. it has bot a .fit and .transform method).
     """
-    content.setdefault('n_components', 3) # use three cluster as default
+    drs = {'none': DummyNone, 'pca': PCA, 'incrementalpca': IncrementalPCA,
+               'randomizedpca': RandomizedPCA, 'kernelpca': KernelPCA,
+               'isomap': Isomap, 'lle': LocallyLinearEmbedding,
+               'se': SpectralEmbedding, 'mds': MDS, 'tsne': TSNE}
 
-    if key.lower() == 'none':
-        dr = DummyNone(**content)
-    elif key.lower() == 'pca':
-        dr = PCA(**content) # this by default takes all the components it can
-    elif key.lower() == 'incrementalpca':
-        dr = IncrementalPCA(**content)
-    elif key.lower() == 'randomizedpca':
-        dr = RandomizedPCA(**content)
-    elif key.lower() == 'kernelpca':
-        dr = KernelPCA(**content)
-    elif key.lower() == 'isomap':
-        dr = Isomap(**content)
-    elif key.lower() == 'lle':
-        dr = LocallyLinearEmbedding(**content)
-    elif key.lower() == 'ltsa':
-        dr = LocallyLinearEmbedding(**content)
-    elif key.lower() == 'se':
-        dr = SpectralEmbedding(**content)
-    elif key.lower() == 'mds':
-        dr = MDS(**content)
-    elif key.lower() == 'tsne':
-        dr = TSNE(**content)
-    else:
-        dr = DummyNone(**content)
+    content.setdefault('n_components', 3) # use three cluster as default
+    dr = drs.get(key.lower(), DummyNone)(**content)
     return (key, dr)
+
+    # if key.lower() == 'none':
+    #     dr = DummyNone(**content)
+    # elif key.lower() == 'pca':
+    #     dr = PCA(**content) # this by default takes all the components it can
+    # elif key.lower() == 'incrementalpca':
+    #     dr = IncrementalPCA(**content)
+    # elif key.lower() == 'randomizedpca':
+    #     dr = RandomizedPCA(**content)
+    # elif key.lower() == 'kernelpca':
+    #     dr = KernelPCA(**content)
+    # elif key.lower() == 'isomap':
+    #     dr = Isomap(**content)
+    # elif key.lower() == 'lle':
+    #     dr = LocallyLinearEmbedding(**content)
+    # elif key.lower() == 'ltsa':
+    #     dr = LocallyLinearEmbedding(**content)
+    # elif key.lower() == 'se':
+    #     dr = SpectralEmbedding(**content)
+    # elif key.lower() == 'mds':
+    #     dr = MDS(**content)
+    # elif key.lower() == 'tsne':
+    #     dr = TSNE(**content)
+    # else:
+    #     dr = DummyNone(**content)
+    # return (key, dr)
 
 
 def parse_clustering(key, content):
