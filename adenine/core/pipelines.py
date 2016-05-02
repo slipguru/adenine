@@ -79,7 +79,7 @@ def evaluate(level, step, X):
     res : array of float
         A matrix projection in case of dimred, a label vector in case of clustering, and so on.
     """
-    if level == 'imputing' or level == 'preproc' or level == 'dimred' or level == 'None':
+    if level in ['imputing', 'preproc', 'dimred', 'None']:
         if hasattr(step, 'embedding_'):
             res = step.embedding_
         else:
@@ -194,8 +194,8 @@ def run(pipes=(), X=(), exp_tag='def_tag', root='', y=None):
     # Submit jobs
     for i, pipe in enumerate(pipes):
         pipeID = 'pipe'+str(i)
-        p = multiprocessing.Process(target = pipe_worker,
-                                    args = (pipeID, pipe, pipes_dump, X))
+        p = multiprocessing.Process(target=pipe_worker,
+                                    args=(pipeID, pipe, pipes_dump, X))
         jobs.append(p)
         p.start()
         logging.info("Job: {} submitted".format(pipeID))
