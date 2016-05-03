@@ -29,7 +29,7 @@ step2 = {'PCA': [False, {'n_components': 3}],
          'RandomizedPCA': [False],
          'KernelPCA': [False, {'kernel': ['linear','rbf','poly']}],
          'Isomap': [False, {'n_neighbors': 5}],
-         'LLE': [True, {'n_neighbors': 5, 'method': ['standard','modified','hessian','ltsa']}],
+         'LLE': [False, {'n_neighbors': 5, 'method': ['standard','modified','hessian','ltsa']}],
          'SE': [False, {'affinity': ['nearest_neighbors','rbf']}],  # affinity can be 'precomputed'
          'MDS': [False, {'metric': True}],
          'tSNE': [False],
