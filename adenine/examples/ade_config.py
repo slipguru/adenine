@@ -50,7 +50,7 @@ step2 = {'PCA': [True, {'n_components': 3}],
 # --- Clustering --- #
 step3 = {'KMeans': [True, {'n_clusters': ['auto', 3]}], # cannot be 'precomputed'
         #  'AP': [False, [1,'precomputed']], # can be 'precomputed'
-         'AP': [True, {'preference': ['auto', -40]}], # can be 'precomputed'
+         'AP': [True, {'preference': ['auto']}], # can be 'precomputed'
          'MS': [False], # cannot be 'precomputed'
         #  'Spectral': [True, [50, ['precomputed']]], # can be 'precomputed'
          'Spectral': [False, {'n_clusters': [3, 8]}], # can be 'precomputed'

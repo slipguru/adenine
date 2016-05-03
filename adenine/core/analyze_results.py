@@ -245,7 +245,8 @@ def est_clst_perf(root=(), data_in=(), labels=None, t_labels=None, model=(), met
             perf_out['v_measure'] = metrics.v_measure_score(t_labels, labels)
 
     except ValueError as e:
-        logging.info("Clustering performance evaluation failed for {}".format(model))
+        logging.info("Clustering performance evaluation failed for {}. "
+                     "Error: {}".format(model, e))
         # perf_out = {'empty': 0.0}
         perf_out['###'] = 0.
 
@@ -260,7 +261,7 @@ def est_clst_perf(root=(), data_in=(), labels=None, t_labels=None, model=(), met
         f.write("Index Name{}|{}Index Score\n".format(' '*10,' '*4))
         f.write("------------------------------------\n")
         for elem in sorted(perf_out.keys()):
-            f.write("{}{}|{}{:.3}\n".format(elem,' '*(20-len(elem)),' '*4,perf_out[elem]))
+            f.write("{}{}|{}{:.4}\n".format(elem,' '*(20-len(elem)),' '*4,perf_out[elem]))
             f.write("------------------------------------\n")
 
     # pkl Dump
@@ -330,9 +331,14 @@ def get_step_attributes(step=(), pos=()):
         metric = 'precomputed'
 
     # n_clusters = param.get('n_clusters', 0) or param.get('best_estimator_', dict()).get('n_clusters', 0) or param.get('best_estimator_', dict()).get('clusters_centers_', np.array([])).shape[0]
-    n_clusters = param.get('n_clusters', 0) or param.get('best_estimator_', dict()).get('clusters_centers_', np.array([])).shape[0]
+    n_clusters = param.get('n_clusters', 0) or param.get('best_estimator_',
+      dict()).get('cluster_centers_', np.empty(0)).shape[0] or param.get('cluster_centers_',
+       np.empty(0)).shape[0] or mdl_obj.__dict__.get('cluster_centers_', np.empty(0)).shape[0]
     if n_clusters > 0:
         name += '_' + str(n_clusters) + '-clusts'
+    else:
+        if name=='AP':
+            print mdl_obj.__dict__
 
     logging.info("{} : {}".format(level,name))
     return name, level, param, data_out, data_in, mdl_obj, voronoi_mdl_obj, metric
@@ -520,9 +526,9 @@ def plot_eigs(root='', affinity=(), n_clusters=0, title='', ylabel='', normalise
                          " values. You can try by specifying normalised=False")
     plt.close()
 
-def make_df_clst_perf(rootFolder):
+def make_df_clst_perf(root_folder):
     df = pd.DataFrame(columns=['pipeline','silhouette', 'inertia', 'ari', 'ami', 'homogeneity', 'completeness', 'v_measure'])
-    for root, directories, filenames in os.walk(rootFolder):
+    for root, directories, filenames in os.walk(root_folder):
         for fn in filenames:
             if fn.endswith('_scores.pkl'):
                 with open(os.path.join(root, fn), 'r') as f:
@@ -531,7 +537,7 @@ def make_df_clst_perf(rootFolder):
                 df = df.append(perf_out, ignore_index=True)
     df = df.fillna('')
     size_pipe = max([len(p) for p in df['pipeline']]+[len('preprocess --> dim red --> clustering')])
-    with open(os.path.join(rootFolder,'summary_scores.txt'), 'w') as f:
+    with open(os.path.join(root_folder,'summary_scores.txt'), 'w') as f:
         header = "preprocess --> dim red --> clustering{0}|{1}ami|{1}ari|{2}completeness|{2}homogeneity|{2}v_measure|{3}inertia|{2}silhouette\n".format(' '*(size_pipe-len("preprocess --> dim red --> clustering")),' '*4,' ','   ')
         f.write("-"*len(header) + "\n")
         f.write("Adenine: Clustering Performance for each pipeline\n")
@@ -562,7 +568,7 @@ def make_df_clst_perf(rootFolder):
     # df.to_csv(os.path.join(rootFolder,'all_scores.csv'), na_rep='-', index_label=False, index=False)
 
 
-def analysis_worker(elem, rootFolder, y, feat_names, class_names, lock):
+def analysis_worker(elem, root_folder, y, feat_names, class_names, lock):
     """Parallel pipelines analysis.
 
     Parameters
@@ -581,19 +587,18 @@ def analysis_worker(elem, rootFolder, y, feat_names, class_names, lock):
         The class names; a range of numbers if missing.
     """
     # Getting pipeID and content
-    pipe = elem[0]
-    content = elem[1]
+    pipe, content = elem[:2]
 
-    outFolder = '' # where the results will be placed
+    out_folder = '' # where the results will be placed
     logging.info("------\n{} : \n".format(pipe))
     for i, step in enumerate(sorted(content.keys())):
-
         # Tree-like folder structure definition
-        step_name, step_level, step_param, step_out, step_in, mdl_obj, voronoi_mdl_obj, metric = get_step_attributes(content[step], pos=i)
+        step_name, step_level, step_param, step_out, step_in, mdl_obj, \
+        voronoi_mdl_obj, metric = get_step_attributes(content[step], pos=i)
 
         # Output folder definition & creation
-        outFolder = os.path.join(outFolder, step_name)
-        rootname = os.path.join(rootFolder, outFolder)
+        out_folder = os.path.join(out_folder, step_name)
+        rootname = os.path.join(root_folder, out_folder)
         with lock:
             if not os.path.exists(rootname):
                 os.makedirs(rootname)
@@ -626,8 +631,6 @@ def analysis_worker(elem, rootFolder, y, feat_names, class_names, lock):
             make_scatter(root=rootname, labels=step_out, model_param=step_param, data_in=step_in, model=mdl_obj)
 
             est_clst_perf(root=rootname, data_in=step_in, labels=step_out, t_labels=y, model=mdl_obj, metric=metric)
-
-    make_df_clst_perf(rootFolder)
 
 
 def start(input_dict=(), root_folder=(), y=None, feat_names=(), class_names=(), **kwargs):
@@ -672,3 +675,5 @@ def start(input_dict=(), root_folder=(), y=None, feat_names=(), class_names=(), 
 
     for p in ps:
         p.join()
+
+    make_df_clst_perf(root_folder)
