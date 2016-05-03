@@ -8,6 +8,7 @@ from numpy import nan
 # --------------------------  EXPERMIENT INFO ------------------------- #
 exp_tag = 'cool_experiment'
 output_root_folder = 'results'
+plotting_context = 'notebook' # one of {paper, notebook, talk, poster}
 
 # ----------------------------  INPUT DATA ---------------------------- #
 data_file = 'X.csv'
