@@ -4,6 +4,7 @@
 from adenine.utils import data_source
 from adenine.utils import extra
 
+from numpy import nan
 # --------------------------  EXPERMIENT INFO ------------------------- #
 exp_tag = 'debug'
 output_root_folder = 'results'
@@ -14,8 +15,8 @@ X, y, feat_names, class_names = data_source.load('gauss')
 # X, y, feat_names, class_names = data_source.load('digits')
 # X, y, feat_names, class_names = data_source.load('diabetes')
 # X, y, feat_names, class_names = data_source.load('boston')
-# X, y, feat_names, class_names = data_source.load('custom', 'X.npy', 'y.npy')
-# X, y, feat_names, class_names = data_source.load('custom', 'X.csv', 'y.csv')
+# X, y, feat_names, class_names = data_source.load('custom', 'data/X.npy', 'data/y.npy')
+# X, y, feat_names, class_names = data_source.load('custom', 'data/X.csv', 'data/y.csv')
 
 # X, y, feat_names, class_names = data_source.load('custom', '/home/fede/src/adenine/adenine/examples/TM_matrix.csv')
 # X = extra.ensure_symmetry(X)
@@ -24,7 +25,7 @@ X, y, feat_names, class_names = data_source.load('gauss')
 # -----------------------  PIPELINE DEFINITION ------------------------ #
 
 # --- Missing Values Imputing --- #
-step0 = {'Impute': [False], 'Missing': [-1], 'Replacement': ['median','mean','nearest_neighbors']}
+step0 = {'Impute': [False], 'Missing': [nan], 'Replacement': ['median','mean','nearest_neighbors']}
 
 # --- Data Preprocessing --- #
 step1 = {'None': [False], 'Recenter': [False], 'Standardize': [False],
@@ -33,14 +34,14 @@ step1 = {'None': [False], 'Recenter': [False], 'Standardize': [False],
 # --- Dimensionality Reduction & Manifold Learning --- #
 step2 = {'PCA': [True, {'n_components': 3}],
          'IncrementalPCA': [False, {'n_components': 3}],
-         'RandomizedPCA': [False, {'n_components': 3}],
-         'KernelPCA': [False, {'n_components': 3,
-                              'kernel': ['linear','rbf','poly']}],
+         'RandomizedPCA':  [False, {'n_components': 3}],
+         'KernelPCA':      [False, {'n_components': 3,
+                                    'kernel': ['linear','rbf','poly']}],
          'Isomap': [False, {'n_components': 3, 'n_neighbors': 5}],
-         'LLE': [False, {'n_components': 3, 'n_neighbors': 5, # xxx
-                         'method': ['standard','modified','hessian','ltsa']}],
-         'SE': [False, {'n_components': 3, 'affinity': ['nearest_neighbors','rbf']}], # can be 'precomputed'
-         'MDS': [False, {'n_components': 3, 'metric': [True, False]}],
+         'LLE':    [False, {'n_components': 3, 'n_neighbors': 5, # xxx
+                            'method': ['standard','modified','hessian','ltsa']}],
+         'SE':   [False, {'n_components': 3, 'affinity': ['nearest_neighbors','rbf']}], # can be 'precomputed'
+         'MDS':  [False, {'n_components': 3, 'metric': [True, False]}],
          'tSNE': [False, {'n_components': 3}],
          'None': [True, {}]
          }

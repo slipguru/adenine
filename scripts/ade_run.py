@@ -4,7 +4,7 @@
 import imp, sys, os, shutil
 import time
 import logging
-# from adenine.utils.extra import make_time_flag
+
 from adenine.core import define_pipeline
 from adenine.core import pipelines
 from adenine.utils import extra

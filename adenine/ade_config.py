@@ -4,6 +4,7 @@
 from adenine.utils import data_source
 from adenine.utils import extra
 
+from numpy import nan
 # --------------------------  EXPERMIENT INFO ------------------------- #
 exp_tag = 'cool_experiment'
 output_root_folder = 'results'
@@ -16,7 +17,7 @@ X, y, feat_names, class_names = data_source.load('custom', data_file, labels_fil
 # -----------------------  PIPELINE DEFINITION ------------------------ #
 
 # --- Missing Values Imputing --- #
-step0 = {'Impute': [False], 'Missing': [-1], 'Replacement': ['median','mean','nearest_neighbors']}
+step0 = {'Impute': [False], 'Missing': [nan], 'Replacement': ['median','mean','nearest_neighbors']}
 
 # --- Data Preprocessing --- #
 step1 = {'None': [False], 'Recenter': [False], 'Standardize': [False],

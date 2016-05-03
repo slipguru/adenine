@@ -28,6 +28,10 @@ def test(missing_rate):
     X = np.reshape(xx, (n,p))
     print("{} values deleted".format(n_missing))
 
+    # Save data
+    np.savetxt('X_missing.csv', X, delimiter=',')
+    np.savetxt('Y_missing_test.csv', y, delimiter=',')
+
     # Start test
     strategies = ["mean", "median", "most_frequent", "nearest_neighbors"]
 
