@@ -8,6 +8,7 @@ from numpy import nan
 # --------------------------  EXPERMIENT INFO ------------------------- #
 exp_tag = 'debug'
 output_root_folder = 'results'
+plotting_context = 'notebook' # one of {paper, notebook, talk, poster}
 
 # ----------------------------  INPUT DATA ---------------------------- #
 # X, y, feat_names, class_names = data_source.load('iris' , n_samples=100)

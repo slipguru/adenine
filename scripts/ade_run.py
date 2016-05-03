@@ -10,7 +10,6 @@ from adenine.core import pipelines
 from adenine.utils import extra
 
 def main(config_file):
-
     # Load the configuration file
     config_path = os.path.abspath(config_file)
     config = imp.load_source('ade_config', config_path)

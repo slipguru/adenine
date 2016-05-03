@@ -6,10 +6,9 @@ import time
 import logging
 import cPickle as pkl
 from adenine.core import analyze_results
-from adenine.utils.extra import sec_to_time
+from adenine.utils import extra
 
 def main(dumpfile):
-
     # Load the configuration file
     config_path = os.path.dirname(dumpfile)
     config_path = os.path.join(os.path.abspath(config_path), 'ade_config.py')
@@ -38,10 +37,11 @@ def main(dumpfile):
 
     tic = time.time()
     # Analyze the pipelines
-    analyze_results.start(inputDict=res, rootFolder=os.path.dirname(dumpfile), y=y, feat_names=feat_names, class_names=class_names)
+    analyze_results.start(input_dict=res, root_folder=os.path.dirname(dumpfile),
+                          y=y, feat_names=feat_names, class_names=class_names,
+                          plotting_context=config.plotting_context)
     tac = time.time()
-    print("\n\nanalyze_results.start: Elapsed time : {}".format(sec_to_time(tac-tic)))
-
+    print("\n\nanalyze_results.start: Elapsed time : {}".format(extra.sec_to_time(tac-tic)))
 
 
 # ----------------------------  RUN MAIN ---------------------------- #
