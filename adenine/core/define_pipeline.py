@@ -225,7 +225,7 @@ def parse_steps(steps):
                     content = {__k: __v for __k, __v in zip(list(content_d), ll)}
                     dr_lst_of_tpls.append(parse_dimred(key, content))
             else:
-                dr_lst_of_tpls.append(parse_dimred(key, {}}))
+                dr_lst_of_tpls.append(parse_dimred(key, {}))
 
     # Parse the clustering options
     cl_lst_of_tpls = []
@@ -244,7 +244,7 @@ def parse_steps(steps):
                         cl_lst_of_tpls.append(parse_clustering(key, content))
 
             else: # just flag case
-                cl_lst_of_tpls.append(parse_clustering(key, {}}))
+                cl_lst_of_tpls.append(parse_clustering(key, {}))
 
 
     # Generate the list of list of tuples (i.e. the list of pipelines)
