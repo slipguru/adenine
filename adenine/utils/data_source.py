@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 from sklearn import datasets
 from sklearn.preprocessing import Binarizer
+from sklearn.cross_validation import StratifiedShuffleSplit
 
 def generate_gauss(mu=(), std=(), n_sample=()):
     """Create a Gaussian dataset.
@@ -124,7 +125,7 @@ def load(opt='custom', x_filename=None, y_filename=None, n_samples=0):
         elif opt.lower() == 'gauss':
             means = np.array([[-1,1,1,1],[0,-1,0,0],[1,1,-1,-1]])
             sigmas = np.array([0.33, 0.33, 0.33])
-            if n_samples <= 0: n_samples = 333
+            if n_samples <= 1: n_samples = 333
             xx, yy = generate_gauss(mu=means, std=sigmas, n_sample=n_samples)
             data = datasets.base.Bunch(data=xx, target=yy)
         elif opt.lower() == 'custom':
@@ -133,8 +134,10 @@ def load(opt='custom', x_filename=None, y_filename=None, n_samples=0):
          print("I/O error({0}): {1}".format(e.errno, e.strerror))
 
     X, y = data.data, data.target
-    if n_samples > 0 and X.shape[0] > n_samples:
-        idx = np.random.permutation(X.shape[0])[:n_samples]
+    if y is not None and n_samples > 0 and X.shape[0] > n_samples:
+        sss = StratifiedShuffleSplit(y, test_size=n_samples, n_iter=1)
+        _, idx = list(sss)[0]
+        # idx = np.random.permutation(X.shape[0])[:n_samples]
         X, y = X[idx,:], y[idx]
 
     try:
