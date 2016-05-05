@@ -215,14 +215,17 @@ def parse_steps(steps):
     dr_lst_of_tpls = []
     for key in dimred.keys():
         if dimred[key][0]: # On/Off flag
-            content_d = dimred[key][1]
-            try:
-                content_values = content_d.itervalues()  # python 2
-            except:
-                content_values = content_d.values()  # python 3
-            for ll in modified_cartesian(*map(ensure_list, list(content_values))):
-                content = {__k: __v for __k, __v in zip(list(content_d), ll)}
-                dr_lst_of_tpls.append(parse_dimred(key, content))
+            if len(dimred[key]) > 1:
+                content_d = dimred[key][1]
+                try:
+                    content_values = content_d.itervalues()  # python 2
+                except:
+                    content_values = content_d.values()  # python 3
+                for ll in modified_cartesian(*map(ensure_list, list(content_values))):
+                    content = {__k: __v for __k, __v in zip(list(content_d), ll)}
+                    dr_lst_of_tpls.append(parse_dimred(key, content))
+            else:
+                dr_lst_of_tpls.append(parse_dimred(key, {}}))
 
     # Parse the clustering options
     cl_lst_of_tpls = []
@@ -241,7 +244,7 @@ def parse_steps(steps):
                         cl_lst_of_tpls.append(parse_clustering(key, content))
 
             else: # just flag case
-                cl_lst_of_tpls.append(parse_clustering(key, dict()))
+                cl_lst_of_tpls.append(parse_clustering(key, {}}))
 
 
     # Generate the list of list of tuples (i.e. the list of pipelines)
