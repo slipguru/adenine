@@ -62,14 +62,21 @@ Exploratory data analysis, unsupervised learning, dimensionality reduction, clus
 
 
 \section{Implementation}\label{sec:implem}
-From an algorithmic standpoint, \ade is built upon the concept of \emph{pipeline}, that is a sequence of four fundamental steps:
+From an implemetative standpoint, \ade is built upon the concept of \emph{pipeline}, that is a sequence of four fundamental steps:
 \begin{enumerate*}[label=(\roman*)]
   \item missing values imputing,
   \item data preprocessing,
   \item dimensionality reduction and
   \item clustering
-\end{enumerate*}.
-For each step, a fair number of off-the-shelf algorithms implementations are available (see Table~\ref{sec:implem}). None of such steps are mandatory. The vast majority of the algorithm implementation is inherited from the machine learning \texttt{Python} library \texttt{scikit-learn} \citep{scikit-learn, sklearn_api}. \todo{except KNN imputing}.
+\end{enumerate*} (see Figure~\ref{fig:workflow}).
+
+\begin{figure}[h!]
+  \caption{\ade workflow}\label{fig:workflow}
+\end{figure}
+
+For each step, a fair number of off-the-shelf algorithm implementations are available (see Table~\ref{sec:implem}). The vast majority of such implementations is inherited, or extended from \texttt{scikit-learn} \citep{scikit-learn}, a collection of machine learning tools implemented in \texttt{Python}. For the first step, \ade offers an extended version of the \texttt{sklearn.preprocessing.Imputer} class that adds the \emph{KNN} imputing method to the pre-existent features-wise \emph{mean}, \emph{median} and \emph{most frequent} choices.
+
+In order to obtain exploratory analysis of fairly big datasets, \ade exploits the use of parallel computing in several ways. Each pipeline is designed to be completely independent from each other
 
 \section{Experiments and results}
 To assess the quality of the obtained results, we tested \ade on a set of synthetic and real dataset.
@@ -78,6 +85,8 @@ To assess the quality of the obtained results, we tested \ade on a set of synthe
 \todo{TGCA}
 
 \section{Conclusions}
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

@@ -134,9 +134,9 @@ INPUT /usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/symbols/msbm10.tfm
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/symbols/msbm10.tfm
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/symbols/msbm7.tfm
-INPUT adenine.bbl
-INPUT adenine.bbl
 INPUT /var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map
+INPUT adenine.bbl
+INPUT adenine.bbl
 INPUT adenine.aux
 INPUT ./adenine.out
 INPUT ./adenine.out
