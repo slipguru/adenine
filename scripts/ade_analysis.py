@@ -31,11 +31,11 @@ def main(dumpfile):
     logFileName = os.path.join(os.path.dirname(dumpfile), fileName+'.log')
     logging.basicConfig(filename=logFileName, level=logging.INFO, filemode='w')
 
+    tic = time.time()
     # Load the results
     with open(dumpfile, 'r') as f:
         res = pkl.load(f)
 
-    tic = time.time()
     # Analyze the pipelines
     analyze_results.start(input_dict=res, root_folder=os.path.dirname(dumpfile),
                           y=y, feat_names=feat_names, class_names=class_names,

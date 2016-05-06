@@ -1,0 +1,131 @@
+\documentclass[twoside,11pt]{article}
+
+% Any additional packages needed should be included after jmlr2e.
+% Note that jmlr2e.sty includes epsfig, amssymb, natbib and graphicx,
+% and defines many common macros, such as 'proof' and 'example'.
+%
+% It also sets the bibliographystyle to plainnat; for more information on
+% natbib citation styles, see the natbib documentation, a copy of which
+% is archived at http://www.jmlr.org/format/natbib.pdf
+
+\usepackage{jmlr2e}
+\usepackage{multirow}
+\usepackage{booktabs}
+\usepackage{xspace}
+\usepackage[table]{xcolor}
+\usepackage{graphicx}
+% \usepackage{siunitx}
+% Definitions of handy macros can go here
+
+\newcommand{\dataset}{{\cal D}}
+\newcommand{\fracpartial}[2]{\frac{\partial #1}{\partial  #2}}
+
+\newcommand{\ade}{\texttt{adenine}\@\xspace}
+\newcommand*{\ie}{i.e.\@\xspace}
+\newcommand*{\eg}{e.g.\@\xspace}
+\newcommand{\todo}[1]{\textcolor{red}{{\bf \{#1\}}}} %TODO
+
+% Heading arguments are {volume}{year}{pages}{submitted}{published}{author-full-names}
+\jmlrheading{X}{2016}{X-XX}{X/XX}{XX/XX}{Samuele Fiorini, Federico Tomasi and Annalisa Barla}
+
+% Short headings should be running head and authors last names
+
+\ShortHeadings{ADENINE}{Fiorini and Tomasi}
+\firstpageno{1}
+
+\begin{document}
+
+\title{ADENINE --- A Data ExploratioN pIpeliNE}
+
+% \author{\name Marina Meil\u{a} \email mmp@stat.washington.edu \\
+%        \addr Department of Statistics\\
+%        University of Washington\\
+%        Seattle, WA 98195-4322, USA
+%        \AND
+%        \name Michael I.\ Jordan \email jordan@cs.berkeley.edu \\
+%        \addr Division of Computer Science and Department of Statistics\\
+%        University of California\\
+%        Berkeley, CA 94720-1776, USA}
+
+\author{\name{Samuele Fiorini} \email{samuele.fiorini@dibris.unige.it}\\
+\name{Federico Tomasi} \email{federico.tomasi@dibris.unige.it}\\
+\name{Annalisa Barla} \email{annalisa.barla@unige.it}\\[1em]
+\addr Department of Informatics, Bioengineering, \\Robotics and System Engineering (DIBRIS)\\
+     University of Genoa\\
+     Genoa, I-16146, Italy}
+
+
+\editor{Editor name}
+
+\maketitle
+
+\begin{abstract}
+Abstract here.
+\end{abstract}
+
+\begin{keywords}
+Exploratory data analysis, unsupervised learning, dimensionality reduction, clustering
+\end{keywords}
+
+\section{Introduction}\label{sec:intro}
+
+
+\section{Implementation}\label{sec:implem}
+From an algorithmic standpoint, \ade is built upon the concept of \emph{pipeline} \ie a sequence of four fundamental steps: \emph{i)}~missing values imputing, \emph{ii)}~data preprocessing, \emph{iii)}~dimensionality reduction and \emph{iv)}~clustering.
+
+\section{Experiments and results}
+To assess the quality of the obtained results, we tested \ade on a set of synthetic and real dataset.
+
+\todo{parla qui dei test synth}
+\todo{TGCA}
+
+\section{Conclusions}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{table}[hbtp]
+  {\caption{Pipelines building blocks and relative references (which are not reported when the definition is given in Section~\ref{sec:implem}).}}
+
+  {\begin{tabular}{lll}
+  \toprule
+  \bfseries Step &   \bfseries Algorithms & \bfseries Ref.\\
+
+  \multirow{2}{*}{Imputing} & Mean &  \\
+  & Median & \\
+  & KNN & \citep{troyanskaya2001missing} \\
+  \midrule
+
+  \multirow{4}{*}{Preprocessing} & Recentering &  \\
+  & Standardize &  \\
+  & Normalize &  \\
+  & MinMax &  \\
+  \midrule
+
+  \multirow{9}{*}{\begin{tabular}{@{}c@{}}Dimensionality \\ reduction\end{tabular}} & Principal component Analysis (PCA) & \citep{jolliffe2002principal} \\
+  & Incremental PCA & \citep{ross2008incremental} \\
+  & Randomized PCA & \citep{halko2011finding} \\
+  & Kernel PCA & \citep{scholkopf1997kernel} \\
+  & Isomap & \citep{tenenbaum2000global} \\
+  & Locally linear embedding & \citep{roweis2000nonlinear} \\
+  & Spectral embedding & \citep{ng2002spectral} \\
+  & Multidimensional scaling & \citep{borg2005modern} \\
+  & \begin{tabular}{@{}l@{}}t-Distributed Stochastic \\ Neighbor Embedding (t-SNE)\end{tabular}   & \citep{van2008visualizing} \\
+  \midrule
+
+  \multirow{5}{*}{Clustering} & K-means &  \citep{bishop2006pattern}\\
+  & Affinity propagation & \citep{frey2007clustering} \\
+  & Mean Shift & \citep{comaniciu2002mean} \\
+  & Spectral & \citep{shi2000normalized} \\
+  & Hierarchical & \citep{friedman2001elements} \\
+
+  \bottomrule
+  \end{tabular}}
+\end{table}
+
+% \acks{Acknowledgements go here.}
+
+\vskip 0.2in
+\bibliography{jmlr-sample}
+
+\end{document}
+
