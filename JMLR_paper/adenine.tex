@@ -14,6 +14,7 @@
 \usepackage{xspace}
 \usepackage[table]{xcolor}
 \usepackage{graphicx}
+\usepackage[inline]{enumitem}
 % \usepackage{siunitx}
 % Definitions of handy macros can go here
 
@@ -36,16 +37,6 @@
 \begin{document}
 
 \title{ADENINE --- A Data ExploratioN pIpeliNE}
-
-% \author{\name Marina Meil\u{a} \email mmp@stat.washington.edu \\
-%        \addr Department of Statistics\\
-%        University of Washington\\
-%        Seattle, WA 98195-4322, USA
-%        \AND
-%        \name Michael I.\ Jordan \email jordan@cs.berkeley.edu \\
-%        \addr Division of Computer Science and Department of Statistics\\
-%        University of California\\
-%        Berkeley, CA 94720-1776, USA}
 
 \author{\name{Samuele Fiorini} \email{samuele.fiorini@dibris.unige.it}\\
 \name{Federico Tomasi} \email{federico.tomasi@dibris.unige.it}\\
@@ -71,7 +62,14 @@ Exploratory data analysis, unsupervised learning, dimensionality reduction, clus
 
 
 \section{Implementation}\label{sec:implem}
-From an algorithmic standpoint, \ade is built upon the concept of \emph{pipeline} \ie a sequence of four fundamental steps: \emph{i)}~missing values imputing, \emph{ii)}~data preprocessing, \emph{iii)}~dimensionality reduction and \emph{iv)}~clustering.
+From an algorithmic standpoint, \ade is built upon the concept of \emph{pipeline}, that is a sequence of four fundamental steps:
+\begin{enumerate*}[label=(\roman*)]
+  \item missing values imputing,
+  \item data preprocessing,
+  \item dimensionality reduction and
+  \item clustering
+\end{enumerate*}.
+For each step, a fair number of off-the-shelf algorithms implementations are available (see Table~\ref{sec:implem}). None of such steps are mandatory. The vast majority of the algorithm implementation is inherited from the machine learning \texttt{Python} library \texttt{scikit-learn} \citep{scikit-learn, sklearn_api}. \todo{except KNN imputing}.
 
 \section{Experiments and results}
 To assess the quality of the obtained results, we tested \ade on a set of synthetic and real dataset.
@@ -125,7 +123,6 @@ To assess the quality of the obtained results, we tested \ade on a set of synthe
 % \acks{Acknowledgements go here.}
 
 \vskip 0.2in
-\bibliography{jmlr-sample}
+\bibliography{adenine}
 
 \end{document}
-

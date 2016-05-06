@@ -1,12 +1,13 @@
 # Fdb version 3
-["bibtex adenine"] 1462553700 "adenine.aux" "adenine.bbl" "adenine" 1462553701
+["bibtex adenine"] 1462555214 "adenine.aux" "adenine.bbl" "adenine" 1462555214
   "/usr/share/texlive/texmf-dist/bibtex/bst/natbib/plainnat.bst" 1233624470 26816 ffe5423d2019860bad9f54bc402fac15 ""
-  "adenine.aux" 1462553701 1830 f12d61992c803cb8863a45db888f4046 ""
+  "adenine.aux" 1462555214 3476 2c870913000078ad0538b5edbf8a8864 ""
   "adenine.bcf" 0 -1 0 ""
-  "jmlr-sample.bib" 0 -1 0 ""
+  "adenine.bib" 1462554726 5965 e88d56065017fec95a478837843567a2 ""
   (generated)
   "adenine.bbl"
-["pdflatex"] 1462553700 "adenine.tex" "adenine.pdf" "adenine" 1462553701
+  "adenine.blg"
+["pdflatex"] 1462555214 "adenine.tex" "adenine.pdf" "adenine" 1462555214
   "/etc/texmf/web2c/texmf.cnf" 1444054227 475 c0e671620eb5563b2130f56340a5fde8 ""
   "/usr/share/texlive/texmf-dist/fonts/map/fontname/texfonts.map" 1272929888 3287 e6b82fe08f5336d4d5ebc73fb1152e87 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex7.tfm" 1246382020 1004 54797486969f23fa377b128694d548df ""
@@ -57,6 +58,7 @@
   "/usr/share/texlive/texmf-dist/tex/latex/base/size11.clo" 1254151887 9058 640f9c40a6d912e30839a669c8a999ec ""
   "/usr/share/texlive/texmf-dist/tex/latex/booktabs/booktabs.sty" 1211777752 6375 989ecfb545a13610facc71ae7e40ced1 ""
   "/usr/share/texlive/texmf-dist/tex/latex/colortbl/colortbl.sty" 1329267615 10607 9635c8e2bffccf182429bfdea9b665a5 ""
+  "/usr/share/texlive/texmf-dist/tex/latex/enumitem/enumitem.sty" 1317339792 42666 6fa770e3485520a6a5f2ea7d259c8f8d ""
   "/usr/share/texlive/texmf-dist/tex/latex/graphics/epsfig.sty" 1156702488 3106 a896e5fe135d4485f72ce6c9d8459d2e ""
   "/usr/share/texlive/texmf-dist/tex/latex/graphics/graphics.sty" 1254151804 14183 42a8fc761b806986eef292369afc2988 ""
   "/usr/share/texlive/texmf-dist/tex/latex/graphics/graphicx.sty" 1156702488 7882 3bd78469d444e8d494e27cfd7ca92719 ""
@@ -86,13 +88,13 @@
   "/usr/share/texmf/web2c/texmf.cnf" 1392645748 31083 1dfd8bf685ce0009c40532fedf8a7c53 ""
   "/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map" 1444134381 1006173 a1aae087c4d39992a64a44c820d46d1c ""
   "/var/lib/texmf/web2c/pdftex/pdflatex.fmt" 1444127396 722335 45a63e4b9cd28a4e99d567a3af16dc33 ""
-  "adenine.aux" 1462553701 1830 f12d61992c803cb8863a45db888f4046 ""
-  "adenine.bbl" 0 -1 0 "bibtex adenine"
-  "adenine.out" 1462553701 200 d2a2b38f826591a287b713292eb10439 ""
-  "adenine.tex" 1462553564 4451 f2fca133f1b8a49798b5dd2addc851ae ""
+  "adenine.aux" 1462555214 3476 2c870913000078ad0538b5edbf8a8864 ""
+  "adenine.bbl" 1462555214 5436 6dce759b92daadbae5c95afc0aec875c "bibtex adenine"
+  "adenine.out" 1462555214 200 d2a2b38f826591a287b713292eb10439 ""
+  "adenine.tex" 1462555213 4457 f41163d886be3cd698e0b3523cb21d15 ""
   "jmlr2e.sty" 1455783169 13509 e382d45f8c4e905cde62de0de4873318 ""
   (generated)
   "adenine.out"
-  "adenine.aux"
   "adenine.pdf"
+  "adenine.aux"
   "adenine.log"
