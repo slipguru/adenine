@@ -14,9 +14,9 @@ def next_color():
     palette.append(palette.pop(0))
     return palette[-1]
 
-def reset_palette():
+def reset_palette(n_colors=6):
     global palette
-    palette = sns.color_palette("Set1")
+    palette = sns.color_palette("Set1", n_colors)
 
 # ensure_list = lambda x: x if type(x) == list else [x]
 def ensure_list(x):

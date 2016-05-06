@@ -88,18 +88,19 @@ def make_scatter(root=(), data_in=(), model_param=(), labels=None, true_labels=F
             from mpl_toolkits.mplot3d import Axes3D
             ax = plt.figure().gca(projection='3d')
             # ax.scatter(X[:,0], X[:,1], X[:,2], y, c=y, cmap='hot', s=100, linewidth=.5, edgecolor="white")
-            d = collections.Counter(y)
             y = np.array(y)
-            reset_palette()
-            for colorid, k in enumerate(sorted(d)):
-                idx = np.where(y==k)[0]
-                ax.plot(X[:,0][idx], X[:,1][idx], X[:,2][idx], 'o', c=next_color(), label=str(k), mew=.5, mec="white")
+            reset_palette(len(np.unique(y)))
+            for _, label in enumerate(np.unique(y)):
+                idx = np.where(y==label)[0]
+                ax.plot(X[:,0][idx], X[:,1][idx], X[:,2][idx], 'o',
+                        c=next_color(), label=str(label), mew=.5, mec="white")
 
             ax.set_xlabel(r'$x_1$')
             ax.set_ylabel(r'$x_2$')
             ax.set_zlabel(r'$x_3$')
             ax.set_title(title)
-            ax.legend(loc='upper left', numpoints=1, ncol=10, fontsize=8, bbox_to_anchor=(0, 0))
+            ax.legend(loc='upper left', numpoints=1, ncol=10, fontsize=8,
+                      bbox_to_anchor=(0, 0))
             # plt.legend(loc='upper left', numpoints=1, ncol=3, fontsize=8, bbox_to_anchor=(0, 0111))
             filename = os.path.join(root,os.path.basename(root)+"_scatter3D")
             plt.savefig(filename)
