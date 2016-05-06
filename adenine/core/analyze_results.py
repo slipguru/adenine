@@ -91,7 +91,7 @@ def make_scatter(root=(), data_in=(), model_param=(), labels=None, true_labels=F
             d = collections.Counter(y)
             y = np.array(y)
             reset_palette()
-            for colorid, k in enumerate(d):
+            for colorid, k in enumerate(sorted(d)):
                 idx = np.where(y==k)[0]
                 ax.plot(X[:,0][idx], X[:,1][idx], X[:,2][idx], 'o', c=next_color(), label=str(k), mew=.5, mec="white")
 
