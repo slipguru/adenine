@@ -75,6 +75,7 @@ def make_scatter(root=(), data_in=(), model_param=(), labels=None, true_labels=F
     if _hue != ' ': g.add_legend() #!! customize legend
     # g.set_xticklabels([])
     # g.set_yticklabels([])
+    g.ax.autoscale_view(True,True,True)
     plt.title(title)
     filename = os.path.join(root,os.path.basename(root)+"_scatter2D."+GLOBAL_FF)
     plt.savefig(filename)
@@ -102,6 +103,7 @@ def make_scatter(root=(), data_in=(), model_param=(), labels=None, true_labels=F
             ax.set_xlabel(r'$x_1$')
             ax.set_ylabel(r'$x_2$')
             ax.set_zlabel(r'$x_3$')
+            ax.autoscale_view(True,True,True)
             ax.set_title(title)
             ax.legend(loc='upper left', numpoints=1, ncol=10, fontsize=8,
                       bbox_to_anchor=(0, 0))
@@ -177,6 +179,7 @@ def make_voronoi(root=(), data_in=(), model_param=(), labels=None, true_labels=F
     g = sns.FacetGrid(df, hue=_hue, palette="Set1", size=5, legend_out=False)
     g.map(plt.scatter, "$x_1$", "$x_2$", s=100, linewidth=.5, edgecolor="white")
     if _hue != ' ': g.add_legend() #!! customize legend
+    g.ax.autoscale_view(True,True,True)
     plt.title(title)
 
     # Add centroids

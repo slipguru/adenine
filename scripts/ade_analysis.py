@@ -52,11 +52,12 @@ if __name__ == '__main__':
         print("USAGE: ade_analysis.py <RESULTS_FOLDER> ")
         sys.exit(-1)
 
-    filename = [f for f in os.listdir(sys.argv[1]) if os.path.isfile(os.path.join(sys.argv[1], f)) and f.endswith('.pkl') and f !=  "__data.pkl"]
+    root_folder = sys.argv[1]
+    filename = [f for f in os.listdir(root_folder) if os.path.isfile(os.path.join(root_folder, f)) and f.endswith('.pkl') and f !=  "__data.pkl"]
 
     if not filename:
-        print("No .pkl file found in {}".format(sys.argv[1]))
+        print("No .pkl file found in {}".format(root_folder))
         sys.exit(-1)
 
     # print("Starting the analysis of {}".format(filename))
-    main(os.path.join(os.path.abspath(sys.argv[1]), filename[0])) # Run analysis
+    main(os.path.join(os.path.abspath(root_folder), filename[0])) # Run analysis
