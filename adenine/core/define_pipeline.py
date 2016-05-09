@@ -213,10 +213,6 @@ def parse_steps(steps):
         else:
             i_lst_of_tpls.append(("Impute", Imputer()))
 
-            # for name in imputing['Replacement']:
-            #     imp = Imputer(missing_values=imputing['Missing'][0], strategy=name)
-            #     i_lst_of_tpls.append(("Impute_"+name, imp))
-
     # Parse the preprocessing options
     pp_lst_of_tpls = []
     for key in preproc.keys():

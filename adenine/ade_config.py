@@ -4,11 +4,11 @@
 from adenine.utils import data_source
 from adenine.utils import extra
 
-from numpy import nan
 # --------------------------  EXPERMIENT INFO ------------------------- #
 exp_tag = 'cool_experiment'
 output_root_folder = 'results'
 plotting_context = 'notebook' # one of {paper, notebook, talk, poster}
+file_format = 'pdf' # or 'png'
 
 # ----------------------------  INPUT DATA ---------------------------- #
 data_file = 'X.csv'
@@ -18,11 +18,13 @@ X, y, feat_names, class_names = data_source.load('custom', data_file, labels_fil
 # -----------------------  PIPELINE DEFINITION ------------------------ #
 
 # --- Missing Values Imputing --- #
-step0 = {'Impute': [False], 'Missing': [nan], 'Replacement': ['median','mean','nearest_neighbors']}
+step0 = {'Impute': [True, {'missing_values': 'NaN',
+                            'strategy': ['median','mean','nearest_neighbors']}]}
 
 # --- Data Preprocessing --- #
 step1 = {'None': [False], 'Recenter': [False], 'Standardize': [False],
-         'Normalize': [False, ['l2']], 'MinMax': [False, [0,1]]}
+         'Normalize': [False, {'norm': ['l1','l2']}],
+         'MinMax': [True, {'feature_range': [(0,1), (-1,1)]}]}
 
 # --- Dimensionality Reduction & Manifold Learning --- #
 step2 = {'PCA': [False, {'n_components': 3}],
