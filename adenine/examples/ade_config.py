@@ -13,8 +13,8 @@ file_format = 'pdf' # or 'png'
 
 # ----------------------------  INPUT DATA ---------------------------- #
 # X, y, feat_names, class_names = data_source.load('iris' , n_samples=100)
-# X, y, feat_names, class_names = data_source.load('gauss')
-X, y, feat_names, class_names = data_source.load('digits')
+X, y, feat_names, class_names = data_source.load('gauss')
+# X, y, feat_names, class_names = data_source.load('digits')
 # X, y, feat_names, class_names = data_source.load('diabetes')
 # X, y, feat_names, class_names = data_source.load('boston')
 # X, y, feat_names, class_names = data_source.load('custom', 'data/X.npy', 'data/y.npy')
@@ -31,10 +31,10 @@ step0 = {'Impute': [False], 'Missing': [nan], 'Replacement': ['median','mean','n
 
 # --- Data Preprocessing --- #
 step1 = {'None': [False], 'Recenter': [False], 'Standardize': [True],
-         'Normalize': [True, ['l2']], 'MinMax': [True, [0,1]]}
+         'Normalize': [False, ['l2']], 'MinMax': [False, [0,1]]}
 
 # --- Dimensionality Reduction & Manifold Learning --- #
-step2 = {'PCA': [False, {'n_components': 3}],
+step2 = {'PCA': [True, {'n_components': 3}],
          'IncrementalPCA': [False, {'n_components': 3}],
          'RandomizedPCA':  [False, {'n_components': 3}],
          'KernelPCA':      [True, {'n_components': 7,
@@ -51,10 +51,10 @@ step2 = {'PCA': [False, {'n_components': 3}],
 # --- Clustering --- #
 step3 = {'KMeans': [True, {'n_clusters': ['auto', 10]}], # cannot be 'precomputed'
         #  'AP': [False, [1,'precomputed']], # can be 'precomputed'
-         'AP': [False, {'preference': ['auto']}], # can be 'precomputed'
-         'MS': [False], # cannot be 'precomputed'
+         'AP': [True, {'preference': ['auto']}], # can be 'precomputed'
+         'MS': [True], # cannot be 'precomputed'
         #  'Spectral': [True, [50, ['precomputed']]], # can be 'precomputed'
-         'Spectral': [True, {'n_clusters': [10]}], # can be 'precomputed'
+         'Spectral': [False, {'n_clusters': [10]}], # can be 'precomputed'
         #  'Hierarchical': [False, [3, ['manhattan','euclidean'], ['ward','complete','average']]]}
          'Hierarchical': [False, {'n_clusters': [3, 8],
                                   'affinity': ['manhattan','euclidean'],
