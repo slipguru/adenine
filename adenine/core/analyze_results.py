@@ -1,6 +1,8 @@
 #!/usr/bin/python -W ignore::DeprecationWarning
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
+
 import os, platform
 # from joblib import Parallel, delayed
 import logging
@@ -17,7 +19,6 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 from sklearn import metrics
-from scipy.cluster.hierarchy import linkage as sp_linkage
 import collections
 import multiprocessing as mp
 
@@ -339,7 +340,7 @@ def get_step_attributes(step=(), pos=()):
         name += '_' + str(n_clusters) + '-clusts'
     else:
         if name=='AP':
-            print mdl_obj.__dict__
+            print(mdl_obj.__dict__)
 
     logging.info("{} : {}".format(level,name))
     return name, level, param, data_out, data_in, mdl_obj, voronoi_mdl_obj, metric
@@ -426,8 +427,9 @@ def make_dendrogram(root=(), data_in=(), model_param=(), trueLabel=None, labels=
         if make_dendrograms:
             sns.set(font="monospace")
             for method in ['single','complete','average','weighted','centroid','median','ward']:
+                from scipy.cluster.hierarchy import linkage
                 # print("Compute linkage matrix with metric={} ...".format(method))
-                Z = sp_linkage(tmp, method=method, metric='euclidean')
+                Z = linkage(tmp, method=method, metric='euclidean')
                 g = sns.clustermap(df.corr(), method=method, row_linkage=Z, col_linkage=Z)
                 filename = os.path.join(root, '_'.join((os.path.basename(root), method, '_dendrogram.png')))
                 g.savefig(filename)
@@ -538,8 +540,30 @@ def make_df_clst_perf(root_folder):
                 df = df.append(perf_out, ignore_index=True)
     df = df.fillna('')
     size_pipe = max([len(p) for p in df['pipeline']]+[len('preprocess --> dim red --> clustering')])
+    size_ami = max([len('{: .3}'.format(p)) + 2 if p != '' else 3 for p in df['ami']]+[5])
+    size_ari = max([len('{: .3}'.format(p)) + 2 if p != '' else 3 for p in df['ari']]+[5])
+    size_com = max([len('{: .3}'.format(p)) + 2 if p != '' else 3 for p in df['completeness']]+[len('completeness  ')])
+    size_hom = max([len('{: .3}'.format(p)) + 2 if p != '' else 3 for p in df['homogeneity']]+[len('homogeneity  ')])
+    size_vme = max([len('{: .3}'.format(p)) + 2 if p != '' else 3 for p in df['v_measure']]+[len('v_measure  ')])
+    size_ine = max([len('{: .3}'.format(p)) + 2 if p != '' else 3 for p in df['inertia']]+[len('inertia  ')])
+    size_sil = max([len('{: .3}'.format(p)) + 2 if p != '' else 3 for p in df['silhouette']]+[len('silhouette  ')])
+    # find the best value
+    best_ami = max([(p) for p in df['ami'] if p != ''])
+    best_ari = max([(p) for p in df['ari'] if p != ''])
+    best_com = max([(p) for p in df['completeness'] if p != ''])
+    best_hom = max([(p) for p in df['homogeneity'] if p != ''])
+    best_vme = max([(p) for p in df['v_measure'] if p != ''])
+    best_ine = max([(p) for p in df['inertia'] if p != ''])
+    best_sil = max([(p) for p in df['silhouette'] if p != ''])
+
     with open(os.path.join(root_folder,'summary_scores.txt'), 'w') as f:
-        header = "preprocess --> dim red --> clustering{0}|{1}ami|{1}ari|{2}completeness|{2}homogeneity|{2}v_measure|{3}inertia|{2}silhouette\n".format(' '*(size_pipe-len("preprocess --> dim red --> clustering")),' '*4,' ','   ')
+        header = "preprocess --> dim red --> clustering{}|{}ami  |{}ari  |{}completeness  |{}homogeneity  |{}v_measure  |{}inertia  |{}silhouette  \n" \
+            .format(' '*(size_pipe-len("preprocess --> dim red --> clustering")),
+                    ' '*(size_ami-5), ' '*(size_ari-5),
+                    ' '*(size_com-len("completeness  ")),
+                    ' '*(size_hom-len("homogeneity  ")),
+                    ' '*(size_vme-len("v_measure  ")),
+                    ' '*(size_ine-9), ' '*(size_sil-len("silhouette  ")))
         f.write("-"*len(header) + "\n")
         f.write("Adenine: Clustering Performance for each pipeline\n")
         f.write("-"*len(header) + "\n")
@@ -555,15 +579,15 @@ def make_df_clst_perf(root_folder):
             ine = '{: .3}'.format(row['inertia']) if row['inertia'] != '' else '---'
             sil = '{: .3}'.format(row['silhouette']) if row['silhouette'] != '' else '---'
             # f.write("{}{}|{}{:.3f}|{}{:.3f}|{}{:.3f}|{}{:.3f}|{}{:.3f}|{}{:.3f}|{}{:.3f}\n"
-            f.write("{}{}|{}{}|{}{}|{}{}|{}{}|{}{}|{}{}|{}{}\n"
-            .format(row['pipeline'],' '*(size_pipe-len(row['pipeline'])),
-            ' '*abs(len('    ami')-len(ami)), ami,
-            ' '*abs(len('    ari')-len(ari)), ari,
-            ' '*abs(len(' completeness')-len(com)), com,
-            ' '*abs(len(' homogeneity')-len(hom)), hom,
-            ' '*abs(len(' v_measure')-len(vme)), vme,
-            ' '*abs(len('   inertia')-len(ine)), ine,
-            ' '*abs(len(' silhouette')-len(sil)), sil
+            f.write("{}{}|{}{}{}|{}{}{}|{}{}{}|{}{}{}|{}{}{}|{}{}{}|{}{}{}\n"
+                .format(row['pipeline'],' '*(size_pipe-len(row['pipeline'])),
+                ' '*(abs(size_ami-len(str(ami))-2)), ami, ' *' if row['ami'] == best_ami else '  ',
+                ' '*(abs(size_ari-len(str(ari))-2)), ari, ' *' if row['ari'] == best_ari else '  ',
+                ' '*(abs(size_com-len(str(com))-2)), com, ' *' if row['completeness'] == best_com else '  ',
+                ' '*(abs(size_hom-len(str(hom))-2)), hom, ' *' if row['homogeneity'] == best_hom else '  ',
+                ' '*(abs(size_vme-len(str(vme))-2)), vme, ' *' if row['v_measure'] == best_vme else '  ',
+                ' '*(abs(size_ine-len(str(ine))-2)), ine, ' *' if row['inertia'] == best_ine else '  ',
+                ' '*(abs(size_sil-len(str(sil))-2)), sil, ' *' if row['silhouette'] == best_sil else '  '
             ))
         f.write("-"*len(header) + "\n")
     # df.to_csv(os.path.join(rootFolder,'all_scores.csv'), na_rep='-', index_label=False, index=False)
