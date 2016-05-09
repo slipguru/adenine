@@ -4,7 +4,6 @@
 from adenine.utils import data_source
 from adenine.utils import extra
 
-from numpy import nan
 # --------------------------  EXPERMIENT INFO ------------------------- #
 exp_tag = 'debug'
 output_root_folder = 'results'
@@ -27,17 +26,19 @@ X, y, feat_names, class_names = data_source.load('gauss')
 # -----------------------  PIPELINE DEFINITION ------------------------ #
 
 # --- Missing Values Imputing --- #
-step0 = {'Impute': [False], 'Missing': [nan], 'Replacement': ['median','mean','nearest_neighbors']}
+step0 = {'Impute': [True, {'missing_values': 'NaN',
+                            'strategy': ['median','mean','nearest_neighbors']}]}
 
 # --- Data Preprocessing --- #
-step1 = {'None': [False], 'Recenter': [False], 'Standardize': [True],
-         'Normalize': [False, ['l2']], 'MinMax': [False, [0,1]]}
+step1 = {'None': [False], 'Recenter': [False], 'Standardize': [False],
+         'Normalize': [False, {'norm': ['l1','l2']}],
+         'MinMax': [True, {'feature_range': [(0,1), (-1,1)]}]}
 
 # --- Dimensionality Reduction & Manifold Learning --- #
-step2 = {'PCA': [True, {'n_components': 3}],
+step2 = {'PCA': [False, {'n_components': 3}],
          'IncrementalPCA': [False, {'n_components': 3}],
          'RandomizedPCA':  [False, {'n_components': 3}],
-         'KernelPCA':      [True, {'n_components': 7,
+         'KernelPCA':      [False, {'n_components': 7,
                                     'kernel': ['linear','rbf','poly']}],
          'Isomap': [False, {'n_components': 3, 'n_neighbors': 5}],
          'LLE':    [False, {'n_components': 3, 'n_neighbors': 5, # xxx
@@ -45,14 +46,14 @@ step2 = {'PCA': [True, {'n_components': 3}],
          'SE':   [False, {'n_components': 3, 'affinity': ['nearest_neighbors','rbf']}], # can be 'precomputed'
          'MDS':  [False, {'n_components': 3, 'metric': [True, False]}],
          'tSNE': [False, {'n_components': 3}],
-         'None': [False, {}]
+         'None': [True, {}]
          }
 
 # --- Clustering --- #
 step3 = {'KMeans': [True, {'n_clusters': ['auto', 10]}], # cannot be 'precomputed'
         #  'AP': [False, [1,'precomputed']], # can be 'precomputed'
-         'AP': [True, {'preference': ['auto']}], # can be 'precomputed'
-         'MS': [True], # cannot be 'precomputed'
+         'AP': [False, {'preference': ['auto']}], # can be 'precomputed'
+         'MS': [False], # cannot be 'precomputed'
         #  'Spectral': [True, [50, ['precomputed']]], # can be 'precomputed'
          'Spectral': [False, {'n_clusters': [10]}], # can be 'precomputed'
         #  'Hierarchical': [False, [3, ['manhattan','euclidean'], ['ward','complete','average']]]}

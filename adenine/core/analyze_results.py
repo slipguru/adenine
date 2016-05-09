@@ -1,7 +1,7 @@
 #!/usr/bin/python -W ignore::DeprecationWarning
 # -*- coding: utf-8 -*-
 
-from __future__ import print_function
+# from __future__ import print_function
 
 import os, platform
 # from joblib import Parallel, delayed
@@ -23,7 +23,7 @@ from sklearn import metrics
 import collections
 import multiprocessing as mp
 
-from adenine.utils.extra import next_color, reset_palette, title_from_filename
+from adenine.utils.extra import next_color, reset_palette, title_from_filename, values_iterator
 
 def make_scatter(root=(), data_in=(), model_param=(), labels=None, true_labels=False, model=()):
     """Generates and saves the scatter plot of the dimensionality reduced data set.
@@ -317,6 +317,18 @@ def get_step_attributes(step=(), pos=()):
     if level.lower() == 'none' and pos == 0: level = 'preproc'
     if level.lower() == 'none' and pos == 1: level = 'dimred'
     metric = 'euclidean'
+
+    # Imputing level
+    if param.get('missing_values', ''):
+        name += '-'+param['missing_values']
+    if param.get('strategy', ''):
+        name += '_'+param['strategy']
+
+    # Preprocessing level
+    if param.get('norm', ''): # normalize
+        name += '_'+param['norm']
+    elif param.get('feature_range', ''): # minmax
+        name += "_({} - {})".format(*param['feature_range'])
 
     # Append additional parameters in the step name
     if name == 'KernelPCA':

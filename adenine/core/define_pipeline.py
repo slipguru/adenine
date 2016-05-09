@@ -3,7 +3,7 @@
 
 import logging
 import numpy as np
-from adenine.utils.extra import modified_cartesian, ensure_list
+from adenine.utils.extra import modified_cartesian, ensure_list, values_iterator
 
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
@@ -55,9 +55,12 @@ def parse_preproc(key, content):
     elif key.lower() == 'standardize':
         pp = StandardScaler(with_mean=True, with_std=True)
     elif key.lower() == 'normalize':
-        pp = Normalizer(norm=content[1][0])
+        content.setdefault('norm', 'l2')
+        # pp = Normalizer(norm=content[1][0])
+        pp = Normalizer(**content)
     elif key.lower() == 'minmax':
-        pp = MinMaxScaler(feature_range=(content[1][0], content[1][1]))
+        content.setdefault('feature_range', (0,1))
+        pp = MinMaxScaler(**content)
     else:
         pp = DummyNone()
     return (key, pp)
@@ -201,15 +204,32 @@ def parse_steps(steps):
     # Parse the imputing options
     i_lst_of_tpls = []
     if imputing['Impute'][0]: # On/Off flag
-        for name in imputing['Replacement']:
-            imp = Imputer(missing_values=imputing['Missing'][0], strategy=name)
-            i_lst_of_tpls.append(("Impute_"+name, imp))
+        if len(imputing['Impute']) > 1:
+            content_d = imputing['Impute'][1]
+            content_values = values_iterator(content_d)
+            for ll in modified_cartesian(*map(ensure_list, list(content_values))):
+                content = {__k: __v for __k, __v in zip(list(content_d), ll)}
+                i_lst_of_tpls.append(("Impute", Imputer(**content)))
+        else:
+            i_lst_of_tpls.append(("Impute", Imputer()))
+
+            # for name in imputing['Replacement']:
+            #     imp = Imputer(missing_values=imputing['Missing'][0], strategy=name)
+            #     i_lst_of_tpls.append(("Impute_"+name, imp))
 
     # Parse the preprocessing options
     pp_lst_of_tpls = []
     for key in preproc.keys():
         if preproc[key][0]: # On/Off flag
-            pp_lst_of_tpls.append(parse_preproc(key, preproc[key]))
+            if len(preproc[key]) > 1:
+                content_d = preproc[key][1]
+                content_values = values_iterator(content_d)
+                for ll in modified_cartesian(*map(ensure_list, list(content_values))):
+                    content = {__k: __v for __k, __v in zip(list(content_d), ll)}
+                    pp_lst_of_tpls.append(parse_preproc(key, content))
+            else:
+                pp_lst_of_tpls.append(parse_preproc(key, {}))
+                # pp_lst_of_tpls.append(parse_preproc(key, preproc[key]))
 
     # Parse the dimensionality reduction & manifold learning options
     dr_lst_of_tpls = []
@@ -217,10 +237,7 @@ def parse_steps(steps):
         if dimred[key][0]: # On/Off flag
             if len(dimred[key]) > 1:
                 content_d = dimred[key][1]
-                try:
-                    content_values = content_d.itervalues()  # python 2
-                except:
-                    content_values = content_d.values()  # python 3
+                content_values = values_iterator(content_d)
                 for ll in modified_cartesian(*map(ensure_list, list(content_values))):
                     content = {__k: __v for __k, __v in zip(list(content_d), ll)}
                     dr_lst_of_tpls.append(parse_dimred(key, content))
@@ -233,10 +250,7 @@ def parse_steps(steps):
         if clustering[key][0]: # On/Off flag
             if len(clustering[key]) > 1: # Discriminate from just flag or flag + args
                 content_d = clustering[key][1]
-                try:
-                    content_values = content_d.itervalues()  # python 2
-                except:
-                    content_values = content_d.values()  # python 3
+                content_values = values_iterator(content_d)
                 for ll in modified_cartesian(*map(ensure_list, list(content_values))):
                     content = {__k: __v for __k, __v in zip(list(content_d), ll)}
                     if not (content.get('affinity','') in ['manhattan', 'precomputed'] and content.get('linkage','') == 'ward'):

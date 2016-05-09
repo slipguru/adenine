@@ -46,13 +46,13 @@ def which_level(label):
     level : {imputing, preproc, dimred, clustering, None}
         The appropriate level of the input step.
     """
-    if label in set(['Impute_median', 'Impute_mean']):
+    if label in ('Impute_median', 'Impute_mean', 'Impute'):
         level = 'imputing'
-    elif label in set(['Recenter', 'Standardize', 'Normalize', 'MinMax']):
+    elif label in ('Recenter', 'Standardize', 'Normalize', 'MinMax'):
         level = 'preproc'
-    elif label in set(['PCA', 'IncrementalPCA', 'RandomizedPCA', 'KernelPCA', 'Isomap','LLE', 'SE', 'MDS', 'tSNE']):
+    elif label in ('PCA', 'IncrementalPCA', 'RandomizedPCA', 'KernelPCA', 'Isomap','LLE', 'SE', 'MDS', 'tSNE'):
         level = 'dimred'
-    elif label in set(['KMeans', 'KernelKMeans', 'AP', 'MS', 'Spectral', 'Hierarchical']):
+    elif label in ('KMeans', 'KernelKMeans', 'AP', 'MS', 'Spectral', 'Hierarchical'):
         level = 'clustering'
     else:
         level = 'None'
@@ -136,13 +136,13 @@ def pipe_worker(pipeID, pipe, pipes_dump, X):
 
             # 4. save the results in a dictionary of dictionaries of the form:
             # {'pipeID': {'stepID' : [alg_name, level, params, res, Xnext, Xcurr, stepObj, voronoi_suitable_model]}}
-            if level == 'preproc': # save memory and do not dump data after preprocessing (not used in analysys)
+            if level in ('preproc', 'imputing'): # save memory and do not dump data after preprocessing (not used in analysys)
                 step_dump[stepID] = [step[0], level, step[1].get_params(), np.array([]), np.array([]), step[1], mdl_voronoi]
                 X_curr = np.array(X_next) # update the matrix
             elif level == 'dimred': # save memory dumping X_curr only in case of clusutering
                 step_dump[stepID] = [step[0], level, step[1].get_params(), X_next, np.array([]), step[1], mdl_voronoi]
                 X_curr = X_next # update the matrix
-            else: # clustering
+            elif level == 'clustering': # clustering
                 step_dump[stepID] = [step[0], level, step[1].get_params(), X_next, X_curr, step[1], mdl_voronoi]
 
             # if level != 'clustering':
