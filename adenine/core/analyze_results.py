@@ -568,7 +568,8 @@ def make_df_clst_perf(root_folder):
     best_vme, best_ine, best_sil = [max([p for p in df[__] if p != ''])
             for __ in measures]
 
-    with open(os.path.join(root_folder,'summary_scores.txt'), 'w') as f:
+    with open(os.path.join(root_folder,'summary_scores.txt'), 'w') as f, \
+         open(os.path.join(root_folder,'summary_scores.tex'), 'w') as g:
         header = "preprocess --> dim red --> clustering{}|{}ami  |{}ari  |{}completeness  |{}homogeneity  |{}v_measure  |{}inertia  |{}silhouette  \n" \
             .format(' '*(size_pipe-len("preprocess --> dim red --> clustering")),
                     ' '*(size_ami-5), ' '*(size_ari-5),
@@ -581,12 +582,19 @@ def make_df_clst_perf(root_folder):
         f.write("-"*len(header) + "\n")
         f.write(header)
         f.write("-"*len(header) + "\n")
+
+        g.write(r"\documentclass{article}\usepackage{adjustbox}\usepackage{caption}\captionsetup[table]{skip=10pt}\begin{document}"); g.write("\n")
+        g.write(r"\begin{table}[h!]"); g.write("\n")
+        g.write(r"\centering"
+                r"\caption{Adenine: Clustering Performance for each pipeline}" r"\label{clust-perf}"); g.write("\n")
+        g.write(r"\begin{adjustbox}{max width=\textwidth}\begin{tabular}{l|rc|rc|rc|rc|rc|rc|rc}"
+                r"\textbf{preprocess $\to$ dim red $\to$ clustering} & \textbf{ami} && \textbf{ari} && \textbf{completeness} && \textbf{homogeneity} && \textbf{v\_measure} && \textbf{inertia} && \textbf{silhouette} & \\ \hline"); g.write("\n")
+
         for _ in df.iterrows():
             row = _[1]
             ami, ari, com, hom, vme, ine, sil = ['{: .3}'.format(row[__])
                                 if row[__] != '' else '---' for __ in measures]
 
-            # f.write("{}{}|{}{:.3f}|{}{:.3f}|{}{:.3f}|{}{:.3f}|{}{:.3f}|{}{:.3f}|{}{:.3f}\n"
             f.write("{}{}|{}{}{}|{}{}{}|{}{}{}|{}{}{}|{}{}{}|{}{}{}|{}{}{}\n"
                 .format(row['pipeline'],' '*(size_pipe-len(row['pipeline'])),
                 ' '*(abs(size_ami-len(str(ami))-2)), ami, ' *' if row['ami'] == best_ami else '  ',
@@ -597,7 +605,23 @@ def make_df_clst_perf(root_folder):
                 ' '*(abs(size_ine-len(str(ine))-2)), ine, ' *' if row['inertia'] == best_ine else '  ',
                 ' '*(abs(size_sil-len(str(sil))-2)), sil, ' *' if row['silhouette'] == best_sil else '  '
             ))
+
+            g.write(r"{} & {}&{} & {}&{} & {}&{} & {}&{} & {}&{} & {}&{} & {}&{} \\"
+                    "\n"
+                .format(
+                row['pipeline'].replace('-->', r'$\to$'),
+                ami, '*' if row['ami'] == best_ami else ' ',
+                ari, '*' if row['ari'] == best_ari else ' ',
+                com, '*' if row['completeness'] == best_com else ' ',
+                hom, '*' if row['homogeneity'] == best_hom else ' ',
+                vme, '*' if row['v_measure'] == best_vme else ' ',
+                ine, '*' if row['inertia'] == best_ine else ' ',
+                sil, '*' if row['silhouette'] == best_sil else ' '
+            ))
+
         f.write("-"*len(header) + "\n")
+        g.write(r"\hline \end{tabular} \end{adjustbox} \end{table}")
+        g.write(r"\end{document}")
     # df.to_csv(os.path.join(rootFolder,'all_scores.csv'), na_rep='-', index_label=False, index=False)
 
 
