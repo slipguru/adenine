@@ -40,13 +40,16 @@ def parse_preproc(key, content):
     key : {'None', 'Recenter', 'Standardize', 'Normalize', 'MinMax'}
         The type of selected preprocessing step.
 
-    content : list, len : 2
-        A list containing the On/Off flag and a nested list of extra parameters (e.g. [min,max] for Min-Max scaling).
+    content : dict
+        A dictionary containing parameters for each preprocessing
+        class. Each parameter can be a list; in this case for each combination
+        of parameters a different pipeline will be created.
 
     Returns
     -----------
     pptpl : tuple
-        A tuple made like that ('PreprocName', preprocObj), where preprocObj is an sklearn 'transforms' (i.e. it has bot a .fit and .transform method).
+        A tuple made like that ('preproc_name', preproc_obj), where preproc_obj
+        is an sklearn 'transforms' (i.e. it has bot a .fit and .transform method).
     """
     if key.lower() == 'none':
         pp = DummyNone()
@@ -78,14 +81,14 @@ def parse_dimred(key, content):
 
     content : dict
         A dictionary containing parameters for each dimensionality reduction
-        class. Each can be also a list; in this case for each combination of
-        parameters a different pipeline will be created.
+        class. Each parameter can be a list; in this case for each combination
+        of parameters a different pipeline will be created.
 
     Returns
     -----------
     drtpl : tuple
-        A tuple made like that ('DimRedName', dimredObj), where dimredObj is a
-        sklearn 'transforms' (i.e. it has bot a .fit and .transform method).
+        A tuple made like that ('dimres_name', dimred_obj), where dimred_obj is
+        a sklearn 'transforms' (i.e. it has bot a .fit and .transform method).
     """
     drs = {'none': DummyNone, 'pca': PCA, 'incrementalpca': IncrementalPCA,
                'randomizedpca': RandomizedPCA, 'kernelpca': KernelPCA,
@@ -133,13 +136,16 @@ def parse_clustering(key, content):
     key : {'KMeans', 'KernelKMeans', 'AP', 'MS', 'Spectral', 'Hierarchical'}
         The selected dimensionality reduction algorithm.
 
-    content : list, len : 2
-        A list containing the On/Off flag and a nested list of extra parameters (e.g. ['rbf,'poly'] for KernelKMeans).
+    content : dict
+        A dictionary containing parameters for each clustering class.
+        Each parameter can be a list; in this case for each combination
+        of parameters a different pipeline will be created.
 
     Returns
     -----------
     cltpl : tuple
-        A tuple made like that ('ClusteringName', clustObj), where clustObj implements the .fit method.
+        A tuple made like that ('clust_name', clust_obj), where clust_obj
+        implements the .fit method.
     """
     if 'auto' in [content.get('n_clusters', ''), content.get('preference', '')]:
         # Wrapper class that automatically detects the best number of clusters via 10-Fold CV
