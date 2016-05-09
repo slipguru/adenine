@@ -141,9 +141,13 @@ def load(opt='custom', x_filename=None, y_filename=None, n_samples=0):
 
     X, y = data.data, data.target
     if y is not None and n_samples > 0 and X.shape[0] > n_samples:
-        sss = StratifiedShuffleSplit(y, test_size=n_samples, n_iter=1)
+        try: # Legacy for sklearn
+            sss = StratifiedShuffleSplit(y, test_size=n_samples, n_iter=1)
+            # idx = np.random.permutation(X.shape[0])[:n_samples]
+        except TypeError:
+            sss = StratifiedShuffleSplit(n_iter=1, test_size=n_samples).split(X, y)
+
         _, idx = list(sss)[0]
-        # idx = np.random.permutation(X.shape[0])[:n_samples]
         X, y = X[idx,:], y[idx]
 
     try:
