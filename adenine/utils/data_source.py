@@ -7,7 +7,13 @@ import numpy as np
 import pandas as pd
 from sklearn import datasets
 from sklearn.preprocessing import Binarizer
-from sklearn.cross_validation import StratifiedShuffleSplit
+
+# Legacy import
+try:
+    from sklearn.model_selection import StratifiedShuffleSplit
+except ImportError:
+    from sklearn.cross_validation import StratifiedShuffleSplit
+
 
 def generate_gauss(mu=(), std=(), n_sample=()):
     """Create a Gaussian dataset.
