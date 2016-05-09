@@ -136,7 +136,13 @@ def pipe_worker(pipeID, pipe, pipes_dump, X):
 
             # 4. save the results in a dictionary of dictionaries of the form:
             # {'pipeID': {'stepID' : [alg_name, level, params, res, Xnext, Xcurr, stepObj, voronoi_suitable_model]}}
-            step_dump[stepID] = [step[0], level, step[1].get_params(), X_next, X_curr, step[1], mdl_voronoi]
+            if level == 'preproc': # save memory and do not dump data after preprocessing (not used in analysys)
+                step_dump[stepID] = [step[0], level, step[1].get_params(), np.array([]), np.array([]), step[1], mdl_voronoi]
+            elif level == 'dimred': # save memory dumping X_curr only in case of clusutering
+                step_dump[stepID] = [step[0], level, step[1].get_params(), X_next, np.array([]), step[1], mdl_voronoi]
+            else: # clustering
+                step_dump[stepID] = [step[0], level, step[1].get_params(), X_next, X_curr, step[1], mdl_voronoi]
+
             X_curr = np.array(X_next) # update the matrix
 
         except AssertionError as e:
