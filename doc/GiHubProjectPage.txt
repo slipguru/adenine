@@ -1,4 +1,4 @@
-### Welcome to adenine.
+### Welcome to Adenine.
 **Adenine** is a machine learning and data mining framework that helps you answering the tedious question: are my data relevant for the problem I'm dealing with?
 
 ### Implementation

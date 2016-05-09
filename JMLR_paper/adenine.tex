@@ -21,7 +21,8 @@
 \newcommand{\dataset}{{\cal D}}
 \newcommand{\fracpartial}[2]{\frac{\partial #1}{\partial  #2}}
 
-\newcommand{\ade}{\texttt{adenine}\@\xspace}
+\newcommand{\ade}{\texttt{Adenine}\@\xspace}
+\newcommand{\py}{\texttt{Python}\@\xspace}
 \newcommand*{\ie}{i.e.\@\xspace}
 \newcommand*{\eg}{e.g.\@\xspace}
 \newcommand{\todo}[1]{\textcolor{red}{{\bf \{#1\}}}} %TODO
@@ -31,7 +32,7 @@
 
 % Short headings should be running head and authors last names
 
-\ShortHeadings{ADENINE}{Fiorini and Tomasi}
+\ShortHeadings{ADENINE}{Fiorini, Tomasi, Barla}
 \firstpageno{1}
 
 \begin{document}
@@ -51,18 +52,23 @@
 \maketitle
 
 \begin{abstract}
-Abstract here.
+
+In this paper we introduce \ade, a \py framework for data exploration. The main goal of \ade, is twofold: helping researchers and data scientists achieving a first and quick overview on the main structures underlying their data and choosing the most suitable unsupervised learning pipeline for the problem at hand. This software tool encompasses state of the art techniques for: missing values imputing, preprocessing, dimensionality reduction and clustering tasks.
+\ade exploits both process and thread level parallelism and it is capable of generating nice and clean publication-ready figures along with a quantitative description of the algorithms performance. \ade is released under FreeBSD license and it can be downloaded from \href{http://slipguru.github.io/adenine/}{http://slipguru.github.io/adenine/}.
+
+
 \end{abstract}
 
 \begin{keywords}
-Exploratory data analysis, unsupervised learning, dimensionality reduction, clustering
+Data exploration, unsupervised learning, RNA-Seq gene expression
 \end{keywords}
 
 \section{Introduction}\label{sec:intro}
 
 
+
 \section{Implementation}\label{sec:implem}
-From an implemetative standpoint, \ade is built upon the concept of \emph{pipeline}, that is a sequence of four fundamental steps:
+From an implemetative standpoint, \ade is built around the concept of \emph{pipeline}, that is a sequence of four fundamental steps:
 \begin{enumerate*}[label=(\roman*)]
   \item missing values imputing,
   \item data preprocessing,
@@ -71,12 +77,16 @@ From an implemetative standpoint, \ade is built upon the concept of \emph{pipeli
 \end{enumerate*} (see Figure~\ref{fig:workflow}).
 
 \begin{figure}[h!]
-  \caption{\ade workflow}\label{fig:workflow}
+    \centering
+    \includegraphics[width=\textwidth]{ade_wf/ade_wf.pdf}
+    \caption{A schematic representation of the \ade workflow. The list of building blocks available for each step is summarized in Table~\ref{tab:blocks}.}\label{fig:workflow}
 \end{figure}
 
-For each step, a fair number of off-the-shelf algorithm implementations are available (see Table~\ref{sec:implem}). The vast majority of such implementations is inherited, or extended from \texttt{scikit-learn} \citep{scikit-learn}, a collection of machine learning tools implemented in \texttt{Python}. For the first step, \ade offers an extended version of the \texttt{sklearn.preprocessing.Imputer} class that adds the \emph{KNN} imputing method to the pre-existent features-wise \emph{mean}, \emph{median} and \emph{most frequent} choices.
+For each step, a fair number of off-the-shelf algorithms are available (see Table~\ref{sec:implem}). The vast majority of their implementations is inherited, or extended, from \texttt{scikit-learn} \citep{scikit-learn}.
 
-In order to obtain exploratory analysis of fairly big datasets, \ade exploits the use of parallel computing in several ways. Each pipeline is designed to be completely independent from each other
+% For the first step, \ade offers an extended version of the \texttt{sklearn.preprocessing.Imputer} class that adds the \emph{KNN} imputing method to the pre-existent features-wise \emph{mean}, \emph{median} and \emph{most frequent} choices.
+
+In order to perform exploratory analysis of large datasets, \ade can take advantage of different parallel computing paradigms. For instance, its pipelines are designed to be independent from each other, therefore they all run in parallel as separate \py processes on different cores. Moreover, since \ade makes large use of \texttt{numpy} and \texttt{scipy}, it automatically benefits from their bindings with optimized linear algebra libraries (such as OpenBLAS\footnote{\href{http://www.openblas.net/}{http://www.openblas.net/}}, or Intel\textsuperscript{\textregistered}~MKL).
 
 \section{Experiments and results}
 To assess the quality of the obtained results, we tested \ade on a set of synthetic and real dataset.
@@ -91,7 +101,7 @@ To assess the quality of the obtained results, we tested \ade on a set of synthe
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{table}[hbtp]
-  {\caption{Pipelines building blocks and relative references (which are not reported when the definition is given in Section~\ref{sec:implem}).}}
+  {\caption{Pipelines building blocks and relative references (which are not reported when the definition is given in Section~\ref{sec:implem}).}\label{tab:blocks}}
 
   {\begin{tabular}{lll}
   \toprule

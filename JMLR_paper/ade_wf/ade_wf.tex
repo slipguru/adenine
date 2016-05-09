@@ -6,7 +6,7 @@
 %\usepackage{geometry}
 \usepackage{graphicx}
 \usepackage{amsmath,amssymb,bm}
-\newcommand{\norm}[1]{\left\|{#1}\right\|}
+% \newcommand{\norm}[1]{\left\|{#1}\right\|}
 
 %\usepackage{multirow}
 
@@ -36,6 +36,7 @@ mybox1/.style={rectangle, draw=gray!20, fill=yellow!50,very thick, inner sep=1em
 mybox3/.style={rectangle, draw=gray!20, very thick, fill=green!40, inner sep=1em, outer sep =0.3em, minimum size=4em, text centered, text width=4em, minimum height = 1.8cm},
 mycylinder/.style={rectangle, draw=gray!20, very thick, fill=orange!50, inner sep = 1em, text width=4em, minimum height = 1.8cm, outer sep =0.3em, text centered},
 mybox2/.style={rectangle, draw=gray!20, very thick, fill=cyan!40, outer sep =0.3em, inner sep=0em, minimum size=4em, text centered, text width=4em, minimum height = 1.8cm, },
+mybox4/.style={rectangle, draw=gray!20, very thick, fill=red!40, outer sep =0.3em, inner sep=0em, minimum size=4em, text centered, text width=4em, minimum height = 1.8cm, }
 }
 
 
@@ -46,17 +47,46 @@ mybox2/.style={rectangle, draw=gray!20, very thick, fill=cyan!40, outer sep =0.3
 
 %% Nodes
 
+%%%% first row
 \node[mybox1] (DATA) {\textbf{Data}};
+\node[mybox4,inner sep=0.8em,right = 0.5cm of DATA, text width=3.6cm] (imp) {\textbf{Imputing\\Strategy 1}};
+\node[mybox3,inner sep=0.8em,right = 1.5cm of imp, text width=3.6cm] (preproc) {\textbf{Preprocessing\\Strategy 1}};
+\node[mycylinder,inner sep=0.8em, text width=3.6cm, text width=3.6cm, right = 1.5cm of preproc] (unsupervised) {\textbf{Dimensionality\\Reduction\\Strategy 1}};
+\node[mybox2,inner sep=0.8em,right = 1.5cm of unsupervised, text width=3.6cm] (clust) {\textbf{Clustering\\Strategy 1}};
 
-\node[mybox3,inner sep=0.8em,right = 0.5cm of DATA, text width=3.6cm] (preproc) {\textbf{Preprocessing}};
-
-\node[mycylinder,inner sep=0.8em, text width=3.6cm, text width=3.6cm, right = 0.5cm of preproc] (unsupervised) {\textbf{Dimensionality\\Reduction}};
-
-\node[mybox2,inner sep=0.8em,right = 0.5cm of unsupervised, text width=3.6cm] (clust) {\textbf{Clustering}};
-
-\draw [very thick,->] (DATA.east) -- (preproc.west);
+\draw [very thick,->] (DATA.east) -- (imp.west);
+\draw [very thick,->] (imp.east) -- (preproc.west);
 \draw [very thick,->] (preproc.east) -- (unsupervised.west);
 \draw [very thick,->] (unsupervised.east) -- (clust.west);
+
+
+%%% Imputing I
+\node [below= 3.75cm of imp] (vdots0) {$\Huge{\vdots}$};
+\node[mybox4,inner sep=0.8em,below = 3.75cm of vdots0, text width=3.6cm] (imp2) {\textbf{Imputing\\Strategy \emph{I}}};
+\node [right= .5cm of imp2,  rotate=270] (hdots) {$\Huge{\vdots}$};
+
+\draw [very thick,->] (DATA.east) |- (imp2.west);
+
+%%%% Preproc P
+\node [below= 2.75cm of preproc] (vdots) {$\Huge{\vdots}$};
+\node[mybox3,inner sep=0.8em,below = 2.75cm of vdots, text width=3.6cm] (preproc2) {\textbf{Preprocessing\\Strategy \emph{P}}};
+\node [right= .5cm of preproc2,  rotate=270] (hdots) {$\Huge{\vdots}$};
+
+\draw [very thick,->] (imp.east) |- (preproc2.west);
+
+%%%% Dimred D
+\node [below= 1.75cm of unsupervised] (vdots2) {$\Huge{\vdots}$};
+\node[mycylinder,inner sep=0.8em, text width=3.6cm, text width=3.6cm, below = 1.75cm of vdots2] (unsupervised2) {\textbf{Dimensionality\\Reduction\\Strategy \emph{D}}};
+\node [right= .5cm of unsupervised2,  rotate=270] (hdots) {$\Huge{\vdots}$};
+
+\draw [very thick,->] (preproc.east) |- (unsupervised2.west);
+
+
+%%% Clustering C
+\node [below= 0.75cm of clust] (vdots3) {$\Huge{\vdots}$};
+\node[mybox2,inner sep=0.8em,below = 0.75cm of vdots3, text width=3.6cm] (clust2) {\textbf{Clustering\\Strategy \emph{C}}};
+
+\draw [very thick,->] (unsupervised.east) |- (clust2.west);
 
 
 \end{tikzpicture}
