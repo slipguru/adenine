@@ -40,7 +40,8 @@ def main(dumpfile):
     # Analyze the pipelines
     analyze_results.start(input_dict=res, root_folder=os.path.dirname(dumpfile),
                           y=y, feat_names=feat_names, class_names=class_names,
-                          plotting_context=config.plotting_context)
+                          plotting_context=config.plotting_context,
+                          file_format=config.file_format)
     tac = time.time()
     print("\n\nanalyze_results.start: Elapsed time : {}".format(extra.sec_to_time(tac-tic)))
 

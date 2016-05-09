@@ -11,6 +11,7 @@ import numpy as np
 import pandas as pd
 
 GLOBAL_INFO = ''  # to save info before logging is loaded
+GLOBAL_FF = 'png'
 
 import matplotlib
 matplotlib.use('AGG')
@@ -75,15 +76,17 @@ def make_scatter(root=(), data_in=(), model_param=(), labels=None, true_labels=F
     # g.set_xticklabels([])
     # g.set_yticklabels([])
     plt.title(title)
-    filename = os.path.join(root,os.path.basename(root)+"_scatter2D")
+    filename = os.path.join(root,os.path.basename(root)+"_scatter2D."+GLOBAL_FF)
     plt.savefig(filename)
     logging.info('Figured saved {}'.format(filename))
     plt.close()
 
     #3D plot
+    filename = os.path.join(root,os.path.basename(root)+"_scatter3D."+GLOBAL_FF)
     X = data_in[:,:3]
     if X.shape[1] < 3:
-        logging.info(os.path.join(root,os.path.basename(root)+"_scatter3D") + ' cannot be generated (data have less than 3 dimensions)')
+        logging.warning('{} not generated (data have less than 3 dimensions)'
+                        .format(filename))
     else:
         try:
             from mpl_toolkits.mplot3d import Axes3D
@@ -103,7 +106,6 @@ def make_scatter(root=(), data_in=(), model_param=(), labels=None, true_labels=F
             ax.legend(loc='upper left', numpoints=1, ncol=10, fontsize=8,
                       bbox_to_anchor=(0, 0))
             # plt.legend(loc='upper left', numpoints=1, ncol=3, fontsize=8, bbox_to_anchor=(0, 0111))
-            filename = os.path.join(root,os.path.basename(root)+"_scatter3D")
             plt.savefig(filename)
             logging.info('Figured saved {}'.format(filename))
             plt.close()
@@ -123,7 +125,7 @@ def make_scatter(root=(), data_in=(), model_param=(), labels=None, true_labels=F
     # g = sns.pairplot(df, hue=_hue, palette="Set1", vars=["$x_1$","$x_2$","$x_3$"]), size=5)
     if _hue != ' ': plt.legend(title=_hue,bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0., fontsize="large")
     plt.suptitle(title,x=0.6, y=1.01,fontsize="large")
-    filename = os.path.join(root,os.path.basename(root)+"_pairgrid")
+    filename = os.path.join(root,os.path.basename(root)+"_pairgrid."+GLOBAL_FF)
     g.savefig(filename)
     logging.info('Figured saved {}'.format(filename))
     plt.close()
@@ -201,7 +203,7 @@ def make_voronoi(root=(), data_in=(), model_param=(), labels=None, true_labels=F
     plt.xlim([xx.min(), xx.max()])
     plt.ylim([yy.min(), yy.max()])
 
-    filename = os.path.join(root,os.path.basename(root))
+    filename = os.path.join(root,os.path.basename(root)+"."+GLOBAL_FF)
     plt.savefig(filename)
     logging.info('Figured saved {}'.format(filename))
     plt.close()
@@ -450,7 +452,7 @@ def make_dendrogram(root=(), data_in=(), model_param=(), trueLabel=None, labels=
 
     g = sns.clustermap(df, method=model.linkage, metric=model.affinity, cmap='coolwarm')
     plt.setp(g.ax_heatmap.yaxis.get_majorticklabels(), rotation=0, fontsize=5)
-    filename = os.path.join(root, os.path.basename(root)+'_dendrogram.png')
+    filename = os.path.join(root, os.path.basename(root)+'_dendrogram.'+GLOBAL_FF)
     g.savefig(filename)
     logging.info('Figured saved {}'.format(filename))
     plt.close()
@@ -476,7 +478,7 @@ def plot_PCmagnitude(root=(), points=(), title='', ylabel=''):
     plt.ylabel(ylabel)
     plt.xlim([1,min(20,len(points)+1)]) # Show maximum 20 components
     plt.ylim([0,1])
-    filename = os.path.join(root,os.path.basename(root)+"_magnitude")
+    filename = os.path.join(root,os.path.basename(root)+"_magnitude."+GLOBAL_FF)
     plt.savefig(filename)
     plt.close()
 
@@ -522,7 +524,7 @@ def plot_eigs(root='', affinity=(), n_clusters=0, title='', ylabel='', normalise
         if n_clusters > 0:
             plt.axvline(x=n_clusters+.5, linestyle='--', color='r', label='selected clusters')
         plt.legend(loc='upper right', numpoints=1, ncol=10, fontsize=8)#, bbox_to_anchor=(1, 1))
-        filename = os.path.join(root,os.path.basename(root)+"_eigenvals")
+        filename = os.path.join(root,os.path.basename(root)+"_eigenvals."+GLOBAL_FF)
         plt.savefig(filename)
     except np.linalg.LinAlgError:
         logging.critical("Error in plot_eigs: Affinity matrix contained negative"
@@ -630,11 +632,16 @@ def analysis_worker(elem, root_folder, y, feat_names, class_names, lock):
 
         # Launch analysis
         if step_level == 'dimred':
-            make_scatter(root=rootname, data_in=step_out, labels=y, true_labels=True, model_param=step_param)
+            make_scatter(root=rootname, data_in=step_out, labels=y,
+                         true_labels=True, model_param=step_param)
             if hasattr(mdl_obj, 'explained_variance_ratio_'):
-                plot_PCmagnitude(root=rootname, points=mdl_obj.explained_variance_ratio_, title='Explained variance ratio')
+                plot_PCmagnitude(root=rootname,
+                                 points=mdl_obj.explained_variance_ratio_,
+                                 title='Explained variance ratio')
             if hasattr(mdl_obj, 'lambdas_'):
-                plot_PCmagnitude(root=rootname, points=mdl_obj.lambdas_/np.sum(mdl_obj.lambdas_), title='Normalized eigenvalues of the centered kernel matrix')
+                plot_PCmagnitude(root=rootname,
+                                 points=mdl_obj.lambdas_/np.sum(mdl_obj.lambdas_),
+                                 title='Normalized eigenvalues of the centered kernel matrix')
         if step_level == 'clustering':
             if hasattr(mdl_obj, 'affinity_matrix_'):
                 # plot_eigs(root=rootname, affinity=mdl_obj.affinity_matrix_, n_clusters=mdl_obj.get_params()['n_clusters'], title='Eigenvalues of the graph associated to the affinity matrix')
@@ -643,19 +650,26 @@ def analysis_worker(elem, root_folder, y, feat_names, class_names, lock):
                 if hasattr(mdl_obj, 'n_clusters'):
                     n_clusters = mdl_obj.n_clusters
 
-                plot_eigs(root=rootname, affinity=mdl_obj.affinity_matrix_, n_clusters=n_clusters, title='Eigenvalues of the graph associated to the affinity matrix')
+                plot_eigs(root=rootname, affinity=mdl_obj.affinity_matrix_,
+                          n_clusters=n_clusters,
+                          title='Eigenvalues of the graph associated to the affinity matrix')
             if hasattr(mdl_obj, 'cluster_centers_'):
                 _est_name = mdl_obj.__dict__.get('estimator_name', '') or type(mdl_obj).__name__
                 if _est_name != 'AffinityPropagation': # disable the voronoi plot for affinity prop
-                    make_voronoi(root=rootname, labels=y, model_param=step_param, data_in=step_in, model=voronoi_mdl_obj)
+                    make_voronoi(root=rootname, labels=y, model_param=step_param,
+                                 data_in=step_in, model=voronoi_mdl_obj)
             elif hasattr(mdl_obj, 'n_leaves_'):
-                make_tree(root=rootname, labels=step_out, trueLabel=y, model_param=step_param, data_in=step_in, model=mdl_obj)
-                make_dendrogram(root=rootname, labels=step_out, trueLabel=y, model_param=step_param, data_in=step_in, model=mdl_obj)
+                make_tree(root=rootname, labels=step_out, trueLabel=y,
+                          model_param=step_param, data_in=step_in, model=mdl_obj)
+                make_dendrogram(root=rootname, labels=step_out, trueLabel=y,
+                                model_param=step_param, data_in=step_in,
+                                model=mdl_obj)
 
-            # make_scatterplot(root=rootname, labels=step_out, model_param=step_param, data_in=step_in, model=mdl_obj)
-            make_scatter(root=rootname, labels=step_out, model_param=step_param, data_in=step_in, model=mdl_obj)
+            make_scatter(root=rootname, labels=step_out, model_param=step_param,
+                         data_in=step_in, model=mdl_obj)
 
-            est_clst_perf(root=rootname, data_in=step_in, labels=step_out, t_labels=y, model=mdl_obj, metric=metric)
+            est_clst_perf(root=rootname, data_in=step_in, labels=step_out,
+                          t_labels=y, model=mdl_obj, metric=metric)
 
 
 def start(input_dict=(), root_folder=(), y=None, feat_names=(), class_names=(), **kwargs):
@@ -684,6 +698,17 @@ def start(input_dict=(), root_folder=(), y=None, feat_names=(), class_names=(), 
         logging.info(GLOBAL_INFO)
     if kwargs.get('plotting_context', None):
         sns.set_context(kwargs.get('plotting_context'))
+
+    FILE_FORMATS = ('png', 'pdf')
+    ff = kwargs.get('file_format', FILE_FORMATS[0]).lower()
+    global GLOBAL_FF
+    GLOBAL_FF = ff
+    if ff not in FILE_FORMATS:
+        logging.info("File format unknown. "
+                     "Please select one of {}".format(FILE_FORMATS))
+        GLOBAL_FF = FILE_FORMATS[0]
+    logging.info("File format set to {}".format(GLOBAL_FF))
+
     lock = mp.Lock()
     # Parallel(n_jobs=len(inputDict))(delayed(analysis_worker)(elem,rootFolder,y,feat_names,class_names,lock) for elem in inputDict.iteritems())
     try:
