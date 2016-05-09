@@ -59,4 +59,4 @@ if __name__ == '__main__':
         sys.exit(-1)
 
     # print("Starting the analysis of {}".format(filename))
-    main(os.path.join(sys.argv[1], filename[0])) # Run analysis
+    main(os.path.join(os.path.abspath(sys.argv[1]), filename[0])) # Run analysis
