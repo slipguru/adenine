@@ -64,17 +64,18 @@ Data exploration, unsupervised learning, RNA-Seq gene expression
 \end{keywords}
 
 \section{Introduction}\label{sec:intro}
+Data exploration can be an extremely helpful starting point for many data analysis tasks. Researchers and data scientists are often asked to extract meaningful information from collections of complex and possibly high-dimensional, data coming from heterogenous contexts. For instance, in biomedical scenarios, physicians are likely to be interested in answering some biological questions starting from a set of observations collected from a pool of subjects enrolled in a study. Possible investigations can be: \emph{is there any relevant stratification among subjects?} or \emph{is it possible to discriminate between case and control samples from my observations?}. The information needed to answer such questions may be immediate, non-trivial to extract or even completely absent.
 
-
-
-\section{Implementation}\label{sec:implem}
-From an implemetative standpoint, \ade is built around the concept of \emph{pipeline}, that is a sequence of four fundamental steps:
-\begin{enumerate*}[label=(\roman*)]
+In these situations, a preliminary data exploration step can be not only good practice, but also a mandatory starting point for further investigations. In this context, several machine learning and data mining techniques were developed over the years. Among those we focus on the four most common tasks: \begin{enumerate*}[label=(\roman*)]
   \item missing values imputing,
   \item data preprocessing,
   \item dimensionality reduction and
-  \item clustering
-\end{enumerate*} (see Figure~\ref{fig:workflow}).
+  \item unsupervised clustering
+\end{enumerate*}.
+
+
+\section{Implementation}\label{sec:implem}
+From an implemetative standpoint, \ade is built around the concept of \emph{pipeline}, that is a sequence of the four fundamental steps mentioned in Section~\ref{sec:intro} (see Figure~\ref{fig:workflow}).
 
 \begin{figure}[h!]
     \centering

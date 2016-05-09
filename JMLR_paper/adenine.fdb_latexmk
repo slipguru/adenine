@@ -1,13 +1,13 @@
 # Fdb version 3
-["bibtex adenine"] 1462798672 "adenine.aux" "adenine.bbl" "adenine" 1462801546
+["bibtex adenine"] 1462804892 "adenine.aux" "adenine.bbl" "adenine" 1462805891
   "/usr/share/texlive/texmf-dist/bibtex/bst/natbib/plainnat.bst" 1233624470 26816 ffe5423d2019860bad9f54bc402fac15 ""
-  "adenine.aux" 1462801546 3912 119dacb5058389ae38d407bdbdb7d41c ""
+  "adenine.aux" 1462805891 3912 e50dd7b58596959117234f2c3bdd790b ""
   "adenine.bcf" 0 -1 0 ""
   "adenine.bib" 1462786423 5965 e88d56065017fec95a478837843567a2 ""
   (generated)
-  "adenine.bbl"
   "adenine.blg"
-["pdflatex"] 1462801546 "adenine.tex" "adenine.pdf" "adenine" 1462801546
+  "adenine.bbl"
+["pdflatex"] 1462805891 "adenine.tex" "adenine.pdf" "adenine" 1462805891
   "/etc/texmf/web2c/texmf.cnf" 1444054227 475 c0e671620eb5563b2130f56340a5fde8 ""
   "/usr/share/texlive/texmf-dist/fonts/map/fontname/texfonts.map" 1272929888 3287 e6b82fe08f5336d4d5ebc73fb1152e87 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex7.tfm" 1246382020 1004 54797486969f23fa377b128694d548df ""
@@ -95,14 +95,14 @@
   "/usr/share/texmf/web2c/texmf.cnf" 1392645748 31083 1dfd8bf685ce0009c40532fedf8a7c53 ""
   "/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map" 1444134381 1006173 a1aae087c4d39992a64a44c820d46d1c ""
   "/var/lib/texmf/web2c/pdftex/pdflatex.fmt" 1444127396 722335 45a63e4b9cd28a4e99d567a3af16dc33 ""
-  "ade_wf/ade_wf.pdf" 1462789305 30815 8e9f1afacd59b3d7b4723544c6ecfb66 ""
-  "adenine.aux" 1462801546 3912 119dacb5058389ae38d407bdbdb7d41c ""
-  "adenine.bbl" 1462798672 4776 cb1900f281de1d6c4a1e2b143827dbbc "bibtex adenine"
-  "adenine.out" 1462801546 200 d2a2b38f826591a287b713292eb10439 ""
-  "adenine.tex" 1462801545 6317 fd4754fec4aac65abe0d152a2a8aa9e3 ""
+  "ade_wf/ade_wf.pdf" 1462805066 30805 bea881a533df9a0d81dfbe3ef55bfe3d ""
+  "adenine.aux" 1462805891 3912 e50dd7b58596959117234f2c3bdd790b ""
+  "adenine.bbl" 1462804892 4776 cb1900f281de1d6c4a1e2b143827dbbc "bibtex adenine"
+  "adenine.out" 1462805891 200 d2a2b38f826591a287b713292eb10439 ""
+  "adenine.tex" 1462805891 7459 1cf4ac5d3f19130d54d83e6bd1e9dca7 ""
   "jmlr2e.sty" 1462786423 13509 e382d45f8c4e905cde62de0de4873318 ""
   (generated)
-  "adenine.pdf"
   "adenine.log"
   "adenine.out"
+  "adenine.pdf"
   "adenine.aux"
