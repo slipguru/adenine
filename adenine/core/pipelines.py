@@ -138,12 +138,15 @@ def pipe_worker(pipeID, pipe, pipes_dump, X):
             # {'pipeID': {'stepID' : [alg_name, level, params, res, Xnext, Xcurr, stepObj, voronoi_suitable_model]}}
             if level == 'preproc': # save memory and do not dump data after preprocessing (not used in analysys)
                 step_dump[stepID] = [step[0], level, step[1].get_params(), np.array([]), np.array([]), step[1], mdl_voronoi]
+                X_curr = np.array(X_next) # update the matrix
             elif level == 'dimred': # save memory dumping X_curr only in case of clusutering
                 step_dump[stepID] = [step[0], level, step[1].get_params(), X_next, np.array([]), step[1], mdl_voronoi]
+                X_curr = X_next # update the matrix
             else: # clustering
                 step_dump[stepID] = [step[0], level, step[1].get_params(), X_next, X_curr, step[1], mdl_voronoi]
 
-            X_curr = np.array(X_next) # update the matrix
+            # if level != 'clustering':
+            #     X_curr = np.array(X_next) # update the matrix
 
         except AssertionError as e:
             logging.critical("Pipeline {} failed at step {}".format(pipeID, step[0]))
