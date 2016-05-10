@@ -243,7 +243,6 @@ def make_voronoi(root=(), data_in=(), model_param=(), labels=None, true_labels=F
 
     title = title_from_filename(root)
 
-    print y
     # Seaborn scatter Plot
     X = data_in[:,:2]
     idx = np.argsort(y)
