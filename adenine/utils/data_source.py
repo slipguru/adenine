@@ -34,7 +34,7 @@ def generate_gauss(mu=(), std=(), n_sample=()):
     n_class, n_var = mu.shape
 
     X = np.zeros((n_sample*n_class, n_var))
-    y = np.zeros(n_sample*n_class)
+    y = np.zeros(n_sample*n_class, dtype=int)
 
     start = 0
     for i, s, m in zip(range(n_class), std, mu):

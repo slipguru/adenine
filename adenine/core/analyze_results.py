@@ -4,6 +4,7 @@
 # from __future__ import print_function
 
 import os, platform
+import time, datetime
 # from joblib import Parallel, delayed
 import logging
 import cPickle as pkl
@@ -16,6 +17,7 @@ GLOBAL_FF = 'png'
 import matplotlib
 matplotlib.use('AGG')
 
+import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 import seaborn as sns
 
@@ -24,6 +26,76 @@ import collections
 import multiprocessing as mp
 
 from adenine.utils.extra import next_color, reset_palette, title_from_filename, values_iterator
+
+def make_silhouette(root, labels, model_param, data_in, model):
+    # Create a subplot with 1 row and 2 columns
+    fig, (ax1) = plt.subplots(1, 1)
+    fig.set_size_inches(20, 15)
+
+    # The 1st subplot is the silhouette plot
+    # The silhouette coefficient can range from -1, 1 but in this example all
+    # lie within [-0.1, 1]
+    # ax1.set_xlim([-0.1, 1])
+    # The (n_clusters+1)*10 is for inserting blank space between silhouette
+    # plots of individual clusters, to demarcate them clearly.
+    n_clusters = np.unique(labels).shape[0]
+    ax1.set_ylim([0, len(data_in) + (n_clusters + 1) * 10])
+
+    # The silhouette_score gives the average value for all the samples.
+    # This gives a perspective into the density and separation of the formed
+    # clusters
+
+    # Compute the silhouette scores for each sample
+    if hasattr(model, 'affinity'):
+        sample_silhouette_values = metrics.silhouette_samples(data_in, labels,
+                                                          metric=model.affinity)
+    else:
+        sample_silhouette_values = metrics.silhouette_samples(data_in, labels,
+                                                          metric='euclidean')
+
+    sil = np.mean(sample_silhouette_values)
+
+    y_lower = 10
+    reset_palette()
+    for i, label in enumerate(np.unique(labels)):
+        # Aggregate the silhouette scores for samples belonging to
+        # cluster i, and sort them
+        ith_cluster_silhouette_values = sample_silhouette_values[labels == label]
+        ith_cluster_silhouette_values.sort()
+
+        size_cluster_i = ith_cluster_silhouette_values.shape[0]
+        y_upper = y_lower + size_cluster_i
+
+        # color = cm.spectral(float(i) / n_clusters)
+        color = next_color()
+        ax1.fill_betweenx(np.arange(y_lower, y_upper),
+                          0, ith_cluster_silhouette_values,
+                          facecolor=color, edgecolor=color, alpha=0.7)
+
+        # Label the silhouette plots with their cluster numbers at the middle
+        ax1.text(-0.05, y_lower + 0.5 * size_cluster_i, str(label))
+
+        # Compute the new y_lower for next plot
+        y_lower = y_upper + 10  # 10 for the 0 samples
+
+    # ax1.set_title("Silhouette plot for the various clusters.")
+    ax1.set_xlabel("silhouette coefficient values")
+    ax1.set_ylabel("cluster label")
+
+    # The vertical line for average silhoutte score of all the values
+    ax1.axvline(x=sil, color="red", linestyle="--")
+
+    ax1.set_yticks([])  # Clear the yaxis labels / ticks
+    # ax1.set_xticks([-0.6, -0.4, -0.2, 0, 0.2, 0.4, 0.6, 0.8, 1])
+
+    title = "Silhouette analysis. {0} clusters for {2} samples, average score {1:.4f}".format(n_clusters, sil, data_in.shape[0])
+    plt.suptitle(title)#, fontsize=14, fontweight='bold')
+
+    filename = os.path.join(root,os.path.basename(root)+"_silhouette."+GLOBAL_FF)
+    fig.savefig(filename)
+    logging.info('Figured saved {}'.format(filename))
+    plt.close()
+
 
 def make_scatter(root=(), data_in=(), model_param=(), labels=None, true_labels=False, model=()):
     """Generates and saves the scatter plot of the dimensionality reduced data set.
@@ -69,6 +141,7 @@ def make_scatter(root=(), data_in=(), model_param=(), labels=None, true_labels=F
 
     # df = pd.DataFrame(data=np.hstack((X[idx,:2],y[idx,np.newaxis])), columns=["$x_1$","$x_2$",_hue])
     df = pd.DataFrame(data=np.hstack((X[idx,:2],y[idx][:,np.newaxis])), columns=["$x_1$","$x_2$",_hue])
+    if df.dtypes[_hue] != 'O': df[_hue] = df[_hue].astype('int64')
     # Generate seaborn plot
     g = sns.FacetGrid(df, hue=_hue, palette="Set1", size=5, legend_out=False)
     g.map(plt.scatter, "$x_1$", "$x_2$", s=100, linewidth=.5, edgecolor="white")
@@ -120,6 +193,7 @@ def make_scatter(root=(), data_in=(), model_param=(), labels=None, true_labels=F
     X = data_in[:,:3]
     idx = np.argsort(y)
     df = pd.DataFrame(data=np.hstack((X[idx,:],y[idx,np.newaxis])), columns=cols+[_hue])
+    if df.dtypes[_hue] != 'O': df[_hue] = df[_hue].astype('int64')
     g = sns.PairGrid(df, hue=_hue, palette="Set1", vars=cols)
     g = g.map_diag(plt.hist)#, palette="Set1")
     g = g.map_offdiag(plt.scatter, s=100, linewidth=.5, edgecolor="white")
@@ -169,12 +243,14 @@ def make_voronoi(root=(), data_in=(), model_param=(), labels=None, true_labels=F
 
     title = title_from_filename(root)
 
+    print y
     # Seaborn scatter Plot
     X = data_in[:,:2]
     idx = np.argsort(y)
     X = X[idx,:]
     y = y[idx,np.newaxis]
     df = pd.DataFrame(data=np.hstack((X, y)), columns=["$x_1$","$x_2$",_hue])
+    if df.dtypes[_hue] != 'O': df[_hue] = df[_hue].astype('int64')
     # Generate seaborn plot
     g = sns.FacetGrid(df, hue=_hue, palette="Set1", size=5, legend_out=False)
     g.map(plt.scatter, "$x_1$", "$x_2$", s=100, linewidth=.5, edgecolor="white")
@@ -677,6 +753,9 @@ def analysis_worker(elem, root_folder, y, feat_names, class_names, lock):
         if step_level == 'dimred':
             make_scatter(root=rootname, data_in=step_out, labels=y,
                          true_labels=True, model_param=step_param)
+            make_silhouette(root=rootname, labels=y, model_param=step_param,
+                         data_in=step_out, model=mdl_obj)
+
             if hasattr(mdl_obj, 'explained_variance_ratio_'):
                 plot_PCmagnitude(root=rootname,
                                  points=mdl_obj.explained_variance_ratio_,
@@ -707,6 +786,9 @@ def analysis_worker(elem, root_folder, y, feat_names, class_names, lock):
                                 model=mdl_obj)
 
             make_scatter(root=rootname, labels=step_out, model_param=step_param,
+                         data_in=step_in, model=mdl_obj)
+
+            make_silhouette(root=rootname, labels=step_out, model_param=step_param,
                          data_in=step_in, model=mdl_obj)
 
             est_clst_perf(root=rootname, data_in=step_in, labels=step_out,

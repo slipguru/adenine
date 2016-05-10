@@ -7,7 +7,7 @@ from adenine.utils import extra
 # --------------------------  EXPERMIENT INFO ------------------------- #
 exp_tag = 'debug'
 output_root_folder = 'results'
-plotting_context = 'notebook' # one of {paper, notebook, talk, poster}
+plotting_context = 'poster' # one of {paper, notebook, talk, poster}
 file_format = 'pdf' # or 'png'
 
 # ----------------------------  INPUT DATA ---------------------------- #
@@ -35,7 +35,7 @@ step1 = {'None': [False], 'Recenter': [False], 'Standardize': [False],
          'MinMax': [True, {'feature_range': [(0,1), (-1,1)]}]}
 
 # --- Dimensionality Reduction & Manifold Learning --- #
-step2 = {'PCA': [False, {'n_components': 3}],
+step2 = {'PCA': [True, {'n_components': 3}],
          'IncrementalPCA': [False, {'n_components': 3}],
          'RandomizedPCA':  [False, {'n_components': 3}],
          'KernelPCA':      [False, {'n_components': 7,
@@ -50,7 +50,7 @@ step2 = {'PCA': [False, {'n_components': 3}],
          }
 
 # --- Clustering --- #
-step3 = {'KMeans': [True, {'n_clusters': ['auto', 10]}], # cannot be 'precomputed'
+step3 = {'KMeans': [True, {'n_clusters': ['auto', 5]}], # cannot be 'precomputed'
         #  'AP': [False, [1,'precomputed']], # can be 'precomputed'
          'AP': [False, {'preference': ['auto']}], # can be 'precomputed'
          'MS': [False], # cannot be 'precomputed'
