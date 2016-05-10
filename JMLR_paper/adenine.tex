@@ -64,15 +64,17 @@ Data exploration, unsupervised learning, RNA-Seq gene expression
 \end{keywords}
 
 \section{Introduction}\label{sec:intro}
-Data exploration can be an extremely helpful starting point for many data analysis tasks. Researchers and data scientists are often asked to extract meaningful information from collections of complex and possibly high-dimensional, data coming from heterogenous contexts. For instance, in biomedical scenarios, physicians are likely to be interested in answering some biological questions starting from a set of observations collected from a pool of subjects enrolled in a study. Possible investigations can be: \emph{is there any relevant stratification among subjects?} or \emph{is it possible to discriminate between case and control samples from my observations?}. The information needed to answer such questions may be immediate, non-trivial to extract or even completely absent.
-
-In these situations, a preliminary data exploration step can be not only good practice, but also a mandatory starting point for further investigations. In this context, several machine learning and data mining techniques were developed over the years. Among those we focus on the four most common tasks: \begin{enumerate*}[label=(\roman*)]
+Data exploration can be an extremely helpful starting point for many data analysis tasks. Researchers and data scientists are often asked to extract meaningful information from collections of complex and possibly high-dimensional data coming from heterogenous contexts. For instance, in biomedical scenarios, physicians are likely to be interested in answering some biological questions starting from a set of observations collected from a pool of subjects enrolled in a study. Possible investigations can be: \emph{is there any relevant stratification among subjects?} or \emph{is it possible to discriminate between cases and controls from my observations?}. Starting from a given dataset, the information needed to answer such questions may be immediate, non-trivial to extract or even completely absent.
+In these situations, a preliminary data exploration step can be not only good practice, but also a mandatory starting point for further investigations. In this context, several machine learning and data mining techniques were developed over the years. Among those we focus on the four most popular families: \begin{enumerate*}[label=(\roman*)]
   \item missing values imputing,
   \item data preprocessing,
   \item dimensionality reduction and
   \item unsupervised clustering
 \end{enumerate*}.
 
+In the last few years, a fair number of data exploration software tools and libraries  were released. At a very coarse grain we can group them into two sets: interactive GUI-based and non-interactive script-based  applications. Of the first group, we recall \emph{Divvy} \citep{lewis2013divvy}, a software tool that performs dimensionality reduction and clustering on input datasets. \emph{Divvy} is a light framework, although it is only Mac OS X specific, it heavily lacks in documentation, its collection of \texttt{C/C++} algorithm implementations does not cover common strategies such as Kernel Principal Component Analysis (KPCA) \citep{scholkopf1997kernel} or Hierarchical Clustering \citep{friedman2001elements} and it does not offer strategies to perform automatic discoveries of the number of clusters. The most notable project that spans between the two families is \emph{Orange} \citep{demvsar2013orange}, a data mining software suite that offers both visual programming front-end and standard \py APIs. In the context of data exploration, \emph{Orange} can be successfully employed. However it does not support automatic pipeline generation, hence it requires the user to manually create each pipeline. On the other hand, as of today \emph{Orange} lacks in several nonlinear methods such as Spectral Embedding \citep{ng2002spectral}, Locally Linear Embedding \citep{roweis2000nonlinear} or Spectral Clustering \citep{shi2000normalized}.
+
+We developed \ade, a script-based \py tool for data exploration that, starting from a set of predefined unsupervised algorithms, saves textual an graphical reports of an arbitrary large number of pipelines. Data imputing, preprocessing, dimenionality reduction and clustering strategies are here seen as building blocks. The user is only required to specify which blocks should be activated and \ade takes care of automatically generate and run the pipelines made by all possible combinations of the selected algorithms. All \ade algorithm implementation is inherited, or extended, from \texttt{scikit-learn} \citep{scikit-learn} which is, to the best of our knowledge, the most complete machine learning open source library freely available online.
 
 \section{Implementation}\label{sec:implem}
 From an implemetative standpoint, \ade is built around the concept of \emph{pipeline}, that is a sequence of the four fundamental steps mentioned in Section~\ref{sec:intro} (see Figure~\ref{fig:workflow}).
@@ -83,7 +85,7 @@ From an implemetative standpoint, \ade is built around the concept of \emph{pipe
     \caption{A schematic representation of the \ade workflow. The list of building blocks available for each step is summarized in Table~\ref{tab:blocks}.}\label{fig:workflow}
 \end{figure}
 
-For each step, a fair number of off-the-shelf algorithms are available (see Table~\ref{sec:implem}). The vast majority of their implementations is inherited, or extended, from \texttt{scikit-learn} \citep{scikit-learn}.
+For each step, a fair number of off-the-shelf algorithms are available (see Table~\ref{sec:implem}).
 
 % For the first step, \ade offers an extended version of the \texttt{sklearn.preprocessing.Imputer} class that adds the \emph{KNN} imputing method to the pre-existent features-wise \emph{mean}, \emph{median} and \emph{most frequent} choices.
 
@@ -124,9 +126,9 @@ To assess the quality of the obtained results, we tested \ade on a set of synthe
   & Randomized PCA & \citep{halko2011finding} \\
   & Kernel PCA & \citep{scholkopf1997kernel} \\
   & Isomap & \citep{tenenbaum2000global} \\
-  & Locally linear embedding & \citep{roweis2000nonlinear} \\
-  & Spectral embedding & \citep{ng2002spectral} \\
-  & Multidimensional scaling & \citep{borg2005modern} \\
+  & Locally Linear Embedding & \citep{roweis2000nonlinear} \\
+  & Spectral Embedding & \citep{ng2002spectral} \\
+  & Multidimensional Scaling & \citep{borg2005modern} \\
   & \begin{tabular}{@{}l@{}}t-Distributed Stochastic \\ Neighbor Embedding (t-SNE)\end{tabular}   & \citep{van2008visualizing} \\
   \midrule
 
