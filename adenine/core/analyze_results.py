@@ -547,7 +547,8 @@ def plot_eigs(root='', affinity=(), n_clusters=0, title='', ylabel='', normalise
     plt.close()
 
 def make_df_clst_perf(root_folder):
-    df = pd.DataFrame(columns=['pipeline','silhouette', 'inertia', 'ari', 'ami', 'homogeneity', 'completeness', 'v_measure'])
+    measures = ('ami', 'ari', 'completeness', 'homogeneity', 'v_measure', 'inertia', 'silhouette')
+    df = pd.DataFrame(columns=['pipeline']+list(measures))
     for root, directories, filenames in os.walk(root_folder):
         for fn in filenames:
             if fn.endswith('_scores.pkl'):
@@ -556,72 +557,84 @@ def make_df_clst_perf(root_folder):
                 perf_out['pipeline'] = title_from_filename(root, step_sep=" --> ")
                 df = df.append(perf_out, ignore_index=True)
     df = df.fillna('')
-    size_pipe = max([len(p) for p in df['pipeline']]+[len('preprocess --> dim red --> clustering')])
 
-    measures = ('ami', 'ari', 'completeness', 'homogeneity', 'v_measure', 'inertia', 'silhouette')
+    pipe_header = 'preprocess --> dim red --> clustering'
+    size_pipe = max([len(p) for p in df['pipeline']]+[len(pipe_header)])
     size_ami, size_ari, size_com, size_hom, \
     size_vme, size_ine, size_sil = [2 +
         max([len('{: .3}'.format(p)) if p != '' else 3 for p in df[__]] + [len(__)]) \
             for __ in measures]
-    # find the best value
-    best_ami, best_ari, best_com, best_hom, \
-    best_vme, best_ine, best_sil = [max([p for p in df[__] if p != ''])
-            for __ in measures]
+
+    # find the best value for each score
+    best_scores = {__ : max([p for p in df[__] if p != '']) for __ in measures}
 
     with open(os.path.join(root_folder,'summary_scores.txt'), 'w') as f, \
          open(os.path.join(root_folder,'summary_scores.tex'), 'w') as g:
-        header = "preprocess --> dim red --> clustering{}|{}ami  |{}ari  |{}completeness  |{}homogeneity  |{}v_measure  |{}inertia  |{}silhouette  \n" \
-            .format(' '*(size_pipe-len("preprocess --> dim red --> clustering")),
+        header = "{}{}|{}ami  |{}ari  |{}completeness  |{}homogeneity  |{}v_measure  |{}inertia  |{}silhouette  \n" \
+            .format(pipe_header, ' '*(size_pipe-len(pipe_header)),
                     ' '*(size_ami-5), ' '*(size_ari-5),
                     ' '*(size_com-len("completeness  ")),
                     ' '*(size_hom-len("homogeneity  ")),
                     ' '*(size_vme-len("v_measure  ")),
-                    ' '*(size_ine-9), ' '*(size_sil-len("silhouette  ")))
+                    ' '*(size_ine-len("inertia  ")),
+                    ' '*(size_sil-len("silhouette  ")))
         f.write("-"*len(header) + "\n")
         f.write("Adenine: Clustering Performance for each pipeline\n")
         f.write("-"*len(header) + "\n")
         f.write(header)
         f.write("-"*len(header) + "\n")
 
-        g.write(r"\documentclass{article}\usepackage{adjustbox}\usepackage{caption}\captionsetup[table]{skip=10pt}\begin{document}"); g.write("\n")
-        g.write(r"\begin{table}[h!]"); g.write("\n")
-        g.write(r"\centering"
-                r"\caption{Adenine: Clustering Performance for each pipeline}" r"\label{clust-perf}"); g.write("\n")
-        g.write(r"\begin{adjustbox}{max width=\textwidth}\begin{tabular}{l|rc|rc|rc|rc|rc|rc|rc}"
-                r"\textbf{preprocess $\to$ dim red $\to$ clustering} & \textbf{ami} && \textbf{ari} && \textbf{completeness} && \textbf{homogeneity} && \textbf{v\_measure} && \textbf{inertia} && \textbf{silhouette} & \\ \hline"); g.write("\n")
+        g.write(r"\documentclass{article}" "\n"
+                r"\usepackage{adjustbox}" "\n"
+                r"\usepackage{caption}" "\n"
+                r"\captionsetup[table]{skip=10pt}" "\n"
+                r"\begin{document}" "\n"
+                r"\begin{table}[h!]" "\n"
+                r"\centering" "\n"
+                r"\caption{Adenine: Clustering Performance for each pipeline}" "\n"
+                r"\label{clust-perf}" "\n"
+                r"\begin{adjustbox}{max width=\textwidth}" "\n"
+                r"\begin{tabular}{l|rc|rc|rc|rc|rc|rc|rc}" "\n"
+                r"\textbf{preprocess $\to$ dim red $\to$ clustering} & \textbf{ami} "
+                r"&& \textbf{ari} && \textbf{completeness} && \textbf{homogeneity} "
+                r"&& \textbf{v\_measure} && \textbf{inertia} && \textbf{silhouette}"
+                r" & \\ \hline" "\n")
 
         for _ in df.iterrows():
             row = _[1]
             ami, ari, com, hom, vme, ine, sil = ['{: .3}'.format(row[__])
                                 if row[__] != '' else '---' for __ in measures]
 
+            star = {__ : ' *' if row[__] == best_scores[__] else '  ' for __ in measures}
             f.write("{}{}|{}{}{}|{}{}{}|{}{}{}|{}{}{}|{}{}{}|{}{}{}|{}{}{}\n"
                 .format(row['pipeline'],' '*(size_pipe-len(row['pipeline'])),
-                ' '*(abs(size_ami-len(str(ami))-2)), ami, ' *' if row['ami'] == best_ami else '  ',
-                ' '*(abs(size_ari-len(str(ari))-2)), ari, ' *' if row['ari'] == best_ari else '  ',
-                ' '*(abs(size_com-len(str(com))-2)), com, ' *' if row['completeness'] == best_com else '  ',
-                ' '*(abs(size_hom-len(str(hom))-2)), hom, ' *' if row['homogeneity'] == best_hom else '  ',
-                ' '*(abs(size_vme-len(str(vme))-2)), vme, ' *' if row['v_measure'] == best_vme else '  ',
-                ' '*(abs(size_ine-len(str(ine))-2)), ine, ' *' if row['inertia'] == best_ine else '  ',
-                ' '*(abs(size_sil-len(str(sil))-2)), sil, ' *' if row['silhouette'] == best_sil else '  '
+                ' '*(abs(size_ami-len(str(ami))-2)), ami, star['ami'],
+                ' '*(abs(size_ari-len(str(ari))-2)), ari, star['ari'],
+                ' '*(abs(size_com-len(str(com))-2)), com, star['completeness'],
+                ' '*(abs(size_hom-len(str(hom))-2)), hom, star['homogeneity'],
+                ' '*(abs(size_vme-len(str(vme))-2)), vme, star['v_measure'],
+                ' '*(abs(size_ine-len(str(ine))-2)), ine, star['inertia'],
+                ' '*(abs(size_sil-len(str(sil))-2)), sil, star['silhouette']
             ))
 
-            g.write(r"{} & {}&{} & {}&{} & {}&{} & {}&{} & {}&{} & {}&{} & {}&{} \\"
-                    "\n"
+            g.write(r"{} & {}&{} & {}&{} & {}&{} & {}&{} & {}&{} & {}&{} & {}&{} \\" "\n"
                 .format(
                 row['pipeline'].replace('-->', r'$\to$'),
-                ami, '*' if row['ami'] == best_ami else ' ',
-                ari, '*' if row['ari'] == best_ari else ' ',
-                com, '*' if row['completeness'] == best_com else ' ',
-                hom, '*' if row['homogeneity'] == best_hom else ' ',
-                vme, '*' if row['v_measure'] == best_vme else ' ',
-                ine, '*' if row['inertia'] == best_ine else ' ',
-                sil, '*' if row['silhouette'] == best_sil else ' '
+                ami, star['ami'],
+                ari, star['ari'],
+                com, star['completeness'],
+                hom, star['homogeneity'],
+                vme, star['v_measure'],
+                ine, star['inertia'],
+                sil, star['silhouette'],
             ))
 
         f.write("-"*len(header) + "\n")
-        g.write(r"\hline \end{tabular} \end{adjustbox} \end{table}")
-        g.write(r"\end{document}")
+        g.write(r"\hline" "\n"
+                r"\end{tabular}" "\n"
+                r"\end{adjustbox}" "\n"
+                r"\end{table}" "\n"
+                r"\end{document}")
     # df.to_csv(os.path.join(rootFolder,'all_scores.csv'), na_rep='-', index_label=False, index=False)
 
 
@@ -674,8 +687,6 @@ def analysis_worker(elem, root_folder, y, feat_names, class_names, lock):
                                  title='Normalized eigenvalues of the centered kernel matrix')
         if step_level == 'clustering':
             if hasattr(mdl_obj, 'affinity_matrix_'):
-                # plot_eigs(root=rootname, affinity=mdl_obj.affinity_matrix_, n_clusters=mdl_obj.get_params()['n_clusters'], title='Eigenvalues of the graph associated to the affinity matrix')
-
                 n_clusters = mdl_obj.__dict__.get('cluster_centers_',np.empty(0)).shape[0]
                 if hasattr(mdl_obj, 'n_clusters'):
                     n_clusters = mdl_obj.n_clusters
