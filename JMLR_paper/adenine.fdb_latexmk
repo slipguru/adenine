@@ -1,13 +1,13 @@
 # Fdb version 3
-["bibtex adenine"] 1462956756 "adenine.aux" "adenine.bbl" "adenine" 1462956756
+["bibtex adenine"] 1462970229 "adenine.aux" "adenine.bbl" "adenine" 1462970759
   "/usr/share/texlive/texmf-dist/bibtex/bst/natbib/plainnat.bst" 1233624470 26816 ffe5423d2019860bad9f54bc402fac15 ""
-  "adenine.aux" 1462956756 4468 ad43dd7460f11d65b41785857849421d ""
+  "adenine.aux" 1462970759 4468 53febd9d670ed74abad95339d0db17f7 ""
   "adenine.bcf" 0 -1 0 ""
   "adenine.bib" 1462954852 7072 ca83805e66ddf71d6ba0fbbf99423cfd ""
   (generated)
-  "adenine.bbl"
   "adenine.blg"
-["pdflatex"] 1462956756 "adenine.tex" "adenine.pdf" "adenine" 1462956756
+  "adenine.bbl"
+["pdflatex"] 1462970759 "adenine.tex" "adenine.pdf" "adenine" 1462970759
   "/etc/texmf/web2c/texmf.cnf" 1444054227 475 c0e671620eb5563b2130f56340a5fde8 ""
   "/usr/share/texlive/texmf-dist/fonts/map/fontname/texfonts.map" 1272929888 3287 e6b82fe08f5336d4d5ebc73fb1152e87 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex7.tfm" 1246382020 1004 54797486969f23fa377b128694d548df ""
@@ -41,6 +41,8 @@
   "/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb" 1248133631 32080 340ef9bf63678554ee606688e7b5339d ""
   "/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbxti10.pfb" 1248133631 36554 b67dc2cfa451409e100b3fcf5f506509 ""
   "/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmcsc10.pfb" 1248133631 32001 6aeea3afe875097b1eb0da29acd61e28 ""
+  "/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb" 1248133631 36299 5f9df58c2139e7edcf37c8fca4bd384d ""
+  "/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb" 1248133631 35469 70d41d2b9ea31d5d813066df7c99281c ""
   "/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb" 1248133631 35752 024fb6c41858982481f6968b5fc26508 ""
   "/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb" 1248133631 32362 179c33bbf43f19adbb3825bb4e36e57a ""
   "/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb" 1248133631 32734 69e00a6b65cedb993666e42eedb3d48f ""
@@ -96,13 +98,13 @@
   "/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map" 1444134381 1006173 a1aae087c4d39992a64a44c820d46d1c ""
   "/var/lib/texmf/web2c/pdftex/pdflatex.fmt" 1444127396 722335 45a63e4b9cd28a4e99d567a3af16dc33 ""
   "ade_wf/ade_wf.pdf" 1462954140 30814 f86b07a36f3b075c24c840e973b51d10 ""
-  "adenine.aux" 1462956756 4468 ad43dd7460f11d65b41785857849421d ""
-  "adenine.bbl" 1462956756 5635 efef767bf5f2d636d552e7dff3d003a8 "bibtex adenine"
-  "adenine.out" 1462956756 200 d2a2b38f826591a287b713292eb10439 ""
-  "adenine.tex" 1462956756 10815 636b639ba5cf7d9b1ad2056d2e1eaf9c ""
+  "adenine.aux" 1462970759 4468 53febd9d670ed74abad95339d0db17f7 ""
+  "adenine.bbl" 1462970229 5635 efef767bf5f2d636d552e7dff3d003a8 "bibtex adenine"
+  "adenine.out" 1462970759 200 d2a2b38f826591a287b713292eb10439 ""
+  "adenine.tex" 1462970759 11159 33d69088c0a10186179336e2426caf71 ""
   "jmlr2e.sty" 1462786423 13509 e382d45f8c4e905cde62de0de4873318 ""
   (generated)
-  "adenine.pdf"
-  "adenine.out"
   "adenine.aux"
+  "adenine.out"
+  "adenine.pdf"
   "adenine.log"

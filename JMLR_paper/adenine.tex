@@ -94,8 +94,9 @@ Working with real-world data collections, it is often the case that a set of ent
 \subsection*{Data preprocessing}
 Collecting data from heterogenous sources may imply having variables lying in very different numerical ranges. This can sometimes have a negative influence on the behaviour of dimensionality reduction and clustering techniques. To tackle this issue \ade offers four different strategies:
 \begin{enumerate}[label=(\roman*)]
-  \item recentering, that is transform data in order to have zero-mean;
-  \item 
+  \item \emph{Recenter}: transforming data in order to have zero-mean;
+  \item \emph{Standarde}: transforming recentered data in order to have unit-variance;
+  \item \emph{Normalize}: scaling samples in order to have $\ell^p$ unitary norm (with $p = 1$ or $2$);
 \end{enumerate}.
 
 \subsection*{Dimensionality reduction}
