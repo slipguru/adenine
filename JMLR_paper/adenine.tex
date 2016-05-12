@@ -86,18 +86,22 @@ From an implemetative standpoint, \ade is developed around the concept of \emph{
   \item dimensionality reduction and
   \item unsupervised clustering
 \end{enumerate*} (see Figure~\ref{fig:workflow}).
-For each step, a fair number of off-the-shelf algorithms are available (see Table~\ref{sec:implem}), although none of those steps are mandatory.
+For each step, a fair number of off-the-shelf algorithms are available (see Table~\ref{sec:implem}), although none of these steps are mandatory and can be skipped if not needed.
 
 \subsection*{Missing values imputing}
-Working with real-world data collections, it is often the case that a set of entries is missing. In order to deal with this issue, \ade offers an improved version of the standard \texttt{Imputer} class offered by \texttt{scikit-learn}. Our extension adds a K-Nearest Neighbor (KNN) imputing method \citep{troyanskaya2001missing} to the pre-existent features-wise \emph{mean}, \emph{median} and \emph{most frequent value} strategies (whose names are already self-explanatory). We chose to add the KNN imputing method to the standard na\"ive strategies offered by \texttt{scikit-learn} because of the robustness and stability demonstrated in the microarray experiments described in the original paper \citep{troyanskaya2001missing}.
+Working with real-world data collections often implies dealing with sets of missing entries. In order to cope with this issue, \ade offers an improved version of the standard \texttt{Imputer} class offered by \texttt{scikit-learn}. Our extension adds a K-Nearest Neighbor (KNN) imputing method to the pre-existent features-wise \emph{mean}, \emph{median} and \emph{most frequent value} strategies (whose names are already self-explanatory). We chose to add the KNN imputing method to the standard na\"ive strategies offered by \texttt{scikit-learn} because of its simplicity and its robustness demonstrated in the microarray reconstruction experiments described in \citep{troyanskaya2001missing}.
 
 \subsection*{Data preprocessing}
-Collecting data from heterogenous sources may imply having variables lying in very different numerical ranges. This can sometimes have a negative influence on the behaviour of dimensionality reduction and clustering techniques. To tackle this issue \ade offers four different strategies:
+Collecting data from heterogenous sources may imply having features lying in very different numerical ranges. This can sometimes have a negative influence on the behaviour of dimensionality reduction and clustering techniques. To tackle this issue \ade offers four different strategies:
 \begin{enumerate}[label=(\roman*)]
-  \item \emph{Recenter}: transforming data in order to have zero-mean;
-  \item \emph{Standarde}: transforming recentered data in order to have unit-variance;
+  \item \emph{Recenter}: transforming samples in order to have zero-mean;
+  \item \emph{Standardize}: transforming recentered samples in order to have unit-variance;
   \item \emph{Normalize}: scaling samples in order to have $\ell^p$ unitary norm (with $p = 1$ or $2$);
-\end{enumerate}.
+  \item \emph{MinMax}: transforming features by scaling them to a given range, the transformation can be expressed as follows (where $min$ and $max$ denote, repectively, feature-wise minimum and maximum values operator).
+  \[
+    X_{MinMax} = \frac{X - min(X)}{max(X) - min(X)} \cdot \Big[max(X) - min(X)\Big] + min(X)
+  \]
+\end{enumerate}
 
 \subsection*{Dimensionality reduction}
 \subsection*{Unsupervised clustering}
