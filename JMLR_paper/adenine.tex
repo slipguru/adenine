@@ -87,26 +87,41 @@ We introduce \ade, a script-based \py tool for data exploration that, starting f
   \item unsupervised clustering
 \end{enumerate*} (see Figure~\ref{fig:workflow}).
 For each step, a fair number of off-the-shelf algorithms are available (see Table~\ref{sec:implem}), although none of these steps are mandatory and can be skipped if not needed.
+\begin{enumerate}
+  \item[]{\bf Step 0: Missing values imputing.}
+  % \subsection*{Missing values imputing}
+  Working with real-world collections of data it often happens that sets of entries are missing. In order to cope with this issue, \ade offers an improved version of the \texttt{Imputer} class offered by \texttt{scikit-learn}. Our extension adds a K-Nearest Neighbor (KNN) imputing method to the pre-existent features-wise \emph{mean}, \emph{median} and \emph{most frequent value} strategies.
+  % (whose names are already self-explanatory)
+  We chose to add the KNN imputing method to the \emph{na\"ive} strategies offered by \texttt{scikit-learn} because of its simplicity and the robustness demonstrated in the microarray reconstruction experiments described in \citep{troyanskaya2001missing}.
 
-\subsection*{Missing values imputing}
-Working with real-world data collections often implies dealing with sets of missing entries. In order to cope with this issue, \ade offers an improved version of the standard \texttt{Imputer} class offered by \texttt{scikit-learn}. Our extension adds a K-Nearest Neighbor (KNN) imputing method to the pre-existent features-wise \emph{mean}, \emph{median} and \emph{most frequent value} strategies (whose names are already self-explanatory). We chose to add the KNN imputing method to the standard na\"ive strategies offered by \texttt{scikit-learn} because of its simplicity and its robustness demonstrated in the microarray reconstruction experiments described in \citep{troyanskaya2001missing}.
-
-\subsection*{Data preprocessing}
-Collecting data from heterogenous sources may imply having features lying in very different numerical ranges. This can sometimes have a negative influence on the behaviour of dimensionality reduction and clustering techniques. To tackle this issue \ade offers four different strategies:
-\begin{enumerate}[label=(\roman*)]
-  \item \emph{Recenter}: transforming samples in order to have zero-mean;
-  \item \emph{Standardize}: transforming recentered samples in order to have unit-variance;
-  \item \emph{Normalize}: scaling samples in order to have $\ell^p$ unitary norm (with $p = 1$ or $2$);
-  \item \emph{MinMax}: transforming features by scaling them to a given range, the transformation can be expressed as follows (where $min$ and $max$ denote, repectively, feature-wise minimum and maximum values operator).
-  \[
+  \item[]{\bf Step 1: Data preprocessing.}
+  % \subsection*{Data preprocessing}
+  Collecting data from heterogenous sources may imply dealing with features lying in very different numerical ranges. This can sometimes have a negative influence on the behaviour of dimensionality reduction and clustering techniques. To tackle this issue \ade offers four different strategies:
+  \begin{enumerate}[label=(\roman*)]
+    \item \emph{Recenter}: transforming samples in order to have zero-mean;
+    \item \emph{Standardize}: transforming recentered samples in order to have unit-variance;
+    \item \emph{Normalize}: scaling samples in order to have $\ell^p$ unitary norm (with $p = 1$ or $2$);
+    \item \emph{MinMax}: transforming features by scaling them to a given range, the transformation can be expressed as follows (where $min$ and $max$ denote, repectively, feature-wise minimum and maximum values operator).
+    \[
     X_{MinMax} = \frac{X - min(X)}{max(X) - min(X)} \cdot \Big[max(X) - min(X)\Big] + min(X)
-  \]
+    \]
+  \end{enumerate}
+
+  \item[]{\bf Step 2: Dimensionality reduction.}
+  % \subsection*{Dimensionality reduction}
+  Data exploration of high dimensional dataset can be very tricky. Visualizing samples in high dimension is much less intuitive than representing them in basic two or three-dimensional scatterplots. Moreover, it is often possible to \emph{decrease} the dimensionality of the problem estimating, by means of different strategies, a low-dimensional embedding in which the data lie. To accomplish this task, \ade offers a set of linear and nonlinear dimensionality reduction and manifold learning algorithms (see Table~\ref{tab:blocks}) for the full list of available strategies and the correspondent references.
+
+  \item[]{\bf Step 3: Unsupervised clustering.}
+  % \subsection*{Unsupervised clustering}
+
 \end{enumerate}
 
-\subsection*{Dimensionality reduction}
-Data exploration of high dimensional dataset can be very tricky. Visualizing samples in high dimension is much less intuitive than representing them in basic two or three-dimensional scatterplots. Moreover, it is often possible to \emph{decrease} the dimensionality of the problem estimating, by means of different strategies, a low-dimensional embedding in which the data lie. To accomplish this task, \ade offers a set of linear and nonlinear dimensionality reduction and manifold learning algorithms (see Table~\ref{tab:blocks}) for the full list of available strategies and the correspondent references.
 
-\subsection*{Unsupervised clustering}
+
+
+
+\subsection{***Parallel stuff***}
+In order to perform exploratory analysis of large datasets, \ade can take advantage of different parallel computing paradigms. For instance, its pipelines are designed to be independent from each other, therefore they all run in parallel as separate \py processes on different cores. Moreover, since \ade makes large use of \texttt{numpy} and \texttt{scipy}, it automatically benefits from their bindings with optimized linear algebra libraries (such as OpenBLAS\footnote{\href{http://www.openblas.net/}{http://www.openblas.net/}}, or Intel\textsuperscript{\textregistered}~MKL).
 
 \section{Usage Example}
 Comparing pipelines performance on toy dataset.
@@ -117,8 +132,6 @@ Comparing pipelines performance on toy dataset.
     \caption{A schematic representation of the \ade workflow. The list of building blocks available for each step is summarized in Table~\ref{tab:blocks}.}\label{fig:workflow}
 \end{figure}
 
-
-In order to perform exploratory analysis of large datasets, \ade can take advantage of different parallel computing paradigms. For instance, its pipelines are designed to be independent from each other, therefore they all run in parallel as separate \py processes on different cores. Moreover, since \ade makes large use of \texttt{numpy} and \texttt{scipy}, it automatically benefits from their bindings with optimized linear algebra libraries (such as OpenBLAS\footnote{\href{http://www.openblas.net/}{http://www.openblas.net/}}, or Intel\textsuperscript{\textregistered}~MKL).
 
 \section{Experiments and results}
 To assess the quality of the obtained results, we tested \ade on a set of synthetic and real dataset.
