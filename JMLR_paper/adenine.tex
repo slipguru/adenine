@@ -78,8 +78,8 @@ We introduce \ade, a script-based \py tool for data exploration that, starting f
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{Implementation}\label{sec:implem}
-From an implemetative standpoint, \ade is developed around the concept of \emph{pipeline}, with that we mean a sequence of the following four fundamental steps:
+\section{Tool overview}\label{sec:implem}
+\ade is developed around the concept of \emph{pipeline}, with that we mean a sequence of the following four fundamental steps:
 \begin{enumerate*}[label=(\roman*)]
   \item missing values imputing,
   \item data preprocessing,
@@ -104,8 +104,12 @@ Collecting data from heterogenous sources may imply having features lying in ver
 \end{enumerate}
 
 \subsection*{Dimensionality reduction}
+Data exploration of high dimensional dataset can be very tricky. Visualizing samples in high dimension is much less intuitive than representing them in basic two or three-dimensional scatterplots. Moreover, it is often possible to \emph{decrease} the dimensionality of the problem estimating, by means of different strategies, a low-dimensional embedding in which the data lie. To accomplish this task, \ade offers a set of linear and nonlinear dimensionality reduction and manifold learning algorithms (see Table~\ref{tab:blocks}) for the full list of available strategies and the correspondent references.
+
 \subsection*{Unsupervised clustering}
 
+\section{Usage Example}
+Comparing pipelines performance on toy dataset.
 
 \begin{figure}[h!]
     \centering
