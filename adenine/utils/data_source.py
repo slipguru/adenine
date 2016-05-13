@@ -135,8 +135,9 @@ def load(opt='custom', x_filename=None, y_filename=None, n_samples=0):
             xx, yy = generate_gauss(mu=means, std=sigmas, n_sample=n_samples)
             data = datasets.base.Bunch(data=xx, target=yy)
         elif opt.lower() == 'circles':
-            circles = datasets.make_circles(n_samples=n_samples, factor=.5, noise=.05)
-            data = datasets.base.Bunch(data=circles[0], target=circles[1])
+            if n_samples=0: n_samples=100
+            xx, yy = datasets.make_circles(n_samples=n_samples, factor=.5, noise=.05)
+            data = datasets.base.Bunch(data=xx, target=yy)
         elif opt.lower() == 'custom':
             data = load_custom(x_filename, y_filename)
     except IOError as e:
