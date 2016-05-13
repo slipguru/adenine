@@ -91,7 +91,6 @@ def evaluate(level, step, X):
             res = step.predict(X)
     return res
 
-# @pyvmmonitor.profile_method
 def pipe_worker(pipeID, pipe, pipes_dump, X):
     """Parallel pipelines execution.
 

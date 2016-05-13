@@ -7,7 +7,7 @@
 ADENINE (A Data ExploratioN pIpeliNE)
 =====================================
 
-**adenine** is a machine learning and data mining Python pipeline that helps you to answer this tedious question: are my data relevant with the problem I'm dealing with?
+**Adenine** is a machine learning and data mining Python pipeline that helps you to answer this tedious question: are my data relevant with the problem I'm dealing with?
 
 The main structure of adenine can be summarized in the following 3 steps.
 	
