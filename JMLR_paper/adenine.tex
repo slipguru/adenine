@@ -61,9 +61,9 @@
 
 \begin{abstract}
 
-In this paper we introduce \ade, a \py framework for data exploration. The main goals of \ade, is twofold: helping researchers and data scientists achieving a first and quick overview on the main structures underlying their data and choosing the most suitable unsupervised learning pipeline for the problem at hand. This software tool encompasses state of the art techniques for: missing values imputing, preprocessing, dimensionality reduction and clustering tasks.
+In this paper we introduce \ade, a machine learning \py framework for data exploration. The main goals of \ade, is twofold: helping researchers and data scientists achieving a first and quick overview on the main structures underlying their data and choosing the most suitable unsupervised learning pipeline for the problem at hand. This software tool encompasses state of the art techniques for: missing values imputing, preprocessing, dimensionality reduction and clustering tasks.
 \ade exploits both process and thread level parallelism and it is capable of generating nice and clean publication-ready figures along with quantitative descriptions of the pipelines performance. \ade is released under FreeBSD license and it can be downloaded from \href{http://slipguru.github.io/adenine/}{http://slipguru.github.io/adenine/}.
-
+%% max 200 words: current ~100
 
 \end{abstract}
 
@@ -95,6 +95,13 @@ We introduce \ade, a script-based \py tool for data exploration that, starting f
   \item unsupervised clustering
 \end{enumerate*} (see Figure~\ref{fig:workflow}).
 For each task, a fair number of off-the-shelf algorithms are available (see Table~\ref{sec:implem}), although none of these steps are mandatory and they can be skipped if not needed.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\textwidth]{ade_wf/ade_wf.pdf}
+    \caption{A schematic representation of the \ade workflow. The list of building blocks available for each step is summarized in Table~\ref{tab:blocks}. The final number of pipelines generated is $I \times P \times D \times C$.}\label{fig:workflow}
+\end{figure}
+
 \begin{enumerate}
   \item[]{\bf Step 0: Missing values imputing.}
   % \subsection*{Missing values imputing}
@@ -125,7 +132,7 @@ For each task, a fair number of off-the-shelf algorithms are available (see Tabl
   Cluster analysis, when needed, are the last step of each pipeline. \ade offers different strategies ad heuristics to automatically estimate the most suitable number of clusters in a given dataset. The available clustering techniques can be grouped into centroid-based and not centroid-based methods. For the first class of methods, the optimal parameter choice follows the $B$-fold cross-validation strategy presented in Algorithm~\ref{alg:clusters}, where $\mathcal{S}(X,y)$ is defined as the mean silhouette coefficient \citep{rousseeuw1987silhouettes} for all input samples.
   The tuning parameter for the affinity propagation technique \citep{frey2007clustering} is the so-called \emph{preference} and it defines the number of discovered clusters $k$. For k-means \citep{bishop2006pattern} the tuning parameter is directly the \emph{number of clusters}, while the mean shift strategy \citep{comaniciu2002mean} has an implicit clusters discovery. For hierarchical \citep{friedman2001elements} and spectral clustering \citep{shi2000normalized} no automatic number of clusters discovery is offered. However graphical aids to evaluate the performance with fixed $k$ are generated as, respectively, dendrogram tree and plot of the eigenvalues of the Laplacian of the affinity matrix.
 
-  \begin{algorithm}[]
+  \begin{algorithm}[h!]
       \caption{Automatic discovery of the optimal clustering parameter.}\label{alg:clusters}
         \begin{algorithmic}[1]
             \For{clustering parameter $k$ in $k_1 \dots k_K$ }
@@ -149,12 +156,6 @@ For each task, a fair number of off-the-shelf algorithms are available (see Tabl
 \section{Usage Example}
 Comparing pipelines performance on toy dataset.
 
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width=\textwidth]{ade_wf/ade_wf.pdf}
-    \caption{A schematic representation of the \ade workflow. The list of building blocks available for each step is summarized in Table~\ref{tab:blocks}.}\label{fig:workflow}
-\end{figure}
-
 
 \section{Experiments and results}
 To assess the quality of the obtained results, we tested \ade on a set of synthetic and real dataset.
@@ -162,9 +163,7 @@ To assess the quality of the obtained results, we tested \ade on a set of synthe
 \todo{parla qui dei test synth}
 \todo{TGCA}
 
-\section{Conclusions}
-
-
+% \section{Conclusions}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

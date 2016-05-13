@@ -43,7 +43,7 @@ mybox4/.style={rectangle, draw=gray!20, very thick, fill=red!40, outer sep =0.3e
 
 \centering
 
-\begin{tikzpicture}[node distance=3.5cm]
+\begin{tikzpicture}[node distance=1cm]
 
 %% Nodes
 
@@ -61,30 +61,30 @@ mybox4/.style={rectangle, draw=gray!20, very thick, fill=red!40, outer sep =0.3e
 
 
 %%% Imputing I
-\node [below= 2.6cm of imp] (vdots0) {$\Huge{\vdots}$};
-\node[mybox4,inner sep=0.8em,below = 2.6cm of vdots0, text width=3.0cm] (imp2) {\textbf{Imputing\\Strategy \emph{I}}};
+\node [below= 2.0cm of imp] (vdots0) {$\Huge{\vdots}$};
+\node[mybox4,inner sep=0.8em,below = 2.0cm of vdots0, text width=3.0cm] (imp2) {\textbf{Imputing\\Strategy \emph{I}}};
 \node [right= .5cm of imp2,  rotate=270] (hdots) {$\Huge{\vdots}$};
 
 \draw [very thick,->] (DATA.east) |- (imp2.west);
 
 %%%% Preproc P
-\node [below= 1.8cm of preproc] (vdots) {$\Huge{\vdots}$};
-\node[mybox3,inner sep=0.8em,below = 1.8cm of vdots, text width=3.0cm] (preproc2) {\textbf{Preprocessing\\Strategy \emph{P}}};
+\node [below= 1.4cm of preproc] (vdots) {$\Huge{\vdots}$};
+\node[mybox3,inner sep=0.8em,below = 1.4cm of vdots, text width=3.0cm] (preproc2) {\textbf{Preprocessing\\Strategy \emph{P}}};
 \node [right= .5cm of preproc2,  rotate=270] (hdots) {$\Huge{\vdots}$};
 
 \draw [very thick,->] (imp.east) |- (preproc2.west);
 
 %%%% Dimred D
-\node [below= 1.0cm of unsupervised] (vdots2) {$\Huge{\vdots}$};
-\node[mycylinder,inner sep=0.8em, text width=3.0cm, below = 1.0cm of vdots2] (unsupervised2) {\textbf{Dimensionality\\Reduction\\Strategy \emph{D}}};
+\node [below= 0.7cm of unsupervised] (vdots2) {$\Huge{\vdots}$};
+\node[mycylinder,inner sep=0.8em, text width=3.0cm, below = 0.7cm of vdots2] (unsupervised2) {\textbf{Dimensionality\\Reduction\\Strategy \emph{D}}};
 \node [right= .5cm of unsupervised2,  rotate=270] (hdots) {$\Huge{\vdots}$};
 
 \draw [very thick,->] (preproc.east) |- (unsupervised2.west);
 
 
 %%% Clustering C
-\node [below= 0.2cm of clust] (vdots3) {$\Huge{\vdots}$};
-\node[mybox2,inner sep=0.8em,below = 0.2cm of vdots3, text width=3.0cm] (clust2) {\textbf{Clustering\\Strategy \emph{C}}};
+\node [below= 0.01cm of clust] (vdots3) {$\Huge{\vdots}$};
+\node[mybox2,inner sep=0.8em,below = 0.01cm of vdots3, text width=3.0cm] (clust2) {\textbf{Clustering\\Strategy \emph{C}}};
 
 \draw [very thick,->] (unsupervised.east) |- (clust2.west);
 
