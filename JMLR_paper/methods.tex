@@ -1,0 +1,42 @@
+
+    \begin{table}[h!]
+    \small
+      {\caption{Pipelines building blocks and their references (not specified when the definition is given in Section~\ref{sec:implem}).}\label{tab:blocks}}
+    
+      {\begin{tabular}{lll}
+      \toprule
+      \bfseries Step &   \bfseries Algorithms & \bfseries Ref.\\
+    
+      \multirow{2}{*}{Imputing} & mean &  \\
+      & median & \\
+      & most frequent & \\
+      & KNN & \citep{troyanskaya2001missing} \\
+      \midrule
+    
+      \multirow{4}{*}{Preprocessing} & recentering &  \\
+      & standardize &  \\
+      & normalize &  \\
+      & min-max &  \\
+      \midrule
+    
+      \multirow{9}{*}{\begin{tabular}{@{}c@{}}Dimensionality \\ reduction\end{tabular}} & PCA & \citep{jolliffe2002principal} \\
+      & incremental PCA & \citep{ross2008incremental} \\
+      & randomized PCA & \citep{halko2011finding} \\
+      & kernel PCA & \citep{scholkopf1997kernel} \\
+      & isomap & \citep{tenenbaum2000global} \\
+      & locally linear embedding & \citep{roweis2000nonlinear} \\
+      & spectral embedding & \citep{ng2002spectral} \\
+      & multidimensional scaling & \citep{borg2005modern} \\
+      & \begin{tabular}{@{}l@{}}t-distributed stochastic \\ neighbor embedding (t-SNE)\end{tabular}   & \citep{van2008visualizing} \\
+      \midrule
+    
+      \multirow{5}{*}{Clustering} & k-means &  \citep{bishop2006pattern}\\
+      & affinity propagation & \citep{frey2007clustering} \\
+      & mean shift & \citep{comaniciu2002mean} \\
+      & spectral & \citep{shi2000normalized} \\
+      & hierarchical & \citep{friedman2001elements} \\
+    
+      \bottomrule
+      \end{tabular}}
+    \end{table}
+

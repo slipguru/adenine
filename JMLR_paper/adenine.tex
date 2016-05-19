@@ -20,13 +20,13 @@
 \usepackage{algorithm}
 \usepackage{algpseudocode}
 
-% \newcommand{\INDSTATE}[1][1]{\STATE\hspace{#1\algorithmicindent}}
+\input{pygment_options}
+
 \newcommand{\INDSTATE}{\STATE\hspace{\algorithmicindent}}
 \newcommand{\argmax}[1]{\underset{#1}{\operatorname{arg}\,\operatorname{max}}\;}
 % \usepackage{showframe}
-% \usepackage{siunitx}
-% Definitions of handy macros can go here
 
+% Definitions of handy macros can go here
 \newcommand{\dataset}{{\cal D}}
 \newcommand{\fracpartial}[2]{\frac{\partial #1}{\partial  #2}}
 
@@ -103,6 +103,8 @@ For each task, a fair number of off-the-shelf algorithms are available (see Tabl
     \caption{A schematic representation of the \ade workflow. The list of building blocks available for each step is summarized in Table~\ref{tab:blocks}. The final number of pipelines generated is $I \times P \times D \times C$.}\label{fig:workflow}
 \end{figure}
 
+\input{methods}
+
 \begin{enumerate}
   \item[]{\bf Step 0: Missing values imputing.}
   % \subsection*{Missing values imputing}
@@ -156,62 +158,16 @@ For each task, a fair number of off-the-shelf algorithms are available (see Tabl
 \noindent In order to perform exploratory analysis of large datasets, \ade takes advantage of different parallel computing paradigms. \ade pipelines are designed to be independent from each other, therefore they all run in parallel as separate \py processes on different cores. Moreover, since \ade makes large use of \texttt{numpy} and \texttt{scipy}, it automatically benefits from their bindings with optimized linear algebra libraries (such as OpenBLAS\footnote{\href{http://www.openblas.net/}{http://www.openblas.net/}}, or Intel\textsuperscript{\textregistered}~MKL).
 
 \section{Usage Example}
-Comparing pipelines performance on toy dataset.
+In this section we show how to use \ade to perform a exploratory analysis on a toy example. \ade requires as input a configuration file (with \texttt{.py}
+extension) which looks like the following snippet.
+ 
+\input{snippet}
 
 
-\section{Experiments and results}
-To assess the quality of the obtained results, we tested \ade on a set of synthetic and real dataset.
-
-\todo{parla qui dei test synth}
-\todo{TGCA}
-
-% \section{Conclusions}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{table}[hbtp]
-  {\caption{Pipelines building blocks and their references (not specified when the definition is given in Section~\ref{sec:implem}).}\label{tab:blocks}}
-
-  {\begin{tabular}{lll}
-  \toprule
-  \bfseries Step &   \bfseries Algorithms & \bfseries Ref.\\
-
-  \multirow{2}{*}{Imputing} & mean &  \\
-  & median & \\
-  & most frequent & \\
-  & KNN & \citep{troyanskaya2001missing} \\
-  \midrule
-
-  \multirow{4}{*}{Preprocessing} & recentering &  \\
-  & standardize &  \\
-  & normalize &  \\
-  & min-max &  \\
-  \midrule
-
-  \multirow{9}{*}{\begin{tabular}{@{}c@{}}Dimensionality \\ reduction\end{tabular}} & PCA & \citep{jolliffe2002principal} \\
-  & incremental PCA & \citep{ross2008incremental} \\
-  & randomized PCA & \citep{halko2011finding} \\
-  & kernel PCA & \citep{scholkopf1997kernel} \\
-  & isomap & \citep{tenenbaum2000global} \\
-  & locally linear embedding & \citep{roweis2000nonlinear} \\
-  & spectral embedding & \citep{ng2002spectral} \\
-  & multidimensional scaling & \citep{borg2005modern} \\
-  & \begin{tabular}{@{}l@{}}t-distributed stochastic \\ neighbor embedding (t-SNE)\end{tabular}   & \citep{van2008visualizing} \\
-  \midrule
-
-  \multirow{5}{*}{Clustering} & k-means &  \citep{bishop2006pattern}\\
-  & affinity propagation & \citep{frey2007clustering} \\
-  & mean shift & \citep{comaniciu2002mean} \\
-  & spectral & \citep{shi2000normalized} \\
-  & hierarchical & \citep{friedman2001elements} \\
-
-  \bottomrule
-  \end{tabular}}
-\end{table}
 
 % \acks{Acknowledgements go here.}
 
-\vskip 0.2in
+%\vskip 0.2in
 \bibliography{adenine}
 
 \end{document}

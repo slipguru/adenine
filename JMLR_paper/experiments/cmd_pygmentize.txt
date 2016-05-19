@@ -1,0 +1,1 @@
+pygmentize -O full,style=emacs,linenos=true,fontsize=1 -o p.tex pygm_config.py
