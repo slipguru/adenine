@@ -14,6 +14,7 @@
 \usepackage{xspace}
 \usepackage[table]{xcolor}
 \usepackage{graphicx}
+\usepackage{subfig}
 \usepackage[inline]{enumitem}
 \usepackage{hyperref}
 \usepackage{amsmath,amsfonts,dsfont,mathrsfs,mathtools,amssymb}
@@ -158,11 +159,26 @@ For each task, a fair number of off-the-shelf algorithms are available (see Tabl
 \noindent In order to perform exploratory analysis of large datasets, \ade takes advantage of different parallel computing paradigms. \ade pipelines are designed to be independent from each other, therefore they all run in parallel as separate \py processes on different cores. Moreover, since \ade makes large use of \texttt{numpy} and \texttt{scipy}, it automatically benefits from their bindings with optimized linear algebra libraries (such as OpenBLAS\footnote{\href{http://www.openblas.net/}{http://www.openblas.net/}}, or Intel\textsuperscript{\textregistered}~MKL).
 
 \section{Usage Example}
-In this section we show how to use \ade to perform a exploratory analysis on a toy example. \ade requires as input a configuration file (with \texttt{.py}
-extension) which looks like the following snippet.
+In this section we show how to use \ade to perform a exploratory analysis on a toy example. All we need is simply to install \ade and then run \texttt{ade\_run.py} on an input configuration file (with \texttt{.py} extension) which looks like the snippet below. This will generate an output folder.
  
 \input{snippet}
 
+Several other options can be specified in the configuration file, we recall to \ade documentation and tutorials\footnote{link here} for a comprehensive description. Once the analysis are completed, plots and reports can be automatically generated launching \texttt{ade\_analysis.py} on the output folder previously created. In Figure~\ref{fig:scatter} a comparison between two pipelines is presented.
+
+\begin{document}
+\begin{figure}[h!] 
+    \centering
+    \subfloat[]{%
+        \includegraphics[width=0.4\textwidth]{figures/lin_KM.pdf}%
+        \label{fig:a}%
+        }%
+    \hfill%
+    \subfloat[]{%
+        \includegraphics[width=0.4\textwidth]{figures/rbf_KM.pdf}%
+        \label{fig:b}%
+        }%
+    \caption{Comparison between k-means performance after linear and nonlinear projection. Data-points colors refer to real classes, while backgrounds are colored according to clustering predictions.}\label{fig:scatter}
+\end{figure}
 
 
 % \acks{Acknowledgements go here.}
