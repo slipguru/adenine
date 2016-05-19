@@ -7,7 +7,13 @@ import numpy as np
 import pandas as pd
 from sklearn import datasets
 from sklearn.preprocessing import Binarizer
-from sklearn.cross_validation import StratifiedShuffleSplit
+
+# Legacy import
+try:
+    from sklearn.model_selection import StratifiedShuffleSplit
+except ImportError:
+    from sklearn.cross_validation import StratifiedShuffleSplit
+
 
 def generate_gauss(mu=(), std=(), n_sample=()):
     """Create a Gaussian dataset.
@@ -28,7 +34,7 @@ def generate_gauss(mu=(), std=(), n_sample=()):
     n_class, n_var = mu.shape
 
     X = np.zeros((n_sample*n_class, n_var))
-    y = np.zeros(n_sample*n_class)
+    y = np.zeros(n_sample*n_class, dtype=int)
 
     start = 0
     for i, s, m in zip(range(n_class), std, mu):
@@ -128,6 +134,10 @@ def load(opt='custom', x_filename=None, y_filename=None, n_samples=0):
             if n_samples <= 1: n_samples = 333
             xx, yy = generate_gauss(mu=means, std=sigmas, n_sample=n_samples)
             data = datasets.base.Bunch(data=xx, target=yy)
+        elif opt.lower() == 'circles':
+            if n_samples=0: n_samples=100
+            xx, yy = datasets.make_circles(n_samples=n_samples, factor=.5, noise=.05)
+            data = datasets.base.Bunch(data=xx, target=yy)
         elif opt.lower() == 'custom':
             data = load_custom(x_filename, y_filename)
     except IOError as e:
@@ -135,9 +145,13 @@ def load(opt='custom', x_filename=None, y_filename=None, n_samples=0):
 
     X, y = data.data, data.target
     if y is not None and n_samples > 0 and X.shape[0] > n_samples:
-        sss = StratifiedShuffleSplit(y, test_size=n_samples, n_iter=1)
+        try: # Legacy for sklearn
+            sss = StratifiedShuffleSplit(y, test_size=n_samples, n_iter=1)
+            # idx = np.random.permutation(X.shape[0])[:n_samples]
+        except TypeError:
+            sss = StratifiedShuffleSplit(n_iter=1, test_size=n_samples).split(X, y)
+
         _, idx = list(sss)[0]
-        # idx = np.random.permutation(X.shape[0])[:n_samples]
         X, y = X[idx,:], y[idx]
 
     try:

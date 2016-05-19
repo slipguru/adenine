@@ -3,7 +3,7 @@
 
 import logging
 import numpy as np
-from adenine.utils.extra import modified_cartesian, ensure_list
+from adenine.utils.extra import modified_cartesian, ensure_list, values_iterator
 
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
@@ -40,13 +40,16 @@ def parse_preproc(key, content):
     key : {'None', 'Recenter', 'Standardize', 'Normalize', 'MinMax'}
         The type of selected preprocessing step.
 
-    content : list, len : 2
-        A list containing the On/Off flag and a nested list of extra parameters (e.g. [min,max] for Min-Max scaling).
+    content : dict
+        A dictionary containing parameters for each preprocessing
+        class. Each parameter can be a list; in this case for each combination
+        of parameters a different pipeline will be created.
 
     Returns
     -----------
     pptpl : tuple
-        A tuple made like that ('PreprocName', preprocObj), where preprocObj is an sklearn 'transforms' (i.e. it has bot a .fit and .transform method).
+        A tuple made like that ('preproc_name', preproc_obj), where preproc_obj
+        is an sklearn 'transforms' (i.e. it has bot a .fit and .transform method).
     """
     if key.lower() == 'none':
         pp = DummyNone()
@@ -55,9 +58,12 @@ def parse_preproc(key, content):
     elif key.lower() == 'standardize':
         pp = StandardScaler(with_mean=True, with_std=True)
     elif key.lower() == 'normalize':
-        pp = Normalizer(norm=content[1][0])
+        content.setdefault('norm', 'l2')
+        # pp = Normalizer(norm=content[1][0])
+        pp = Normalizer(**content)
     elif key.lower() == 'minmax':
-        pp = MinMaxScaler(feature_range=(content[1][0], content[1][1]))
+        content.setdefault('feature_range', (0,1))
+        pp = MinMaxScaler(**content)
     else:
         pp = DummyNone()
     return (key, pp)
@@ -75,14 +81,14 @@ def parse_dimred(key, content):
 
     content : dict
         A dictionary containing parameters for each dimensionality reduction
-        class. Each can be also a list; in this case for each combination of
-        parameters a different pipeline will be created.
+        class. Each parameter can be a list; in this case for each combination
+        of parameters a different pipeline will be created.
 
     Returns
     -----------
     drtpl : tuple
-        A tuple made like that ('DimRedName', dimredObj), where dimredObj is a
-        sklearn 'transforms' (i.e. it has bot a .fit and .transform method).
+        A tuple made like that ('dimres_name', dimred_obj), where dimred_obj is
+        a sklearn 'transforms' (i.e. it has bot a .fit and .transform method).
     """
     drs = {'none': DummyNone, 'pca': PCA, 'incrementalpca': IncrementalPCA,
                'randomizedpca': RandomizedPCA, 'kernelpca': KernelPCA,
@@ -130,13 +136,16 @@ def parse_clustering(key, content):
     key : {'KMeans', 'KernelKMeans', 'AP', 'MS', 'Spectral', 'Hierarchical'}
         The selected dimensionality reduction algorithm.
 
-    content : list, len : 2
-        A list containing the On/Off flag and a nested list of extra parameters (e.g. ['rbf,'poly'] for KernelKMeans).
+    content : dict
+        A dictionary containing parameters for each clustering class.
+        Each parameter can be a list; in this case for each combination
+        of parameters a different pipeline will be created.
 
     Returns
     -----------
     cltpl : tuple
-        A tuple made like that ('ClusteringName', clustObj), where clustObj implements the .fit method.
+        A tuple made like that ('clust_name', clust_obj), where clust_obj
+        implements the .fit method.
     """
     if 'auto' in [content.get('n_clusters', ''), content.get('preference', '')]:
         # Wrapper class that automatically detects the best number of clusters via 10-Fold CV
@@ -201,15 +210,28 @@ def parse_steps(steps):
     # Parse the imputing options
     i_lst_of_tpls = []
     if imputing['Impute'][0]: # On/Off flag
-        for name in imputing['Replacement']:
-            imp = Imputer(missing_values=imputing['Missing'][0], strategy=name)
-            i_lst_of_tpls.append(("Impute_"+name, imp))
+        if len(imputing['Impute']) > 1:
+            content_d = imputing['Impute'][1]
+            content_values = values_iterator(content_d)
+            for ll in modified_cartesian(*map(ensure_list, list(content_values))):
+                content = {__k: __v for __k, __v in zip(list(content_d), ll)}
+                i_lst_of_tpls.append(("Impute", Imputer(**content)))
+        else:
+            i_lst_of_tpls.append(("Impute", Imputer()))
 
     # Parse the preprocessing options
     pp_lst_of_tpls = []
     for key in preproc.keys():
         if preproc[key][0]: # On/Off flag
-            pp_lst_of_tpls.append(parse_preproc(key, preproc[key]))
+            if len(preproc[key]) > 1:
+                content_d = preproc[key][1]
+                content_values = values_iterator(content_d)
+                for ll in modified_cartesian(*map(ensure_list, list(content_values))):
+                    content = {__k: __v for __k, __v in zip(list(content_d), ll)}
+                    pp_lst_of_tpls.append(parse_preproc(key, content))
+            else:
+                pp_lst_of_tpls.append(parse_preproc(key, {}))
+                # pp_lst_of_tpls.append(parse_preproc(key, preproc[key]))
 
     # Parse the dimensionality reduction & manifold learning options
     dr_lst_of_tpls = []
@@ -217,10 +239,7 @@ def parse_steps(steps):
         if dimred[key][0]: # On/Off flag
             if len(dimred[key]) > 1:
                 content_d = dimred[key][1]
-                try:
-                    content_values = content_d.itervalues()  # python 2
-                except:
-                    content_values = content_d.values()  # python 3
+                content_values = values_iterator(content_d)
                 for ll in modified_cartesian(*map(ensure_list, list(content_values))):
                     content = {__k: __v for __k, __v in zip(list(content_d), ll)}
                     dr_lst_of_tpls.append(parse_dimred(key, content))
@@ -233,10 +252,7 @@ def parse_steps(steps):
         if clustering[key][0]: # On/Off flag
             if len(clustering[key]) > 1: # Discriminate from just flag or flag + args
                 content_d = clustering[key][1]
-                try:
-                    content_values = content_d.itervalues()  # python 2
-                except:
-                    content_values = content_d.values()  # python 3
+                content_values = values_iterator(content_d)
                 for ll in modified_cartesian(*map(ensure_list, list(content_values))):
                     content = {__k: __v for __k, __v in zip(list(content_d), ll)}
                     if not (content.get('affinity','') in ['manhattan', 'precomputed'] and content.get('linkage','') == 'ward'):

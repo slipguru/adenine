@@ -21,7 +21,7 @@ import os
 sys.path.insert(0, os.path.abspath('.'))
 sys.path.insert(0, os.path.abspath('sphinxext'))
 
-from adenine import __version as VERSION
+from adenine import __version__ as VERSION
 
 # -- General configuration ------------------------------------------------
 

@@ -22,7 +22,3 @@ todo:
 iscriversi a mloss.org per fare submission per sw
 rileggere instructions for authors per jmlr mloss. 
 
-replace pipeline con "preprocessing --> Dim Red --> clustering type/param"
-inertia? maybe remove
-
-
