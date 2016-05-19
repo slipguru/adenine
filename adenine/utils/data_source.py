@@ -95,7 +95,7 @@ def load(opt='custom', x_filename=None, y_filename=None, n_samples=0):
 
     Parameters
     -----------
-    opt : {'iris', 'digits', 'diabetes', 'boston','custom'}, default: 'custom'
+    opt : {'iris', 'digits', 'diabetes', 'boston', 'circles', 'moons', 'custom'}, default: 'custom'
 
     x_filename : string, default : None
         The data matrix file name.
@@ -135,8 +135,12 @@ def load(opt='custom', x_filename=None, y_filename=None, n_samples=0):
             xx, yy = generate_gauss(mu=means, std=sigmas, n_sample=n_samples)
             data = datasets.base.Bunch(data=xx, target=yy)
         elif opt.lower() == 'circles':
-            if n_samples=0: n_samples=100
-            xx, yy = datasets.make_circles(n_samples=n_samples, factor=.5, noise=.05)
+            if n_samples==0: n_samples=400
+            xx, yy = datasets.make_circles(n_samples=n_samples, factor=.3, noise=.05)
+            data = datasets.base.Bunch(data=xx, target=yy)
+        elif opt.lower() == 'moons':
+            if n_samples==0: n_samples=400
+            xx, yy = datasets.make_moons(n_samples=n_samples, noise=.01)
             data = datasets.base.Bunch(data=xx, target=yy)
         elif opt.lower() == 'custom':
             data = load_custom(x_filename, y_filename)

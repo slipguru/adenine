@@ -31,15 +31,6 @@ def main(config_file):
     pipes = define_pipeline.parse_steps([config.step0, config.step1,
                                              config.step2, config.step3])
 
-    ############ DEBUG ############
-    for P in pipes:
-        for p in P:
-            print("{} -> {}\n".format(p[0], p[1].get_params()))
-        print("\n---------------------\n\n")
-    print("TOT: {} pipes".format(len(pipes)))
-    sys.exit(0)
-    ############ DEBUG ############
-
     # Pipelines Evaluation
     tic = time.time()
     outFolder = pipelines.run(pipes=pipes, X=X, exp_tag=fileName, root=root, y=y)

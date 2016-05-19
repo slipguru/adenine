@@ -1,0 +1,19 @@
+\documentclass{article}
+\usepackage{adjustbox}
+\usepackage{caption}
+\captionsetup[table]{skip=10pt}
+\begin{document}
+\begin{table}[h!]
+\centering
+\caption{Adenine: Clustering Performance for each pipeline}
+\label{clust-perf}
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{l|rc|rc|rc|rc|rc|rc|rc}
+\textbf{preprocess $\to$ dim red $\to$ clustering} & \textbf{ami} && \textbf{ari} && \textbf{completeness} && \textbf{homogeneity} && \textbf{v\_measure} && \textbf{inertia} && \textbf{silhouette} & \\ \hline
+linear KernelPCA $\to$ 2-clusts KMeans & -0.00165&   & -0.00229&   &  0.000162&   &  0.000162&   &  0.000162&   &  1.51e+02& * &  0.296&   \\
+rbf KernelPCA $\to$ 2-clusts KMeans &  1.0& * &  1.0& * &  1.0& * &  1.0& * &  1.0& * &  49.1&   &  0.555& * \\
+\hline
+\end{tabular}
+\end{adjustbox}
+\end{table}
+\end{document}
