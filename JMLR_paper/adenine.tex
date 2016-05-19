@@ -16,9 +16,10 @@
 \usepackage{graphicx}
 \usepackage[inline]{enumitem}
 \usepackage{hyperref}
+\usepackage{amsmath,amsfonts,dsfont,mathrsfs,mathtools,amssymb}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
-\usepackage{amsmath,amsfonts,dsfont,mathrsfs,mathtools,amssymb}
+
 % \newcommand{\INDSTATE}[1][1]{\STATE\hspace{#1\algorithmicindent}}
 \newcommand{\INDSTATE}{\STATE\hspace{\algorithmicindent}}
 \newcommand{\argmax}[1]{\underset{#1}{\operatorname{arg}\,\operatorname{max}}\;}
@@ -61,7 +62,7 @@
 
 \begin{abstract}
 
-In this paper we introduce \ade, a machine learning \py framework for data exploration. The main goals of \ade, is twofold: helping researchers and data scientists achieving a first and quick overview on the main structures underlying their data and choosing the most suitable unsupervised learning pipeline for the problem at hand. This software tool encompasses state of the art techniques for: missing values imputing, preprocessing, dimensionality reduction and clustering tasks.
+In this paper we introduce \ade, a machine learning \py framework for data exploration. The main goal of \ade, is twofold: helping researchers and data scientists achieving a first and quick overview on the main structures underlying their data and choosing the most suitable unsupervised learning pipeline for the problem at hand. This software tool encompasses state of the art techniques for: missing values imputing, preprocessing, dimensionality reduction and clustering tasks.
 \ade exploits both process and thread level parallelism and it is capable of generating nice and clean publication-ready figures along with quantitative descriptions of the pipelines performance. \ade is released under FreeBSD license and it can be downloaded from \href{http://slipguru.github.io/adenine/}{http://slipguru.github.io/adenine/}.
 %% max 200 words: current ~100
 
@@ -72,29 +73,29 @@ Data exploration, unsupervised learning, RNA-Seq gene expression
 \end{keywords}
 
 \section{Introduction}\label{sec:intro}
-Data exploration is a very insightful starting point for many data analysis projects. Researchers and data scientists are often asked to extract meaningful information from collections of complex and possibly high-dimensional data coming from heterogenous contexts. For instance, in biomedical scenarios, physicians are likely to be interested in answering some biological questions starting from a set of observations collected from a pool of subjects enrolled in a study. Possible investigations can be: \emph{is there any relevant stratification among subjects?} or \emph{is it possible to discriminate between cases and controls from my observations?}. Starting from a given dataset, the information needed to answer such questions may be immediate, non-trivial to extract or even completely absent.
-In these situations, a preliminary data exploration step is not only good practice, but also a fundamental starting point for further and deeper investigations. In this context, several machine learning and data mining techniques were developed over the years. Among those we focus on the four most popular classes of methods: \begin{enumerate*}[label=(\roman*)]
+Data exploration is a very insightful starting point for many data analysis projects. Researchers and data scientists are often asked to extract meaningful information from collections of complex and possibly high-dimensional data coming from heterogenous contexts. For instance, in biomedical scenarios, physicians are likely to be interested in answering some biological questions starting from observations collected from a pool of subjects enrolled in a study. Possible investigations can be: \emph{is there any relevant stratification among subjects?} or \emph{is it possible to discriminate between cases and controls from my observations?}. Starting from a given dataset, the information needed to answer such questions may be immediate, non-trivial to extract or even completely absent.
+In these situations, a preliminary data exploration step is not only good practice, but also a fundamental starting point for further and deeper investigations. To accomplish this task, several machine learning and data mining techniques were developed over the years. Among those we focus on the four most popular classes of methods: \begin{enumerate*}[label=(\roman*)]
   \item missing values imputing,
   \item data preprocessing,
   \item dimensionality reduction and
   \item unsupervised clustering
 \end{enumerate*}.
 
-In the last few years, a fair number of data exploration softwares and libraries  were released. At a very coarse grain we can group them into two sets: interactive GUI-based and non-interactive script-based  applications. Of the first group, we recall \emph{Divvy} \citep{lewis2013divvy}, a software tool that performs dimensionality reduction and clustering on input datasets. \emph{Divvy} is a light framework, although its interface is designed to be Mac OS X specific, it heavily lacks in documentation, its collection of \texttt{C/C++} algorithm implementations does not cover common strategies such as kernel principal component analysis (KPCA) \citep{scholkopf1997kernel} or hierarchical clustering \citep{friedman2001elements} and it does not offer strategies to perform automatic discoveries of the number of clusters. The most notable project that spans between the two families is \emph{Orange} \citep{demvsar2013orange}, a data mining software suite that offers both visual programming front-end and standard \py APIs. In the context of data exploration, \emph{Orange} can be successfully employed. However, it does not support automatic pipeline generation, hence it requires the user to manually create each pipeline. On the other hand, as of today \emph{Orange} lacks in several nonlinear methods such as spectral embedding \citep{ng2002spectral}, locally linear embedding \citep{roweis2000nonlinear} and spectral vlustering \citep{shi2000normalized}.
+In the last few years, a fair number of data exploration softwares and libraries  were released. At a very coarse grain we can group them into two sets: interactive GUI-based and non-interactive command-line  applications. Of the first group, we recall \emph{Divvy} \citep{lewis2013divvy}, a software tool that performs dimensionality reduction and clustering on input datasets. \emph{Divvy} is a light framework, although its interface is designed to be Mac OS X specific, it heavily lacks in documentation, its collection of \texttt{C/C++} algorithm implementations does not cover common strategies such as kernel principal component analysis (KPCA) \citep{scholkopf1997kernel} or hierarchical clustering \citep{friedman2001elements} and it does not offer strategies to perform automatic discoveries of the number of clusters. The most notable project that spans between the two families is \emph{Orange} \citep{demvsar2013orange}, a data mining software suite that offers both visual programming front-end and \py APIs. In the context of data exploration, \emph{Orange} can be successfully employed. However, it does not support automatic pipeline generation, hence it requires the user to manually create each pipeline. On the other hand, as of today \emph{Orange} lacks in several nonlinear methods such as spectral embedding \citep{ng2002spectral}, locally linear embedding \citep{roweis2000nonlinear} and spectral clustering \citep{shi2000normalized}.
 
-We introduce \ade, a script-based \py tool for data exploration that, starting from a set of predefined unsupervised algorithms, creates textual an graphical reports of an arbitrary number of pipelines. In this context data imputing, preprocessing, dimenionality reduction and clustering strategies are considered as pipeline building blocks. The user is only required to specify input data and to select blocks, then \ade takes care of automatically generate and run the pipelines made by all possible combinations of the selected algorithms. Every algorithm implementation of \ade is inherited, or extended, from \texttt{scikit-learn} \citep{scikit-learn} which is, to the best of our knowledge, the most complete machine learning open source library freely available online.
+We introduce \ade, a command-line \py tool for data exploration that, starting from a set of predefined unsupervised algorithms, creates textual an graphical reports of an arbitrary number of pipelines. In this context data imputing, preprocessing, dimensionality reduction and clustering strategies are considered as building blocks for data analysis pipelines. The user is only required to specify input data and to select blocks, then \ade takes care of automatically generate and run the pipelines made by all possible combinations of the selected algorithms. Every algorithm implementation of \ade is inherited, or extended, from \texttt{scikit-learn} \citep{scikit-learn} which is, to the best of our knowledge, the most complete machine learning open source library freely available online.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Tool overview}\label{sec:implem}
-\ade is developed around the concept of \emph{pipeline}, with that we mean a sequence of the following four fundamental steps:
+\ade is developed around the concept of data analysis \emph{pipeline}, with that we mean a sequence of the following four fundamental steps:
 \begin{enumerate*}[label=(\roman*)]
   \item missing values imputing,
   \item data preprocessing,
   \item dimensionality reduction and
   \item unsupervised clustering
 \end{enumerate*} (see Figure~\ref{fig:workflow}).
-For each task, a fair number of off-the-shelf algorithms are available (see Table~\ref{sec:implem}), although none of these steps are mandatory and they can be skipped if not needed.
+For each task, a fair number of off-the-shelf algorithms are available (see Table~\ref{sec:implem}), however none of such steps are mandatory and they can be skipped if not required.
 
 \begin{figure}[h!]
     \centering
@@ -105,9 +106,10 @@ For each task, a fair number of off-the-shelf algorithms are available (see Tabl
 \begin{enumerate}
   \item[]{\bf Step 0: Missing values imputing.}
   % \subsection*{Missing values imputing}
-  Working with real-world collections of data it often happens that sets of entries are missing. In order to cope with this issue, \ade offers an improved version of the \texttt{Imputer} class offered by \texttt{scikit-learn}. Our extension adds a k-nearest neighbor (KNN) imputing method to the pre-existent features-wise \emph{mean}, \emph{median} and \emph{most frequent} value strategies.
+%  Working with real-world data collections sets of entries are often missing. 
+  In real-world datasets, groups of entries are often missing. In order to cope with this issue, \ade offers an improved version of the \texttt{Imputer} class offered by \texttt{scikit-learn}. Our extension adds a k-nearest neighbor (KNN) imputing method to the pre-existent features-wise \emph{mean}, \emph{median} and \emph{most frequent} value strategies.
   % (whose names are already self-explanatory)
-  We chose to add the KNN imputing method to the \emph{na\"ive} strategies offered by \texttt{scikit-learn} because of its simplicity and the robustness demonstrated in the microarray reconstruction experiments described in \citep{troyanskaya2001missing}.
+  We chose to add the KNN imputing method to the \emph{na\"ive} strategies offered by \texttt{scikit-learn} because of the robustness demonstrated in the microarray reconstruction experiments described in \citep{troyanskaya2001missing}.
 
   \item[]{\bf Step 1: Data preprocessing.}
   % \subsection*{Data preprocessing}
@@ -125,13 +127,13 @@ For each task, a fair number of off-the-shelf algorithms are available (see Tabl
 
   \item[]{\bf Step 2: Dimensionality reduction.}
   % \subsection*{Dimensionality reduction}
-  Data exploration of high dimensional dataset can be very tricky. Visualizing samples in high dimension is much less intuitive than representing them in basic two or three-dimensional scatterplots. Moreover, it is often possible to \emph{decrease} the dimensionality of the problem estimating, by means of different strategies, a low-dimensional embedding in which the data lie. To accomplish this task, \ade offers a set of linear and nonlinear dimensionality reduction and manifold learning algorithms, see Table~\ref{tab:blocks} for the full list of available strategies and the correspondent references.
+  Data exploration of high dimensional dataset can be very tricky. Visualizing samples in high dimension is much less intuitive than representing them in two or three-dimensional scatterplots. Moreover, it is often possible to \emph{decrease} the dimensionality of the problem estimating, by means of different strategies, a low-dimensional embedding in which the data lie. To accomplish this task, \ade offers a set of linear and nonlinear dimensionality reduction and manifold learning algorithms, see Table~\ref{tab:blocks} for the full list of available strategies and the correspondent references.
 
   \item[]{\bf Step 3: Unsupervised clustering.}
   % \subsection*{Unsupervised clustering}
-  Cluster analysis, when needed, are the last step of each pipeline. \ade offers different strategies ad heuristics to automatically estimate the most suitable number of clusters in a given dataset. The available clustering techniques can be grouped into centroid-based and not centroid-based methods. For the first class of methods, the optimal parameter choice follows the $B$-fold cross-validation strategy presented in Algorithm~\ref{alg:clusters}, where $\mathcal{S}(X,y)$ is defined as the mean silhouette coefficient \citep{rousseeuw1987silhouettes} for all input samples.
-  The tuning parameter for the affinity propagation technique \citep{frey2007clustering} is the so-called \emph{preference} and it defines the number of discovered clusters $k$. For k-means \citep{bishop2006pattern} the tuning parameter is directly the \emph{number of clusters}, while the mean shift strategy \citep{comaniciu2002mean} has an implicit clusters discovery. For hierarchical \citep{friedman2001elements} and spectral clustering \citep{shi2000normalized} no automatic number of clusters discovery is offered. However graphical aids to evaluate the performance with fixed $k$ are generated as, respectively, dendrogram tree and plot of the eigenvalues of the Laplacian of the affinity matrix.
-
+  Cluster analysis, when needed, is the last step of our pipelines. Clustering techniques in \ade are either centroid-based and non centroid-based. For both classes of methods, \ade offers strategies ad heuristics to automatically estimate the best parameter that yields the most suitable cluster separation. The optimal parameter selection of centroid-based algorithms follows the $B$-fold cross-validation strategy presented in Algorithm~\ref{alg:clusters}, where $\mathcal{S}(X,y)$ is defined as the mean silhouette coefficient \citep{rousseeuw1987silhouettes} for all input samples.
+  The tuning parameter for the affinity propagation technique \citep{frey2007clustering} is the so-called \emph{preference} and it defines the number of discovered clusters $k$. For k-means \citep{bishop2006pattern} the tuning parameter is directly the \emph{number of clusters}, while the mean shift strategy \citep{comaniciu2002mean} has an implicit clusters discovery. For hierarchical \citep{friedman2001elements} and spectral clustering \citep{shi2000normalized} no automatic number of clusters discovery is offered. However graphical aids to evaluate the performance with fixed $k$ are generated as, respectively, dendrogram tree and eigenvalues of the Laplacian of the affinity matrix plot.
+ 
   \begin{algorithm}[h!]
       \caption{Automatic discovery of the optimal clustering parameter.}\label{alg:clusters}
         \begin{algorithmic}[1]
@@ -151,7 +153,7 @@ For each task, a fair number of off-the-shelf algorithms are available (see Tabl
 
 \end{enumerate}
 
-\noindent In order to perform exploratory analysis of large datasets, \ade takes advantage of different parallel computing paradigms. For instance, its pipelines are designed to be independent from each other, therefore they all run in parallel as separate \py processes on different cores. Moreover, since \ade makes large use of \texttt{numpy} and \texttt{scipy}, it automatically benefits from their bindings with optimized linear algebra libraries (such as OpenBLAS\footnote{\href{http://www.openblas.net/}{http://www.openblas.net/}}, or Intel\textsuperscript{\textregistered}~MKL).
+\noindent In order to perform exploratory analysis of large datasets, \ade takes advantage of different parallel computing paradigms. \ade pipelines are designed to be independent from each other, therefore they all run in parallel as separate \py processes on different cores. Moreover, since \ade makes large use of \texttt{numpy} and \texttt{scipy}, it automatically benefits from their bindings with optimized linear algebra libraries (such as OpenBLAS\footnote{\href{http://www.openblas.net/}{http://www.openblas.net/}}, or Intel\textsuperscript{\textregistered}~MKL).
 
 \section{Usage Example}
 Comparing pipelines performance on toy dataset.

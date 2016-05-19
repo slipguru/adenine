@@ -106,7 +106,7 @@ target/
 *.lof
 *.log
 *.lot
-*.fls
+**.fls
 *.out
 *.toc
 *.fmt
