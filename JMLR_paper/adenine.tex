@@ -167,7 +167,7 @@ In this section we show how to use \ade to perform an exploratory analysis on a 
  
 \input{snippet}
 
-\noindent Each \texttt{step} variable refers to a \texttt{dict} having the name of the building block as key and a \texttt{list} as value. Each list has an \texttt{bool} \emph{on$\backslash$off} trigger in first position followed by a \texttt{dict} of keyword arguments for the class implementing the correspondent method. When more than one method is specified in a single step, \ade takes automatically care of implementing the pipelines made by all possible combinations. Several other options can be specified in the configuration file, we recall to \ade documentation and tutorials\footnote{link here} for a comprehensive description. So, using the configuration file above, \ade will generate two pipelines with similar structure. They will both have no preprocessing step, followed by a three-dimensional projection accomplished by PCA (pipeline 1) or Gaussian KPCA (with $\gamma=2$ (pipeline 2); on the dimensionality-reduced dataset a k-means clustering with automatic cluster discovery (as in Algorithm~\ref{alg:clusters}) is eventually performed.
+\noindent Each \texttt{step} variable refers to a \texttt{dict} having the name of the building block as key and a \texttt{list} as value. Each list has an \texttt{bool} \emph{on$\backslash$off} trigger in first position followed by a \texttt{dict} of keyword arguments for the class implementing the correspondent method. When more than one method is specified in a single step, \ade takes automatically care of implementing the pipelines made by all possible combinations. Several other options can be specified in the configuration file, we recall to \ade documentation and tutorials\footnote{\href{www.slipguru.unige.it/Softwares/Adenine}{www.slipguru.unige.it/Softwares/Adenine}} for a comprehensive description. So, using the configuration file above, \ade will generate two pipelines with similar structure. They will both have $\ell^2$-normalized samples, projected on a three-dimensional space by Gaussian KPCA with $\gamma=2$ (pipeline 1) and Isomap (pipeline 2); on the dimensionality-reduced dataset a k-means clustering with automatic cluster discovery (as in Algorithm~\ref{alg:clusters}) is eventually performed.
 %\begin{enumerate*}
 %\item no preprocessing $\rightarrow$ PCA $\rightarrow$ k-means with auto-discovery of the number of clusters (as in Algorithm~\ref{alg:clusters}) and
 %\item no preprocessing $\rightarrow$ KPCA with Gaussian kernel ($\gamma=2$) $\rightarrow$ k-means as above
@@ -178,17 +178,15 @@ The results of this first step are all stored in a single output folder. Once th
 \begin{figure}[h!] 
     \centering
     \subfloat[]{%
-        \includegraphics[width=0.4\textwidth]{figures/lin_KM.pdf}%
+        \includegraphics[width=0.4\textwidth]{figures/l2-kpca-KMeans_5-clusts.pdf}%
         \label{fig:a}%
         }%
     \hfill%
     \subfloat[]{%
-        \includegraphics[width=0.4\textwidth]{figures/rbf_KM.pdf}%
+        \includegraphics[width=0.4\textwidth]{figures/l2-iso-KMeans_5-clusts.pdf}%
         \label{fig:b}%
         }%
-\caption{Comparison between k-means performance after linear and nonlinear projection. Data-points colors refer to real classes, while backgrounds are colored according to clustering predictions. The dataset analyzed in this experiment is a random extraction of $800$ samples measuring RNA-Seq gene expression of patients affected by 5 different types of tumor: breast invasive carcinoma (BRCA), kidney renal clear cell carcinoma (KIRC), colon  (COAD), lung  (LUAD) and prostate adenocarcinoma (PRAD). This reduced dataset is available at \href{website}{http://website} and it comes from the cancer genome atlas pan-cancer analysis project~\citep{weinstein2013cancer}.} \label{fig:scatter}
-
-
+\caption{Comparison between k-means performance after two different nonlinear projections. Data-points colors refer to real classes, while backgrounds are colored according to clustering predictions. The dataset analyzed in this experiment is a random extraction of $800$ samples measuring RNA-Seq gene expression of patients affected by 5 different types of tumor: breast invasive carcinoma (BRCA), kidney renal clear cell carcinoma (KIRC), colon  (COAD), lung  (LUAD) and prostate adenocarcinoma (PRAD). This reduced dataset is available from \ade documentation website and it comes from the cancer genome atlas pan-cancer analysis project~\citep{weinstein2013cancer}. We can notice that in both cases our algorithm automatically discovers the correct number of clusters, although the Isomap projection improves the clustering performance.} \label{fig:scatter}
 \end{figure}
 
 
