@@ -18,12 +18,10 @@
 \usepackage[inline]{enumitem}
 \usepackage{hyperref}
 \usepackage{amsmath,amsfonts,dsfont,mathrsfs,mathtools,amssymb}
-\usepackage{algorithm}
-\usepackage{algpseudocode}
+\usepackage{algorithm, algpseudocode}
 
 \input{pygment_options}
 
-\newcommand{\INDSTATE}{\STATE\hspace{\algorithmicindent}}
 \newcommand{\argmax}[1]{\underset{#1}{\operatorname{arg}\,\operatorname{max}}\;}
 % \usepackage{showframe}
 
@@ -143,33 +141,39 @@ For each task, different off-the-shelf algorithms are available (see Table~\ref{
   \ade offers strategies ad heuristics to automatically estimate the parameter that yields the most suitable cluster separation. The optimal parameter selection of centroid-based algorithms follows the $B$-fold cross-validation strategy presented in Algorithm~\ref{alg:clusters}, where $\mathcal{S}(X,y)$ is the mean silhouette coefficient \citep{rousseeuw1987silhouettes} for all input samples.
   The tuning parameter for the affinity propagation technique \citep{frey2007clustering} is the so-called \emph{preference} and it defines the number of discovered clusters. For k-means \citep{bishop2006pattern} the tuning parameter is directly the \emph{number of clusters}, while mean shift \citep{comaniciu2002mean} has an implicit clusters discovery. For hierarchical \citep{friedman2001elements} and spectral clustering \citep{shi2000normalized} no automatic number of clusters discovery is offered. However, graphical aids to evaluate the performance with fixed parameters are generated as, respectively, dendrogram tree and eigenvalues of the Laplacian of the affinity matrix plot.
  
-  \begin{algorithm}[h!]
-      \caption{Automatic discovery of the optimal clustering parameter.}\label{alg:clusters}
-        \begin{algorithmic}[1]
-            \For{clustering parameter $k$ in $k_1 \dots k_K$ }
-              \For{cross-validation split $b$ in $1 \dots B$}{\\
-                \INDSTATE \INDSTATE $X^{tr}_b,X^{vld}_b\leftarrow$ $b$-th training, validation set\\
-                \INDSTATE \INDSTATE $\hat{m}\leftarrow$ fit model on $X^{tr}_b$ \\
-                \INDSTATE \INDSTATE $\hat{y}\leftarrow$ predict labels of $X^{vld}_b$ according to $\hat{m}$\\
-                \INDSTATE \INDSTATE $s_b\leftarrow$ evaluate silhouette score  $\mathcal{S}(X^{vld}_b,\hat{y})$
-                }
-              \EndFor \\
-              \INDSTATE $\bar{S}_k = \frac{1}{B}\sum_{i=1}^B s_i$
-            \EndFor \\
-            $k_{opt} = \argmax{k}(\bar{S}_k)$
-          \end{algorithmic}
-  \end{algorithm}
+\begin{algorithm}
+\caption{Automatic discovery of the optimal clustering parameter.}\label{alg:clusters}
+\label{alg:clusters}
+\begin{algorithmic}[1]
+\For{clustering parameter $k$ in $k_1 \dots k_K$ }
+	\For{cross-validation split $b$ in $1 \dots B$}
+                \State $X^{tr}_b,X^{vld}_b\leftarrow$ $b$-th training, validation set
+                \State $\hat{m}\leftarrow$ fit model on $X^{tr}_b$
+                \State $\hat{y}\leftarrow$ predict labels of $X^{vld}_b$ according to $\hat{m}$
+                \State $s_b\leftarrow$ evaluate silhouette score  $\mathcal{S}(X^{vld}_b,\hat{y})$
+	\EndFor    
+	\State $\bar{S}_k = \frac{1}{B}\sum_{i=1}^B s_i$
+\EndFor
+\State $k_{opt} = \argmax{k}(\bar{S}_k)$
+\end{algorithmic}
+\end{algorithm}
 
 \end{enumerate}
 
 \noindent In order to perform exploratory analysis on large datasets, we took advantage of different parallel computing paradigms. \ade pipelines are designed to be independent from each other, therefore they all run in parallel as separate \py processes on different cores. Moreover, since \ade makes large use of \texttt{numpy} and \texttt{scipy}, it automatically benefits from their bindings with optimized linear algebra libraries (such as OpenBLAS\footnote{\href{http://www.openblas.net/}{http://www.openblas.net/}}, or Intel\textsuperscript{\textregistered}~MKL).
 
 \section{Usage Example}
-In this section we show how to use \ade to perform a exploratory analysis on a relatively small example. All we need is simply to install \ade and then run \texttt{ade\_run.py} on an input configuration file (with \texttt{.py} extension) which looks like the snippet below.
+In this section we show how to use \ade to perform an exploratory analysis on a relatively small example. Once \ade is installed, all we need is to launch \texttt{ade\_run.py} specifying as input argument a configuration file (with \texttt{.py} extension) which should look like the snippet below.
  
 \input{snippet}
 
-Each \texttt{step} variable refers to a dictionary having the name of the building block as key and a list as value. Each list has an \emph{on$\backslash$off} trigger in first position followed by a dictionary of keyword arguments for the class implementing the correspondent method. When more than one method is specified in a step, \ade takes automatically care of implementing the pipelines made by all possible combinations. Several other options can be specified in the configuration file, we recall to \ade documentation and tutorials\footnote{link here} for a comprehensive description. The results of this first step are all stored in a single output folder. Once the analysis are completed, plots and reports can be automatically generated launching \texttt{ade\_analysis.py} on the output folder previously created. In Figure~\ref{fig:scatter} a comparison between two pipelines is presented.
+\noindent Each \texttt{step} variable refers to a \texttt{dict} having the name of the building block as key and a \texttt{list} as value. Each list has an \texttt{bool} \emph{on$\backslash$off} trigger in first position followed by a \texttt{dict} of keyword arguments for the class implementing the correspondent method. When more than one method is specified in a single step, \ade takes automatically care of implementing the pipelines made by all possible combinations. Several other options can be specified in the configuration file, we recall to \ade documentation and tutorials\footnote{link here} for a comprehensive description. So, using the configuration file above, \ade will generate two pipelines with similar structure. They will both have no preprocessing step, followed by a three-dimensional projection accomplished by PCA (pipeline 1) or Gaussian KPCA (with $\gamma=2$ (pipeline 2); on the dimensionality-reduced dataset a k-means clustering with automatic cluster discovery (as in Algorithm~\ref{alg:clusters}) is eventually performed.
+%\begin{enumerate*}
+%\item no preprocessing $\rightarrow$ PCA $\rightarrow$ k-means with auto-discovery of the number of clusters (as in Algorithm~\ref{alg:clusters}) and
+%\item no preprocessing $\rightarrow$ KPCA with Gaussian kernel ($\gamma=2$) $\rightarrow$ k-means as above
+%\end{enumerate*}.
+
+The results of this first step are all stored in a single output folder. Once the analysis are completed, plots and reports can be automatically generated launching \texttt{ade\_analysis.py} on the output folder previously created. In Figure~\ref{fig:scatter} an example of a possible comparison between the two pipelines is presented.
 
 \begin{figure}[h!] 
     \centering
@@ -182,7 +186,9 @@ Each \texttt{step} variable refers to a dictionary having the name of the buildi
         \includegraphics[width=0.4\textwidth]{figures/rbf_KM.pdf}%
         \label{fig:b}%
         }%
-    \caption{Comparison between k-means performance after linear and nonlinear projection. Data-points colors refer to real classes, while backgrounds are colored according to clustering predictions.}\label{fig:scatter}
+\caption{Comparison between k-means performance after linear and nonlinear projection. Data-points colors refer to real classes, while backgrounds are colored according to clustering predictions. The dataset analyzed in this experiment is a random extraction of $800$ samples measuring RNA-Seq gene expression of patients affected by 5 different types of tumor: breast invasive carcinoma (BRCA), kidney renal clear cell carcinoma (KIRC), colon  (COAD), lung  (LUAD) and prostate adenocarcinoma (PRAD). This reduced dataset is available at \href{website}{http://website} and it comes from the cancer genome atlas pan-cancer analysis project~\citep{weinstein2013cancer}.} \label{fig:scatter}
+
+
 \end{figure}
 
 
