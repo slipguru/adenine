@@ -64,7 +64,7 @@
 \begin{abstract}
 
 In this paper we introduce \ade, a machine learning \py framework for data exploration. The main goal of \ade, is twofold: helping researchers and data scientists achieving a first and quick overview on the main structures underlying their data and choosing the most suitable unsupervised learning pipeline for the problem at hand. This software tool encompasses state of the art techniques for: missing values imputing, preprocessing, dimensionality reduction and clustering tasks.
-\ade exploits both process and thread level parallelism and it is capable of generating nice and clean publication-ready figures along with quantitative descriptions of the pipelines performance. \ade is released under FreeBSD license and it can be downloaded from \href{http://slipguru.github.io/adenine/}{http://slipguru.github.io/adenine/}.
+\ade exploits both process and thread level parallelism and it is capable of generating nice and clean publication-ready figures along with quantitative descriptions of the pipelines results. \ade is released under FreeBSD license and it can be downloaded from \href{http://slipguru.github.io/adenine/}{http://slipguru.github.io/adenine/}.
 %% max 200 words: current ~100
 
 \end{abstract}
@@ -82,9 +82,11 @@ In these situations, a preliminary data exploration step is not only good practi
   \item unsupervised clustering
 \end{enumerate*}.
 
-In the last few years, a fair number of data exploration softwares and libraries  were released. At a very coarse grain we can group them into two sets: interactive GUI-based and non-interactive command-line  applications. Of the first group, we recall \emph{Divvy} \citep{lewis2013divvy}, a software tool that performs dimensionality reduction and clustering on input datasets. \emph{Divvy} is a light framework, although its interface is designed to be Mac OS X specific, it heavily lacks in documentation, its collection of \texttt{C/C++} algorithm implementations does not cover common strategies such as kernel principal component analysis (KPCA) \citep{scholkopf1997kernel} or hierarchical clustering \citep{friedman2001elements} and it does not offer strategies to perform automatic discoveries of the number of clusters. The most notable project that spans between the two families is \emph{Orange} \citep{demvsar2013orange}, a data mining software suite that offers both visual programming front-end and \py APIs. In the context of data exploration, \emph{Orange} can be successfully employed. However, it does not support automatic pipeline generation, hence it requires the user to manually create each pipeline. On the other hand, as of today \emph{Orange} lacks in several nonlinear methods such as spectral embedding \citep{ng2002spectral}, locally linear embedding \citep{roweis2000nonlinear} and spectral clustering \citep{shi2000normalized}.
+In the last few years, a fair number of data exploration softwares and libraries  were released. At a very coarse grain we can group them in two families: GUI-based and command-line  applications. Of the first group, we recall \emph{Divvy} \citep{lewis2013divvy}, a software tool that performs dimensionality reduction and clustering on input datasets. \emph{Divvy} is a light framework, although its interface is designed to be Mac OS X specific, 
+%it heavily lacks in documentation, 
+its collection of \texttt{C/C++} algorithm implementations does not cover common strategies such as kernel principal component analysis (KPCA) \citep{scholkopf1997kernel} or hierarchical clustering \citep{friedman2001elements} and it does not offer strategies to perform automatic discoveries of the number of clusters. The most notable project that spans between the two families is \emph{Orange} \citep{demvsar2013orange}, a data mining software suite that offers both visual programming front-end and \py APIs. In the context of data exploration, \emph{Orange} can be successfully employed. However, it does not support automatic pipeline generation, hence it requires the user to manually create each pipeline. On the other hand, as of today \emph{Orange} lacks in several nonlinear methods such as spectral embedding \citep{ng2002spectral}, locally linear embedding \citep{roweis2000nonlinear} and spectral clustering \citep{shi2000normalized}.
 
-We introduce \ade, a command-line \py tool for data exploration that, starting from a set of predefined unsupervised algorithms, creates textual an graphical reports of an arbitrary number of pipelines. In this context data imputing, preprocessing, dimensionality reduction and clustering strategies are considered as building blocks for data analysis pipelines. The user is only required to specify input data and to select blocks, then \ade takes care of automatically generate and run the pipelines made by all possible combinations of the selected algorithms. Every algorithm implementation of \ade is inherited, or extended, from \texttt{scikit-learn} \citep{scikit-learn} which is, to the best of our knowledge, the most complete machine learning open source library freely available online.
+We introduce \ade, a command-line \py tool for data exploration that, starting from a set of unsupervised algorithms, creates textual an graphical reports of an arbitrary number of pipelines. In this context data imputing, preprocessing, dimensionality reduction and clustering strategies are considered as building blocks for data analysis pipelines. The user is only required to specify input data and to select blocks, then \ade takes care of automatically generate and run the pipelines made by all possible combinations of the selected algorithms. Every algorithm implementation of \ade is inherited, or extended, from \texttt{scikit-learn} \citep{scikit-learn} which is, to the best of our knowledge, the most complete machine learning open source library freely available online.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -95,14 +97,15 @@ We introduce \ade, a command-line \py tool for data exploration that, starting f
   \item data preprocessing,
   \item dimensionality reduction and
   \item unsupervised clustering
-\end{enumerate*} (see Figure~\ref{fig:workflow}).
-For each task, a fair number of off-the-shelf algorithms are available (see Table~\ref{sec:implem}), however none of such steps are mandatory and they can be skipped if not required.
+\end{enumerate*}. 
+%(see Figure~\ref{fig:workflow}).
+For each task, different off-the-shelf algorithms are available (see Table~\ref{sec:implem}).%, however none of such steps are mandatory and they can be skipped if not required.
 
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width=\textwidth]{ade_wf/ade_wf.pdf}
-    \caption{A schematic representation of the \ade workflow. The list of building blocks available for each step is summarized in Table~\ref{tab:blocks}. The final number of pipelines generated is $I \times P \times D \times C$.}\label{fig:workflow}
-\end{figure}
+%\begin{figure}[h!]
+%    \centering
+%    \includegraphics[width=\textwidth]{ade_wf/ade_wf.pdf}
+%    \caption{A schematic representation of the \ade workflow. The list of building blocks available for each step is summarized in Table~\ref{tab:blocks}. The final number of pipelines generated is $I \times P \times D \times C$.}\label{fig:workflow}
+%\end{figure}
 
 \input{methods}
 
@@ -117,25 +120,28 @@ For each task, a fair number of off-the-shelf algorithms are available (see Tabl
   \item[]{\bf Step 1: Data preprocessing.}
   % \subsection*{Data preprocessing}
   Collecting data from heterogenous sources may imply dealing with features lying in very different numerical ranges. This can sometimes have a negative influence on the behaviour of dimensionality reduction and clustering techniques. To tackle this issue \ade offers four different strategies:
-  \begin{enumerate}[label=(\roman*)]
+  \begin{enumerate*}[label=(\roman*)]
     \item \emph{Recenter}: transforming samples in order to have zero-mean;
     \item \emph{Standardize}: transforming recentered samples in order to have unit-variance;
     \item \emph{Normalize}: scaling samples in order to have $\ell^p$ unitary norm (with $p = 1$ or $2$);
-    \item \emph{MinMax}: scaling features to a given range, this transformation can be expressed as
-    \[
-      X_{MinMax} = \frac{X - min(X)}{max(X) - min(X)} \cdot \Big[max(X) - min(X)\Big] + min(X)
-    \]
-    where $min$ and $max$ denote, respectively, feature-wise minimum and maximum values operators.
-  \end{enumerate}
+    \item \emph{MinMax}: scaling features to a given range
+%    , this transformation can be expressed as
+%    \[
+%      X_{MinMax} = \frac{X - min(X)}{max(X) - min(X)} \cdot \Big[max(X) - min(X)\Big] + min(X)
+%    \]
+%    where $min$ and $max$ denote, respectively, feature-wise minimum and maximum values operators.
+  \end{enumerate*}.
 
   \item[]{\bf Step 2: Dimensionality reduction.}
   % \subsection*{Dimensionality reduction}
-  Data exploration of high dimensional dataset can be very tricky. Visualizing samples in high dimension is much less intuitive than representing them in two or three-dimensional scatterplots. Moreover, it is often possible to \emph{decrease} the dimensionality of the problem estimating, by means of different strategies, a low-dimensional embedding in which the data lie. To accomplish this task, \ade offers a set of linear and nonlinear dimensionality reduction and manifold learning algorithms, see Table~\ref{tab:blocks} for the full list of available strategies and the correspondent references.
+  Data exploration of high dimensional dataset can be very tricky. Visualizing samples in high dimension is much less intuitive than representing them in two or three-dimensional plots. However, it is often possible to \emph{decrease} the dimensionality of the problem estimating, by means of different strategies, a low-dimensional embedding in which the data lie. To accomplish this task, \ade offers a set of linear and nonlinear dimensionality reduction and manifold learning algorithms (see Table~\ref{tab:blocks}).
 
   \item[]{\bf Step 3: Unsupervised clustering.}
   % \subsection*{Unsupervised clustering}
-  Cluster analysis, when needed, is the last step of our pipelines. Clustering techniques in \ade are either centroid-based and non centroid-based. For both classes of methods, \ade offers strategies ad heuristics to automatically estimate the best parameter that yields the most suitable cluster separation. The optimal parameter selection of centroid-based algorithms follows the $B$-fold cross-validation strategy presented in Algorithm~\ref{alg:clusters}, where $\mathcal{S}(X,y)$ is defined as the mean silhouette coefficient \citep{rousseeuw1987silhouettes} for all input samples.
-  The tuning parameter for the affinity propagation technique \citep{frey2007clustering} is the so-called \emph{preference} and it defines the number of discovered clusters $k$. For k-means \citep{bishop2006pattern} the tuning parameter is directly the \emph{number of clusters}, while the mean shift strategy \citep{comaniciu2002mean} has an implicit clusters discovery. For hierarchical \citep{friedman2001elements} and spectral clustering \citep{shi2000normalized} no automatic number of clusters discovery is offered. However graphical aids to evaluate the performance with fixed $k$ are generated as, respectively, dendrogram tree and eigenvalues of the Laplacian of the affinity matrix plot.
+  Cluster analysis can be the last step of our pipelines. 
+  %Clustering techniques in \ade are either centroid-based and non centroid-based. For both classes of methods, 
+  \ade offers strategies ad heuristics to automatically estimate the parameter that yields the most suitable cluster separation. The optimal parameter selection of centroid-based algorithms follows the $B$-fold cross-validation strategy presented in Algorithm~\ref{alg:clusters}, where $\mathcal{S}(X,y)$ is the mean silhouette coefficient \citep{rousseeuw1987silhouettes} for all input samples.
+  The tuning parameter for the affinity propagation technique \citep{frey2007clustering} is the so-called \emph{preference} and it defines the number of discovered clusters. For k-means \citep{bishop2006pattern} the tuning parameter is directly the \emph{number of clusters}, while mean shift \citep{comaniciu2002mean} has an implicit clusters discovery. For hierarchical \citep{friedman2001elements} and spectral clustering \citep{shi2000normalized} no automatic number of clusters discovery is offered. However, graphical aids to evaluate the performance with fixed parameters are generated as, respectively, dendrogram tree and eigenvalues of the Laplacian of the affinity matrix plot.
  
   \begin{algorithm}[h!]
       \caption{Automatic discovery of the optimal clustering parameter.}\label{alg:clusters}
@@ -156,16 +162,15 @@ For each task, a fair number of off-the-shelf algorithms are available (see Tabl
 
 \end{enumerate}
 
-\noindent In order to perform exploratory analysis of large datasets, \ade takes advantage of different parallel computing paradigms. \ade pipelines are designed to be independent from each other, therefore they all run in parallel as separate \py processes on different cores. Moreover, since \ade makes large use of \texttt{numpy} and \texttt{scipy}, it automatically benefits from their bindings with optimized linear algebra libraries (such as OpenBLAS\footnote{\href{http://www.openblas.net/}{http://www.openblas.net/}}, or Intel\textsuperscript{\textregistered}~MKL).
+\noindent In order to perform exploratory analysis on large datasets, we took advantage of different parallel computing paradigms. \ade pipelines are designed to be independent from each other, therefore they all run in parallel as separate \py processes on different cores. Moreover, since \ade makes large use of \texttt{numpy} and \texttt{scipy}, it automatically benefits from their bindings with optimized linear algebra libraries (such as OpenBLAS\footnote{\href{http://www.openblas.net/}{http://www.openblas.net/}}, or Intel\textsuperscript{\textregistered}~MKL).
 
 \section{Usage Example}
-In this section we show how to use \ade to perform a exploratory analysis on a toy example. All we need is simply to install \ade and then run \texttt{ade\_run.py} on an input configuration file (with \texttt{.py} extension) which looks like the snippet below. This will generate an output folder.
+In this section we show how to use \ade to perform a exploratory analysis on a relatively small example. All we need is simply to install \ade and then run \texttt{ade\_run.py} on an input configuration file (with \texttt{.py} extension) which looks like the snippet below.
  
 \input{snippet}
 
-Several other options can be specified in the configuration file, we recall to \ade documentation and tutorials\footnote{link here} for a comprehensive description. Once the analysis are completed, plots and reports can be automatically generated launching \texttt{ade\_analysis.py} on the output folder previously created. In Figure~\ref{fig:scatter} a comparison between two pipelines is presented.
+Each \texttt{step} variable refers to a dictionary having the name of the building block as key and a list as value. Each list has an \emph{on$\backslash$off} trigger in first position followed by a dictionary of keyword arguments for the class implementing the correspondent method. When more than one method is specified in a step, \ade takes automatically care of implementing the pipelines made by all possible combinations. Several other options can be specified in the configuration file, we recall to \ade documentation and tutorials\footnote{link here} for a comprehensive description. The results of this first step are all stored in a single output folder. Once the analysis are completed, plots and reports can be automatically generated launching \texttt{ade\_analysis.py} on the output folder previously created. In Figure~\ref{fig:scatter} a comparison between two pipelines is presented.
 
-\begin{document}
 \begin{figure}[h!] 
     \centering
     \subfloat[]{%

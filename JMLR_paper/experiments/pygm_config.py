@@ -1,5 +1,5 @@
 from adenine.utils import data_source
-X, y, feat_names, class_names = data_source.load('circles')
+X, y, feats, classes = data_source.load('custom', 'data.csv', 'labels.csv')
 step1 = {'None': [True]} # Preprocessing
 step2 = {'KernelPCA': [True, {'n_components': 2,
 'kernel': ['linear','rbf'], 'gamma': 2}]} # Dimensionality reduction
