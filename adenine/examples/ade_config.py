@@ -27,8 +27,8 @@ X, y, feat_names, class_names = data_source.load('gauss')
 # -----------------------  PIPELINE DEFINITION ------------------------ #
 
 # --- Missing Values Imputing --- #
-step0 = {'Impute': [False, {'missing_values': 'NaN',
-                            'strategy': ['median','mean','nearest_neighbors']}]}
+# step0 = {'Impute': [False, {'missing_values': 'NaN',
+                            # 'strategy': ['median','mean','nearest_neighbors']}]}
 
 # --- Data Preprocessing --- #
 step1 = {'None': [False], 'Recenter': [True], 'Standardize': [False],

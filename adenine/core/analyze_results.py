@@ -191,7 +191,7 @@ def make_df_clst_perf(root_folder):
             for __ in measures]
 
     # find the best value for each score
-    best_scores = {__ : max([p for p in df[__] if p != '']) for __ in measures}
+    best_scores = {__ : max([p for p in df[__] if p != ''] or [np.nan]) for __ in measures}
 
     with open(os.path.join(root_folder,'summary_scores.txt'), 'w') as f, \
          open(os.path.join(root_folder,'summary_scores.tex'), 'w') as g:

@@ -39,6 +39,14 @@ def main(dumpfile):
     with gzip.open(dumpfile, 'r') as f:
         res = pkl.load(f)
 
+    DEFAULTS = {
+                'file_format': 'pdf',
+                'plotting_context': 'paper'
+                }
+
+    for k, v in extra.items_iterator(DEFAULTS):
+        setattr(config, k, v)
+
     # Analyze the pipelines
     analyze_results.start(input_dict=res, root_folder=os.path.dirname(dumpfile),
                           y=y, feat_names=feat_names, class_names=class_names,

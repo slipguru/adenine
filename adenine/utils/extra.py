@@ -22,7 +22,6 @@ def reset_palette(n_colors=6):
 def ensure_list(x):
     return x if type(x) == list else [x]
 
-
 def values_iterator(dictionary):
     '''Add support for python2 or 3 dictionary iterators. '''
     try:
@@ -30,6 +29,14 @@ def values_iterator(dictionary):
     except:
         v = dictionary.values() # python 3
     return v
+
+def items_iterator(dictionary):
+    '''Add support for python2 or 3 dictionary iterators. '''
+    try:
+        gen = dictionary.iteritems() # python 2
+    except:
+        gen = dictionary.items() # python 3
+    return gen
 
 def modified_cartesian(*args, **kwargs):
     """Modified Cartesian product.
