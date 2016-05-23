@@ -5,6 +5,7 @@ import imp, sys, os
 import time
 import logging
 import cPickle as pkl
+import gzip
 
 from adenine.core import analyze_results
 from adenine.utils import extra
@@ -20,11 +21,12 @@ def main(dumpfile):
     feat_names, class_names = config.feat_names, config.class_names
     # Load the results used with ade_run.py
     try:
-        with open(os.path.join(os.path.dirname(dumpfile),'__data.pkl'), 'r') as f:
+        with gzip.open(os.path.join(os.path.dirname(dumpfile),'__data.pkl.tz'), 'r') as f:
             data = pkl.load(f)
+            print data
             X, y = data['X'], data['y']
     except:
-        sys.stderr("Cannot load __data.pkl. Reloading data from config file ...")
+        sys.stderr("Cannot load __data.pkl.tz. Reloading data from config file ...")
         X, y = config.X, config.y
 
     # Initialize the log file
@@ -34,7 +36,7 @@ def main(dumpfile):
 
     tic = time.time()
     # Load the results
-    with open(dumpfile, 'r') as f:
+    with gzip.open(dumpfile, 'r') as f:
         res = pkl.load(f)
 
     # Analyze the pipelines
@@ -53,7 +55,7 @@ if __name__ == '__main__':
         sys.exit(-1)
 
     root_folder = sys.argv[1]
-    filename = [f for f in os.listdir(root_folder) if os.path.isfile(os.path.join(root_folder, f)) and f.endswith('.pkl') and f !=  "__data.pkl"]
+    filename = [f for f in os.listdir(root_folder) if os.path.isfile(os.path.join(root_folder, f)) and f.endswith('.pkl.tz') and f !=  "__data.pkl.tz"]
 
     if not filename:
         print("No .pkl file found in {}".format(root_folder))

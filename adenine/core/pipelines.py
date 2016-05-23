@@ -147,7 +147,7 @@ def pipe_worker(pipeID, pipe, pipes_dump, X):
             # if level != 'clustering':
             #     X_curr = np.array(X_next) # update the matrix
 
-        except AssertionError as e:
+        except (AssertionError, ValueError) as e:
             logging.critical("Pipeline {} failed at step {}".format(pipeID, step[0]))
             step_dump[stepID] = [step[0], level, step[1].get_params(), np.nan, np.nan, np.nan]
             # break # skip this pipeline
@@ -226,11 +226,12 @@ def run(pipes=(), X=(), exp_tag='def_tag', root='', y=None):
     os.makedirs(outputFolderName)
 
     # pkl Dump
-    with open(os.path.join(outputFolderName,outputFileName+'.pkl'), 'w+') as f:
+    import gzip
+    with gzip.open(os.path.join(outputFolderName,outputFileName+'.pkl.tz'), 'w+') as f:
         pkl.dump(pipes_dump, f)
-    logging.info("Dumped : {}".format(os.path.join(outputFolderName,outputFileName+'.pkl')))
-    with open(os.path.join(outputFolderName,'__data.pkl'), 'w+') as f:
+    logging.info("Dumped : {}".format(os.path.join(outputFolderName,outputFileName+'.pkl.tz')))
+    with gzip.open(os.path.join(outputFolderName,'__data.pkl.tz'), 'w+') as f:
         pkl.dump({'X': X, 'y': y}, f)
-    logging.info("Dumped : {}".format(os.path.join(outputFolderName,'__data.pkl')))
+    logging.info("Dumped : {}".format(os.path.join(outputFolderName,'__data.pkl.tz')))
 
     return outputFolderName
