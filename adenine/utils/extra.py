@@ -129,6 +129,6 @@ def timed(function):
     def timed_function(*args, **kwargs):
         t0 = time.time()
         result = function(*args, **kwargs)
-        print("\nAdenine {} - Elapsed time : {}".format(function.__name__, sec_to_time(time.time() - t0)))
+        print("\nAdenine {} - Elapsed time : {} s\n".format(function.__name__, sec_to_time(time.time() - t0)))
         return result
     return timed_function

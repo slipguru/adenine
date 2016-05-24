@@ -49,15 +49,13 @@ def main(dumpfile):
         setattr(config, k, v)
 
     tac = time.time()
-    print("done: {}".format(extra.sec_to_time(tac-tic)))
+    print("done: {} s".format(extra.sec_to_time(tac-tic)))
 
     # Analyze the pipelines
     analyze_results.analyze(input_dict=res, root_folder=os.path.dirname(dumpfile),
                             y=y, feat_names=feat_names, class_names=class_names,
                             plotting_context=config.plotting_context,
                             file_format=config.file_format)
-
-
 
 # ----------------------------  RUN MAIN ---------------------------- #
 if __name__ == '__main__':

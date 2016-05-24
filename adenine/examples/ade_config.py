@@ -11,10 +11,10 @@ file_format = 'pdf' # or 'png'
 plotting_context = 'paper' # one of {paper, notebook, talk, poster}
 
 # ----------------------------  INPUT DATA ---------------------------- #
-# X, y, feat_names, class_names = data_source.load('iris' , n_samples=100)
-X, y, feat_names, class_names = data_source.load('gauss')
+#X, y, feat_names, class_names = data_source.load('iris')
+#X, y, feat_names, class_names = data_source.load('gauss', n_samples=300)
 # X, y, feat_names, class_names = data_source.load('circles')
-# X, y, feat_names, class_names = data_source.load('digits')
+X, y, feat_names, class_names = data_source.load('digits')
 # X, y, feat_names, class_names = data_source.load('diabetes')
 # X, y, feat_names, class_names = data_source.load('boston')
 # X, y, feat_names, class_names = data_source.load('custom', 'data/X.npy', 'data/y.npy')
@@ -31,8 +31,8 @@ X, y, feat_names, class_names = data_source.load('gauss')
                             # 'strategy': ['median','mean','nearest_neighbors']}]}
 
 # --- Data Preprocessing --- #
-step1 = {'None': [False], 'Recenter': [True], 'Standardize': [False],
-         'Normalize': [False, {'norm': ['l1','l2']}],
+step1 = {'None': [False], 'Recenter': [False], 'Standardize': [False],
+         'Normalize': [True, {'norm': ['l2']}],
          'MinMax': [False, {'feature_range': [(0,1), (-1,1)]}]}
 
 # --- Dimensionality Reduction & Manifold Learning --- #
@@ -51,14 +51,13 @@ step2 = {'PCA': [True, {'n_components': 3}],
          }
 
 # --- Clustering --- #
-step3 = {'KMeans': [True, {'n_clusters': ['auto', 2]}], # cannot be 'precomputed'
-        #  'AP': [False, [1,'precomputed']], # can be 'precomputed'
+step3 = {'KMeans': [True, {'n_clusters': ['auto']}], # cannot be 'precomputed'
          'AP': [False, {'preference': ['auto']}], # can be 'precomputed'
          'MS': [False], # cannot be 'precomputed'
-        #  'Spectral': [False, [50, ['precomputed']]], # can be 'precomputed'
          'Spectral': [False, {'n_clusters': [2]}], # can be 'precomputed'
-        #  'Hierarchical': [False, [3, ['manhattan','euclidean'], ['ward','complete','average']]]}
-         'Hierarchical': [False, {'n_clusters': [2],
-                                  'affinity': ['manhattan','euclidean'],
-                                  'linkage':  ['ward','complete','average']}]
+         'Hierarchical': [True, {'n_clusters': [10],
+                                  #'affinity': ['manhattan','euclidean'],
+                                  'affinity': ['euclidean'],
+                                  #'linkage':  ['ward','complete','average']}]
+                                  'linkage':  ['ward','average']}]
         }

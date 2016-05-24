@@ -11,8 +11,15 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+sns.set(font="monospace")
 
 from sklearn import metrics
+
+# Legacy import
+try:
+    from sklearn.model_selection import StratifiedShuffleSplit
+except ImportError:
+    from sklearn.cross_validation import StratifiedShuffleSplit
 
 from adenine.utils.extra import next_color, reset_palette, title_from_filename, values_iterator
 
@@ -326,10 +333,10 @@ def make_tree(root=(), data_in=(), model_param=(), trueLabel=None, labels=(), mo
     except:
         logging.info('Cannot create {}'.format(filename))
 
-def make_dendrogram(root=(), data_in=(), model_param=(), trueLabel=None, labels=(), model=()):
+def make_dendrogram(root=(), data_in=(), model_param=(), trueLabel=None, labels=(), model=(), n_max=150):
     """Generate and save the dendrogram obtained from the clustering algorithm.
 
-    This function generates the dendrogram obtained from the clustering algorithm applied on the data. The plots will be saved into the appropriate folder of the tree-like structure created into the root folder.
+    This function generates the dendrogram obtained from the clustering algorithm applied on the data. The plots will be saved into the appropriate folder of the tree-like structure created into the root folder. The row colors of of the heatmap are either the true labels, when provided, or the estimated ones (when trueLabel is None).
 
     Parameters
     -----------
@@ -343,20 +350,54 @@ def make_dendrogram(root=(), data_in=(), model_param=(), trueLabel=None, labels=
         The parameters of the dimensionality reduciont and manifold learning algorithm.
 
     trueLabel : array of float, shape : n_samples
-        The true label vector; np.nan if missing (useful for plotting reasons).
+        The true label vector; None if missing (useful for plotting reasons).
 
     labels : array of int, shape : n_samples
         The result of the clustering step.
 
     model : sklearn or sklearn-like object
         An instance of the class that evaluates a step. In particular this must be a clustering model provided with the clusters_centers_ attribute (e.g. KMeans).
-    """
-    # tmp = np.hstack((np.arange(0,data_in.shape[0],1)[:,np.newaxis], data_in[:,0][:,np.newaxis], data_in[:,1][:,np.newaxis]))
-    tmp = data_in
-    col = ["$x_{"+str(i)+"}$" for i in np.arange(0, data_in.shape[1], 1)]
-    df = pd.DataFrame(data=tmp, columns=col)
 
-    if model.affinity == 'precomputed': # TODO sistemare, fede
+    n_max : int, (INACTIVE)
+        The maximum number of samples to include in the dendrogram. When the number of samples is bigger than n_max, only n_max samples randomly extracted from the dataset are represented. The random extraction is performed using sklearn.model_selection.StratifiedShuffleSplit (or sklearn.cross_validation.StratifiedShuffleSplit for legacy reasons).
+    """
+    if trueLabel is not None:
+        _y = trueLabel
+    else:
+        _y = labels
+
+    # # Check for the number of samples
+    # n_samples = data_in.shape[0]
+    # if n_samples > n_max:
+    #     try: # Legacy for sklearn
+    #         sss = StratifiedShuffleSplit(_y, test_size=n_max, n_iter=1)
+    #     except TypeError:
+    #         sss = StratifiedShuffleSplit(n_iter=1, test_size=n_max).split(data_in, _y)
+    #
+    #     _, idx = list(sss)[0]
+    #     data_in = data_in[idx, :]
+    #     labels = labels[idx]
+    #     trueLabel = trueLabel[idx]
+
+    # tmp = np.hstack((np.arange(0,data_in.shape[0],1)[:,np.newaxis], data_in[:,0][:,np.newaxis], data_in[:,1][:,np.newaxis]))
+    col = ["$x_{"+str(i)+"}$" for i in np.arange(0, data_in.shape[1], 1)]
+    df = pd.DataFrame(data=data_in, columns=col)
+
+    # -- Code for row colors adapted from:
+    # https://stanford.edu/~mwaskom/software/seaborn/examples/structured_heatmap.html
+    # Create a custom palette to identify the classes
+    n_colors = len(set(_y))
+    custom_pal = sns.color_palette("hls", n_colors)
+    custom_lut = dict(zip(map(str, range(n_colors)), custom_pal))
+
+    # Convert the palette to vectors that will be drawn on the side of the matrix
+    custom_colors = pd.Series(map(str, _y)).map(custom_lut)
+
+    # Create a custom colormap for the heatmap values
+    cmap = sns.diverging_palette(200, 10, sep=1, n=15, center="dark", as_cmap=True)#[::-1]
+    # ---------------------------------------- #
+
+    if model.affinity == 'precomputed': # TODO fix me: fede
         # tmp is the distance matrix
         make_dendrograms = False
         if make_dendrograms:
@@ -383,7 +424,9 @@ def make_dendrogram(root=(), data_in=(), model_param=(), trueLabel=None, labels=
     # workaround to a different name used for manhatta / cityblock distance
     if model.affinity == 'manhattan': model.affinity = 'cityblock'
 
-    g = sns.clustermap(df, method=model.linkage, metric=model.affinity, cmap='coolwarm')
+    g = sns.clustermap(df, method=model.linkage, metric=model.affinity,
+                       row_colors=custom_colors, linewidths=.5, cmap=cmap)
+
     plt.setp(g.ax_heatmap.yaxis.get_majorticklabels(), rotation=0, fontsize=5)
     filename = os.path.join(root, os.path.basename(root)+'_dendrogram.'+GLOBAL_FF)
     g.savefig(filename)

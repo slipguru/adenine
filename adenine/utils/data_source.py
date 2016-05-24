@@ -14,7 +14,6 @@ try:
 except ImportError:
     from sklearn.cross_validation import StratifiedShuffleSplit
 
-
 def generate_gauss(mu=(), std=(), n_sample=()):
     """Create a Gaussian dataset.
 
