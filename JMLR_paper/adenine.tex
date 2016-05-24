@@ -174,7 +174,7 @@ In this section we show how to use \ade to perform an exploratory analysis on a 
 %\item no preprocessing $\rightarrow$ KPCA with Gaussian kernel ($\gamma=2$) $\rightarrow$ k-means as above
 %\end{enumerate*}.
 
-The results of this first step are all stored in a single output folder. Once the analysis are completed, plots and reports can be automatically generated running the \py script \texttt{ade\_analysis.py} specifying the output folder previously created as single input argument. In Figure~\ref{fig:scatter}, one of several possible comparisons between the two pipelines is presented.
+The results of this first step are all stored in a single output folder. Once the analysis are completed, plots and reports can be automatically generated running the \py script \texttt{ade\_analysis.py} specifying the output folder previously created as single input argument. Figure~\ref{fig:scatter} shows one of several possible comparisons between the two pipelines.
 
 \begin{figure}[h!] 
     \centering
@@ -187,7 +187,7 @@ The results of this first step are all stored in a single output folder. Once th
         \includegraphics[width=0.4\textwidth]{figures/l2-iso-KMeans_5-clusts.pdf}%
         \label{fig:b}%
         }%
-\caption{K-means performance after two different nonlinear projections. Data-points colors refer to real classes, while backgrounds are colored according to clustering predictions. The dataset analyzed in this experiment is a random extraction of $801$ samples (with dimension $20531$) measuring RNA-Seq gene expression of patients affected by 5 different types of tumor: breast invasive carcinoma (BRCA), kidney renal clear cell carcinoma (KIRC), colon  (COAD), lung  (LUAD) and prostate adenocarcinoma (PRAD). This reduced dataset is available from \ade documentation website and it comes from the cancer genome atlas pan-cancer analysis project~\citep{weinstein2013cancer}. We can notice that in both cases our algorithm automatically discovers the correct number of clusters, although the isomap projection improves the clustering performance.} \label{fig:scatter}
+\caption{K-means performance after two different nonlinear projections. Data-points colors refer to real classes, while backgrounds are colored according to clustering predictions. The dataset analyzed in this experiment is a random extraction of $801$ samples (with dimension $20531$) measuring RNA-Seq gene expression of patients affected by 5 different types of tumor: breast invasive carcinoma (BRCA), kidney renal clear cell carcinoma (KIRC), colon  (COAD), lung  (LUAD) and prostate adenocarcinoma (PRAD). This reduced dataset is available from \ade documentation website and it comes from the cancer genome atlas pan-cancer analysis project~\citep{weinstein2013cancer}. We can notice that in both cases our algorithm automatically discovers the correct number of clusters, even if the isomap projection improves the clustering performance.} \label{fig:scatter}
 \end{figure}
 
 
