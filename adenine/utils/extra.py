@@ -99,7 +99,7 @@ def sec_to_time(seconds):
     return "%02d:%02d:%02d" % (h, m, s)
 
 def get_time():
-    return datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H:%M:%S')
+    return datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H.%M.%S')
 
 def title_from_filename(root, step_sep="$\mapsto$"):
     # Define the plot title. List is smth like ['results', 'ade_debug_', 'Standardize', 'PCA']
