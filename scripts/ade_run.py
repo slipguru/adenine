@@ -47,15 +47,12 @@ def main(config_file):
                                              config.step2, config.step3])
 
     # Pipelines Evaluation
-    tic = time.time()
     outFolder = pipelines.run(pipes=pipes, X=X, exp_tag=fileName, root=root, y=y)
-    tac = time.time()
 
     # Copy the ade_config just used into the outFolder
     shutil.copy(config_path, os.path.join(outFolder, 'ade_config.py'))
     # Move the logging file into the outFolder
     shutil.move(logFileName, outFolder)
-    print("\n\npipelines.run: Elapsed time : {}".format(extra.sec_to_time(tac-tic)))
 
 # ----------------------------  RUN MAIN ---------------------------- #
 if __name__ == '__main__':

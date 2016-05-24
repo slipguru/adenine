@@ -39,7 +39,7 @@ step1 = {'None': [False], 'Recenter': [True], 'Standardize': [False],
 step2 = {'PCA': [True, {'n_components': 3}],
          'IncrementalPCA': [False, {'n_components': 3}],
          'RandomizedPCA':  [False, {'n_components': 3}],
-         'KernelPCA':      [True, {'n_components': 2,
+         'KernelPCA':      [False, {'n_components': 2,
                                     'kernel': ['linear','rbf','poly'], 'gamma': 2}],
          'Isomap': [False, {'n_components': 3, 'n_neighbors': 5}],
          'LLE':    [False, {'n_components': 3, 'n_neighbors': 5, # xxx
@@ -53,9 +53,9 @@ step2 = {'PCA': [True, {'n_components': 3}],
 # --- Clustering --- #
 step3 = {'KMeans': [True, {'n_clusters': ['auto', 2]}], # cannot be 'precomputed'
         #  'AP': [False, [1,'precomputed']], # can be 'precomputed'
-         'AP': [True, {'preference': ['auto']}], # can be 'precomputed'
+         'AP': [False, {'preference': ['auto']}], # can be 'precomputed'
          'MS': [False], # cannot be 'precomputed'
-        #  'Spectral': [True, [50, ['precomputed']]], # can be 'precomputed'
+        #  'Spectral': [False, [50, ['precomputed']]], # can be 'precomputed'
          'Spectral': [False, {'n_clusters': [2]}], # can be 'precomputed'
         #  'Hierarchical': [False, [3, ['manhattan','euclidean'], ['ward','complete','average']]]}
          'Hierarchical': [False, {'n_clusters': [2],

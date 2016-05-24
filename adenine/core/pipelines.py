@@ -9,6 +9,7 @@ import cPickle as pkl
 import numpy as np
 from adenine.utils.extra import make_time_flag
 from adenine.utils.extra import get_time
+from adenine.utils.extra import timed
 
 def create(pdef):
     """Scikit-learn Pipelines objects creation (deprecated).
@@ -155,8 +156,7 @@ def pipe_worker(pipeID, pipe, pipes_dump, X):
     pipes_dump[pipeID] = step_dump
     logging.debug("DUMP: \n {} \n #########".format(pipes_dump))
 
-
-
+@timed
 def run(pipes=(), X=(), exp_tag='def_tag', root='', y=None):
     """Fit and transform/predict some pipelines on some data.
 

@@ -81,7 +81,6 @@ def make_time_flag():
     s = str(time.localtime().tm_sec)
     return h+':'+mi+':'+s+'_'+d+'-'+mo+'-'+y
 
-
 def sec_to_time(seconds):
     """Transform seconds into a formatted time string.
 
@@ -124,3 +123,12 @@ def ensure_symmetry(X):
     """
     if not (X.T == X).all():
         return (X.T + X) / 2.
+
+def timed(function):
+    """Decorator that measures wall time of the decored function."""
+    def timed_function(*args, **kwargs):
+        t0 = time.time()
+        result = function(*args, **kwargs)
+        print("\nAdenine {} - Elapsed time : {}".format(function.__name__, sec_to_time(time.time() - t0)))
+        return result
+    return timed_function

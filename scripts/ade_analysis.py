@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
+
 import imp, sys, os
 import time
 import logging
@@ -17,13 +19,11 @@ def main(dumpfile):
     config = imp.load_source('ade_config', config_path)
 
     # Read the variables from the config file
-    # X, y, feat_names, class_names = config.X, config.y, config.feat_names, config.class_names
     feat_names, class_names = config.feat_names, config.class_names
     # Load the results used with ade_run.py
     try:
         with gzip.open(os.path.join(os.path.dirname(dumpfile),'__data.pkl.tz'), 'r') as f:
             data = pkl.load(f)
-            print data
             X, y = data['X'], data['y']
     except:
         sys.stderr("Cannot load __data.pkl.tz. Reloading data from config file ...")
@@ -35,6 +35,7 @@ def main(dumpfile):
     logging.basicConfig(filename=logFileName, level=logging.INFO, filemode='w')
 
     tic = time.time()
+    print("\nUnpickling output ...", end=' ')
     # Load the results
     with gzip.open(dumpfile, 'r') as f:
         res = pkl.load(f)
@@ -47,13 +48,15 @@ def main(dumpfile):
     for k, v in extra.items_iterator(DEFAULTS):
         setattr(config, k, v)
 
-    # Analyze the pipelines
-    analyze_results.start(input_dict=res, root_folder=os.path.dirname(dumpfile),
-                          y=y, feat_names=feat_names, class_names=class_names,
-                          plotting_context=config.plotting_context,
-                          file_format=config.file_format)
     tac = time.time()
-    print("\n\nanalyze_results.start: Elapsed time : {}".format(extra.sec_to_time(tac-tic)))
+    print("done: {}".format(extra.sec_to_time(tac-tic)))
+
+    # Analyze the pipelines
+    analyze_results.analyze(input_dict=res, root_folder=os.path.dirname(dumpfile),
+                            y=y, feat_names=feat_names, class_names=class_names,
+                            plotting_context=config.plotting_context,
+                            file_format=config.file_format)
+
 
 
 # ----------------------------  RUN MAIN ---------------------------- #
