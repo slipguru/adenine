@@ -8,6 +8,7 @@ import time
 import logging
 import cPickle as pkl
 import gzip
+import argparse
 
 from adenine.core import analyze_results
 from adenine.utils import extra
@@ -40,19 +41,14 @@ def main(dumpfile):
     with gzip.open(dumpfile, 'r') as f:
         res = pkl.load(f)
 
-    DEFAULTS = {
-                'file_format': 'pdf',
-                'plotting_context': 'paper'
-                }
-
+    DEFAULTS = {'file_format': 'pdf', 'plotting_context': 'paper'}
     for k, v in extra.items_iterator(DEFAULTS):
         try:
             getattr(config, k)
         except AttributeError:
             setattr(config, k, v)
 
-    tac = time.time()
-    print("done: {} s".format(extra.sec_to_time(tac-tic)))
+    print("done: {} s".format(extra.sec_to_time(time.time()-tic)))
 
     # Analyze the pipelines
     analyze_results.analyze(input_dict=res, root_folder=os.path.dirname(dumpfile),
@@ -62,15 +58,16 @@ def main(dumpfile):
 
 # ----------------------------  RUN MAIN ---------------------------- #
 if __name__ == '__main__':
-    if len(sys.argv) < 2:
-        print("USAGE: ade_analysis.py <RESULTS_FOLDER> ")
-        sys.exit(-1)
-
-    root_folder = sys.argv[1]
+    from adenine import __version__
+    parser = argparse.ArgumentParser(usage="%(prog)s [-c] RESULTS_DIR",
+                                     description='Adenine script for analysing pipelines.')
+    parser.add_argument('--version', action='version', version='%(prog)s v'+__version__)
+    parser.add_argument("root_folder", help="specify results directory")
+    args = parser.parse_args()
+    root_folder = args.root_folder
     filename = [f for f in os.listdir(root_folder) if os.path.isfile(os.path.join(root_folder, f)) and f.endswith('.pkl.tz') and f !=  "__data.pkl.tz"]
-
     if not filename:
-        print("No .pkl file found in {}".format(root_folder))
+        print("No .pkl file found in {}. Aborting...".format(root_folder), file=sys.stderr)
         sys.exit(-1)
 
     # print("Starting the analysis of {}".format(filename))

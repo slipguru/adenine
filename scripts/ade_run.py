@@ -4,6 +4,7 @@
 import imp, sys, os, shutil
 import time
 import logging
+import argparse
 
 from adenine.core import define_pipeline
 from adenine.core import pipelines
@@ -56,32 +57,25 @@ def main(config_file):
 
 # ----------------------------  RUN MAIN ---------------------------- #
 if __name__ == '__main__':
-    from optparse import OptionParser
     from adenine import __version__
+    parser = argparse.ArgumentParser(usage="%(prog)s [-c] adenine-configuration-file.py",
+                                     description='Adenine script for generating pipelines.')
+    parser.add_argument('--version', action='version', version='%(prog)s v'+__version__)
+    parser.add_argument("-c", "--create", dest="create", action="store_true",
+                        help="create config file", default=False)
+    parser.add_argument("config", help="specify config file", default='ade_config.py')
+    args = parser.parse_args()
 
-    usage = "usage: %prog [-c] adenine-configuration-file.py"
-    parser = OptionParser(usage=usage, version='%prog ' +  __version__)
-    parser.add_option("-c", "--create", dest="create",
-                      action="store_true",
-                      help="create config file", default=False)
-    (options, args) = parser.parse_args()
-
-    if len(sys.argv) < 2:
-        parser.error("incorrect number of arguments")
-        sys.exit(-1)
+    if args.create:
+        import adenine as ade
+        std_config_path = os.path.join(ade.__path__[0], 'ade_config.py')
+        # Check for .pyc
+        if std_config_path.endswith('.pyc'):
+            std_config_path = std_config_path[:-1]
+        # Check if the file already exists
+        if os.path.exists(args.config):
+            parser.error("adenine configuration file already exists")
+        # Copy the config file
+        shutil.copy(std_config_path, args.config)
     else:
-        config_file_path = args[0]
-
-        if options.create:
-            import adenine as ade
-            std_config_path = os.path.join(ade.__path__[0], 'ade_config.py')
-            # Check for .pyc
-            if std_config_path.endswith('.pyc'):
-                std_config_path = std_config_path[:-1]
-            # Check if the file already exists
-            if os.path.exists(config_file_path):
-                parser.error("adenine configuration file already exists")
-            # Copy the config file
-            shutil.copy(std_config_path, config_file_path)
-        else:
-            main(sys.argv[1])
+        main(args.config)
