@@ -36,10 +36,10 @@ step1 = {'None': [False], 'Recenter': [False], 'Standardize': [False],
          'MinMax': [False, {'feature_range': [(0,1), (-1,1)]}]}
 
 # --- Dimensionality Reduction & Manifold Learning --- #
-step2 = {'PCA': [True, {'n_components': 3}],
+step2 = {'PCA': [False, {'n_components': 3}],
          'IncrementalPCA': [False, {'n_components': 3}],
          'RandomizedPCA':  [False, {'n_components': 3}],
-         'KernelPCA':      [False, {'n_components': 2,
+         'KernelPCA':      [True, {'n_components': 2,
                                     'kernel': ['linear','rbf','poly'], 'gamma': 2}],
          'Isomap': [False, {'n_components': 3, 'n_neighbors': 5}],
          'LLE':    [False, {'n_components': 3, 'n_neighbors': 5, # xxx
@@ -55,7 +55,7 @@ step3 = {'KMeans': [True, {'n_clusters': ['auto']}], # cannot be 'precomputed'
          'AP': [False, {'preference': ['auto']}], # can be 'precomputed'
          'MS': [False], # cannot be 'precomputed'
          'Spectral': [False, {'n_clusters': [2]}], # can be 'precomputed'
-         'Hierarchical': [True, {'n_clusters': [10],
+         'Hierarchical': [False, {'n_clusters': [10],
                                   #'affinity': ['manhattan','euclidean'],
                                   'affinity': ['euclidean'],
                                   #'linkage':  ['ward','complete','average']}]

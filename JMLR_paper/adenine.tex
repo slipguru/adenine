@@ -83,14 +83,14 @@ In these situations, a preliminary data exploration step is not only good practi
 In the last few years, a fair number of data exploration software and libraries were released. At a very coarse grain we can group them in two families: GUI-based and command-line applications. 
 Among the first group we recall \emph{Divvy} \citep{lewis2013divvy}, a software tool that performs dimensionality reduction and clustering on input datasets. \emph{Divvy} is a light framework. Although its interface is designed to be Mac OS X specific, 
 %it heavily lacks in documentation, 
-its collection of \texttt{C/C++} algorithm implementations does not cover common strategies such as kernel principal component analysis (KPCA) \citep{scholkopf1997kernel} or hierarchical clustering \citep{friedman2001elements} and it does not offer strategies to perform automatic discoveries of the number of clusters. The most notable project that spans between the two families is \emph{Orange} \citep{demvsar2013orange}, a data mining software suite that offers both visual programming front-end and \py APIs. In the context of data exploration, \emph{Orange} can be successfully employed. However, it does not support automatic pipeline generation, hence it requires the user to manually create each pipeline. On the other hand, as of today \emph{Orange} lacks in several nonlinear methods such as spectral embedding \citep{ng2002spectral}, locally linear embedding \citep{roweis2000nonlinear} and spectral clustering \citep{shi2000normalized}.
+its collection of \texttt{C/C++} algorithm implementations does not cover common strategies such as kernel principal component analysis (KPCA) \citep{scholkopf1997kernel} or hierarchical clustering \citep{friedman2001elements} and it does not offer strategies to perform automatic discoveries of the number of clusters. The most notable project that spans between the two families is \emph{Orange} \citep{demvsar2013orange}, a data mining software suite that offers both visual programming front-end and \py APIs. In the context of data exploration, \emph{Orange} can be successfully employed. However, it does not support automatic pipeline generation, hence it requires the user to manually create each pipeline. On the other hand, as of today \emph{Orange} lacks in several nonlinear methods such as isomap \citep{tenenbaum2000global}, locally linear embedding \citep{roweis2000nonlinear} and spectral clustering \citep{shi2000normalized}.
 
 We introduce \ade, a command-line \py tool for data exploration that, starting from a set of unsupervised algorithms, creates textual an graphical reports of an arbitrary number of pipelines. In this context data imputing, preprocessing, dimensionality reduction and clustering strategies are considered as building blocks for data analysis pipelines. The user is only required to specify input data and to select blocks, then \ade takes care of the generation and running of the pipelines composed by all possible combinations of the selected algorithms. Every algorithm implementation of \ade is inherited, or extended, from \texttt{scikit-learn} \citep{scikit-learn} which is, to the best of our knowledge, the most complete machine learning open source library freely available online.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Tool overview}\label{sec:implem}
-\ade is developed around the data analysis concept of \emph{pipelines}. A pipeline is a sequence of the following fundamental steps:
+\ade is developed around the data analysis concept of \emph{pipeline}. A pipeline is a sequence of the following fundamental steps:
 \begin{enumerate*}[label=(\roman*)]
   \item missing values imputing,
   \item data preprocessing,
@@ -108,11 +108,11 @@ For each task, different off-the-shelf algorithms are available (see Table~\ref{
 
 \input{methods}
 
-\begin{enumerate}
-  \item[]{\bf Step 0: Missing values imputing.}
+\begin{enumerate}[leftmargin=*]
+\item[]{\bf Step 0: Missing values imputing.}
   % \subsection*{Missing values imputing}
 %  Working with real-world data collections sets of entries are often missing. 
-  In real-world datasets groups of entries are often missing. In order to cope with this issue \ade offers an improved version of the \texttt{Imputer} class offered by \texttt{scikit-learn}. Our extension adds a k-nearest neighbor (KNN) imputing method to the pre-existent features-wise \emph{mean}, \emph{median} and \emph{most frequent} value strategies.
+  In real-world datasets groups of entries are often missing. In order to cope with this issue we developed in \ade an improved version of the \texttt{Imputer} class offered by \texttt{scikit-learn}. Our extension adds a k-nearest neighbor (KNN) imputing method to the pre-existent features-wise \emph{mean}, \emph{median} and \emph{most frequent} value strategies.
   % (whose names are already self-explanatory)
   We chose to add the KNN imputing method to the \emph{na\"ive} strategies offered by \texttt{scikit-learn} because of the robustness demonstrated in the microarray reconstruction experiments described in \citep{troyanskaya2001missing}.
 
@@ -140,7 +140,7 @@ For each task, different off-the-shelf algorithms are available (see Table~\ref{
   Cluster analysis is the last step of our pipelines. 
   %Clustering techniques in \ade are either centroid-based and non centroid-based. For both classes of methods, 
   \ade offers strategies ad heuristics to automatically estimate the parameter that yields the most suitable cluster separation. The optimal parameter selection of centroid-based algorithms follows the $B$-fold cross-validation strategy presented in Algorithm~\ref{alg:clusters}, where $\mathcal{S}(X,y)$ is the mean silhouette coefficient \citep{rousseeuw1987silhouettes} for all input samples.
-  The tuning parameter for the affinity propagation technique \citep{frey2007clustering} is the so-called \emph{preference} and it defines the number of discovered clusters. For k-means \citep{bishop2006pattern} the tuning parameter is directly the \emph{number of clusters}, while mean shift \citep{comaniciu2002mean} has an implicit cluster discovery. For hierarchical \citep{friedman2001elements} and spectral clustering \citep{shi2000normalized} no automatic number of clusters discovery is offered. However, graphical aids to evaluate the performance with fixed parameters are generated as, respectively, dendrogram tree and eigenvalues of the Laplacian of the affinity matrix plot.
+  The tuning parameter for the affinity propagation technique \citep{frey2007clustering} is the so-called \emph{preference} and it affects the number of discovered clusters. For k-means \citep{bishop2006pattern} the tuning parameter is directly the \emph{number of clusters}, while mean shift \citep{comaniciu2002mean} has an implicit cluster discovery. For hierarchical \citep{friedman2001elements} and spectral clustering \citep{shi2000normalized} no automatic number of clusters discovery is offered. However, graphical aids to evaluate the performance with fixed parameters are generated as, respectively, dendrogram tree and eigenvalues of the Laplacian of the affinity matrix plot.
  
 \begin{algorithm}
 \caption{Automatic discovery of the optimal clustering parameter.}\label{alg:clusters}
@@ -164,17 +164,17 @@ For each task, different off-the-shelf algorithms are available (see Table~\ref{
 \noindent In order to perform exploratory analysis on large datasets, we took advantage of different parallel computing paradigms. \ade pipelines are designed to be independent from each other, therefore they all run in parallel as separate \py processes on different cores. Moreover, since \ade makes large use of \texttt{numpy} and \texttt{scipy}, it automatically benefits from their bindings with optimized linear algebra libraries (such as OpenBLAS\footnote{\href{http://www.openblas.net/}{http://www.openblas.net/}} or Intel\textsuperscript{\textregistered}~MKL).
 
 \section{Usage Example}
-In this section we show how to use \ade to perform an exploratory analysis on a relatively small example. Once \ade is installed, all we need is to launch \texttt{ade\_run.py} specifying as input argument a configuration file (with \texttt{.py} extension) which should look like the snippet below.
+In this section we show how to use \ade to perform an exploratory analysis on a relatively small dataset. Once \ade is installed, all we need to do is to execute the \py script \texttt{ade\_run.py} specifying as single input argument a configuration file (with \texttt{.py} extension) which should look like the snippet below.
  
 \input{snippet}
 
-\noindent Each \texttt{step} variable refers to a \texttt{dict} having the name of the building block as key and a \texttt{list} as value. Each list has a \texttt{boolean} \emph{on$\backslash$off} trigger in first position followed by a \texttt{dict} of keyword arguments for the class implementing the correspondent method. When more than one method is specified in a single step, \ade takes automatically care of implementing the pipelines made by all possible combinations. Several other options can be specified in the configuration file, we refer to \ade documentation and tutorials\footnote{\href{www.slipguru.unige.it/Software/Adenine}{www.slipguru.unige.it/Software/Adenine}} for a comprehensive description. So, using the configuration file above, \ade will generate two pipelines with similar structure. They will both have $\ell^2$-normalized samples, projected on a three-dimensional space by Gaussian KPCA with $\gamma=2$ (pipeline 1) and Isomap (pipeline 2); on the dimensionality-reduced dataset a k-means clustering with automatic cluster discovery (as in Algorithm~\ref{alg:clusters}) is eventually performed.
+\noindent Each \texttt{step} variable refers to a \texttt{dict} having the name of the building block as key and a \texttt{list} as value. Each list has a \texttt{boolean} \emph{on$\backslash$off} trigger in first position followed by a \texttt{dict} of keyword arguments for the class implementing the correspondent method. When more than one method is specified in a single step, \ade takes automatically care of implementing the pipelines made by all possible combinations. Several other options can be specified in the configuration file, we refer to \ade documentation and tutorials\footnote{\href{www.slipguru.unige.it/Software/Adenine}{www.slipguru.unige.it/Software/Adenine}} for a comprehensive description. So, using the configuration file above, \ade will generate two pipelines with similar structure. They will both have $\ell^2$-normalized samples, projected on a three-dimensional space by Gaussian KPCA with $\gamma=2$ (pipeline 1) and isomap (pipeline 2); on the dimensionality-reduced dataset a k-means clustering with automatic cluster discovery (as in Algorithm~\ref{alg:clusters}) is eventually performed.
 %\begin{enumerate*}
 %\item no preprocessing $\rightarrow$ PCA $\rightarrow$ k-means with auto-discovery of the number of clusters (as in Algorithm~\ref{alg:clusters}) and
 %\item no preprocessing $\rightarrow$ KPCA with Gaussian kernel ($\gamma=2$) $\rightarrow$ k-means as above
 %\end{enumerate*}.
 
-The results of this first step are all stored in a single output folder. Once the analysis are completed, plots and reports can be automatically generated launching \texttt{ade\_analysis.py} on the output folder previously created. In Figure~\ref{fig:scatter} an example of a possible comparison between the two pipelines is presented.
+The results of this first step are all stored in a single output folder. Once the analysis are completed, plots and reports can be automatically generated running the \py script \texttt{ade\_analysis.py} specifying the output folder previously created as single input argument. In Figure~\ref{fig:scatter}, one of several possible comparisons between the two pipelines is presented.
 
 \begin{figure}[h!] 
     \centering
@@ -187,7 +187,7 @@ The results of this first step are all stored in a single output folder. Once th
         \includegraphics[width=0.4\textwidth]{figures/l2-iso-KMeans_5-clusts.pdf}%
         \label{fig:b}%
         }%
-\caption{Comparison between k-means performance after two different nonlinear projections. Data-points colors refer to real classes, while backgrounds are colored according to clustering predictions. The dataset analyzed in this experiment is a random extraction of $801$ samples (with dimension $20531$) measuring RNA-Seq gene expression of patients affected by 5 different types of tumor: breast invasive carcinoma (BRCA), kidney renal clear cell carcinoma (KIRC), colon  (COAD), lung  (LUAD) and prostate adenocarcinoma (PRAD). This reduced dataset is available from \ade documentation website and it comes from the cancer genome atlas pan-cancer analysis project~\citep{weinstein2013cancer}. We can notice that in both cases our algorithm automatically discovers the correct number of clusters, although the Isomap projection improves the clustering performance.} \label{fig:scatter}
+\caption{K-means performance after two different nonlinear projections. Data-points colors refer to real classes, while backgrounds are colored according to clustering predictions. The dataset analyzed in this experiment is a random extraction of $801$ samples (with dimension $20531$) measuring RNA-Seq gene expression of patients affected by 5 different types of tumor: breast invasive carcinoma (BRCA), kidney renal clear cell carcinoma (KIRC), colon  (COAD), lung  (LUAD) and prostate adenocarcinoma (PRAD). This reduced dataset is available from \ade documentation website and it comes from the cancer genome atlas pan-cancer analysis project~\citep{weinstein2013cancer}. We can notice that in both cases our algorithm automatically discovers the correct number of clusters, although the isomap projection improves the clustering performance.} \label{fig:scatter}
 \end{figure}
 
 
