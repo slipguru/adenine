@@ -46,7 +46,10 @@ def main(dumpfile):
                 }
 
     for k, v in extra.items_iterator(DEFAULTS):
-        setattr(config, k, v)
+        try:
+            getattr(config, k)
+        except AttributeError:
+            setattr(config, k, v)
 
     tac = time.time()
     print("done: {} s".format(extra.sec_to_time(tac-tic)))
