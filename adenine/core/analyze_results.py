@@ -15,7 +15,7 @@ from sklearn import metrics
 from adenine.core import plotting
 from adenine.core.plotting import *
 from adenine.utils.extra import title_from_filename
-from adenine.utils.extra import timed
+from adenine.utils.extra import timed, items_iterator
 
 GLOBAL_INFO = ''  # to save info before logging is loaded
 
@@ -372,8 +372,8 @@ def analyze(input_dict=(), root_folder=(), y=None, feat_names=(), class_names=()
     ff = kwargs.get('file_format', FILE_FORMATS[0]).lower()
 
     if ff not in FILE_FORMATS:
-        logging.info("File format unknown. "
-                     "Please select one of {}".format(FILE_FORMATS))
+        logging.warning("File format unknown. "
+                        "Please select one of {}".format(FILE_FORMATS))
         plotting.set_file_ext(FILE_FORMATS[0])
     else:
         plotting.set_file_ext(ff)
@@ -381,13 +381,8 @@ def analyze(input_dict=(), root_folder=(), y=None, feat_names=(), class_names=()
 
     lock = mp.Lock()
     # Parallel(n_jobs=len(inputDict))(delayed(analysis_worker)(elem,rootFolder,y,feat_names,class_names,lock) for elem in inputDict.iteritems())
-    try:
-        items = input_dict.iteritems()
-    except:
-        items = input_dict.items() # python 3 support
-
     ps = []
-    for elem in items:
+    for elem in items_iterator(input_dict):
         p = mp.Process(target=analysis_worker,
                        args=(elem, root_folder, y, feat_names, class_names, lock))
         p.start()
