@@ -14,21 +14,12 @@ def main(config_file):
     # Load the configuration file
     config_path = os.path.abspath(config_file)
     config = imp.load_source('ade_config', config_path)
-
-    DEFAULTS = {
-                'step0': {'Impute': [False]},
-                'step1': {'None': [True]},
-                'step2': {'None': [True]},
-                'step3': {'None': [False]},
-                'exp_tag': 'debug',
-                'output_root_folder': 'results'
-                }
-
-    for k, v in extra.items_iterator(DEFAULTS):
-        try:
-            getattr(config, k)
-        except AttributeError:
-            setattr(config, k, v)
+    extra.set_module_defaults(config, {'step0': {'Impute': [False]},
+                                       'step1': {'None': [True]},
+                                       'step2': {'None': [True]},
+                                       'step3': {'None': [False]},
+                                       'exp_tag': 'debug',
+                                       'output_root_folder': 'results'})
 
     # Read the variables from the config file
     X, y, feat_names, class_names = config.X, config.y, config.feat_names, config.class_names

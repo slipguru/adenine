@@ -18,6 +18,8 @@ def main(dumpfile):
     config_path = os.path.dirname(dumpfile)
     config_path = os.path.join(os.path.abspath(config_path), 'ade_config.py')
     config = imp.load_source('ade_config', config_path)
+    extra.set_module_defaults(config, {'file_format': 'pdf',
+                                       'plotting_context': 'paper'})
 
     # Read the variables from the config file
     feat_names, class_names = config.feat_names, config.class_names
@@ -46,13 +48,6 @@ def main(dumpfile):
     # Load the results
     with gzip.open(dumpfile, 'r') as f:
         res = pkl.load(f)
-
-    DEFAULTS = {'file_format': 'pdf', 'plotting_context': 'paper'}
-    for k, v in extra.items_iterator(DEFAULTS):
-        try:
-            getattr(config, k)
-        except AttributeError:
-            setattr(config, k, v)
 
     print("done: {} s".format(extra.sec_to_time(time.time()-tic)))
 
