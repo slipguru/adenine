@@ -41,7 +41,13 @@ def main(config_file):
     # Define the ade.log file (a new one for each run)
     fileName = '_'.join(('ade', exp_tag, extra.get_time()))
     logFileName = os.path.join(root, fileName+'.log')
-    logging.basicConfig(filename=logFileName, level=logging.INFO, filemode='w')
+    logging.basicConfig(filename=logFileName, level=logging.INFO, filemode='w',
+                        format='%(levelname)s (%(name)s): %(message)s')
+    root_logger = logging.getLogger()
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.CRITICAL)
+    ch.setFormatter(logging.Formatter('%(levelname)s (%(name)s): %(message)s'))
+    root_logger.addHandler(ch)
 
     # Pipelines Definition
     pipes = define_pipeline.parse_steps([config.step0, config.step1,

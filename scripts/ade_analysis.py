@@ -31,9 +31,15 @@ def main(dumpfile):
         X, y = config.X, config.y
 
     # Initialize the log file
-    fileName = 'results_'+os.path.basename(dumpfile)[0:-4]
+    fileName = 'results_'+os.path.basename(dumpfile)[0:-7]
     logFileName = os.path.join(os.path.dirname(dumpfile), fileName+'.log')
-    logging.basicConfig(filename=logFileName, level=logging.INFO, filemode='w')
+    logging.basicConfig(filename=logFileName, level=logging.INFO, filemode='w',
+                        format='%(levelname)s (%(name)s): %(message)s')
+    root_logger = logging.getLogger()
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.CRITICAL)
+    ch.setFormatter(logging.Formatter('%(levelname)s (%(name)s): %(message)s'))
+    root_logger.addHandler(ch)
 
     tic = time.time()
     print("\nUnpickling output ...", end=' ')
