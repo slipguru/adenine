@@ -61,8 +61,11 @@
 
 \begin{abstract}
 
-In this paper we introduce \ade, a machine learning \py framework for data exploration. The main goal of \ade{} is twofold: helping researchers and data scientists achieving a first and quick overview on the main structures underlying their data and choosing the most suitable unsupervised learning pipeline for the problem at hand. This software tool encompasses state-of-the-art techniques for: missing values imputing, data preprocessing, dimensionality reduction and clustering tasks.
-\ade exploits both process- and thread-level parallelism and it is capable of generating nice and clean publication-ready plots along with quantitative descriptions of pipeline results. \ade is released under FreeBSD license and it can be downloaded from \href{http://slipguru.github.io/adenine/}{http://slipguru.github.io/adenine/}.
+\ade is a machine learning \todo{\py} framework for data exploration. 
+% Its goal is twofold: helping researchers and data scientists achieving a first and quick overview on the main structures underlying their data and choosing the most suitable unsupervised learning pipeline for the problem at hand. 
+Its goal is to help researchers and data scientists achieving a first and quick overview on the main structures underlying their data and to choose the most suitable unsupervised learning pipeline for the problem at hand.
+This software tool encompasses state-of-the-art techniques for missing values imputing, data preprocessing, dimensionality reduction and clustering tasks.
+\ade exploits both process- and thread-level parallelism and it is capable of generating nice and clean publication-ready plots along with quantitative descriptions of pipeline results. \ade is available at \mbox{\url{http://slipguru.github.io/adenine/}} under FreeBSD license.
 %% max 200 words: current ~100
 
 \end{abstract}
@@ -73,20 +76,28 @@ Data exploration, unsupervised learning, RNA-Seq gene expression
 
 \section{Introduction}\label{sec:intro}
 Data exploration is a very insightful starting point for many data analysis projects. Researchers and data scientists are often asked to extract meaningful information from collections of complex and possibly high-dimensional data coming from heterogeneous contexts. For instance, in biomedical scenarios, physicians are likely to be interested in answering some biological questions starting from observations collected from a pool of subjects enrolled in a study. Possible investigations can be: \emph{is there any relevant stratification among subjects?} or \emph{is it possible to discriminate between cases and controls from my observations?}. Starting from a given dataset, the information needed to answer such questions may be non-trivial to extract or even completely absent.
-In these situations, a preliminary data exploration step is not only a good practice, but also a fundamental starting point for further and deeper investigations. To accomplish this task, several machine learning and data mining techniques were developed over the years. Among those we focus on the four most popular classes of methods: \begin{enumerate*}[label=(\roman*)]
+In these situations, a preliminary data exploration step is not only a good practice, but also a fundamental starting point for further and deeper investigations. To accomplish this task, several machine learning and data mining techniques were developed over the years. 
+Among those we focus on the four most popular classes of methods: \begin{enumerate*}[label=(\roman*)]
   \item missing values imputing,
   \item data preprocessing,
   \item dimensionality reduction and
   \item unsupervised clustering
-\end{enumerate*}.
+\end{enumerate*}. \todo{togliere? viene detto anche dopo}
 
 In the last few years, a fair number of data exploration software and libraries were released. At a very coarse grain we can group them in two families: GUI-based and command-line applications. 
-Among the first group we recall \emph{Divvy} \citep{lewis2013divvy}, a software tool that performs dimensionality reduction and clustering on input datasets. \emph{Divvy} is a light framework, with a Mac OS X designed interface. However,
+Among the first group we recall \emph{Divvy} \citep{lewis2013divvy}, a software tool that performs dimensionality reduction and clustering on input datasets. \emph{Divvy} is a light framework; however, 
+% with a Mac OS X designed interface. However,
 %it heavily lacks in documentation, 
-its collection of \texttt{C/C++} algorithm implementations does not cover common strategies such as kernel principal component analysis (KPCA) \citep{scholkopf1997kernel} or hierarchical clustering \citep{friedman2001elements} and it does not offer strategies to perform automatic discoveries of the number of clusters. The most notable project that spans between the two families is \emph{Orange} \citep{demvsar2013orange}, a data mining software suite that offers both visual programming front-end and \py APIs. In the context of data exploration, \emph{Orange} can be successfully employed. However, it does not support automatic pipeline generation, hence it requires the user to manually create each pipeline. Also, as of today \emph{Orange} lacks in several nonlinear methods such as isomap \citep{tenenbaum2000global}, locally linear embedding \citep{roweis2000nonlinear} and spectral clustering \citep{shi2000normalized}.
+its collection of \texttt{C/C++} algorithm implementations does not cover common strategies such as kernel principal component analysis (KPCA) \citep{scholkopf1997kernel} or hierarchical clustering \citep{friedman2001elements} and it does not offer strategies to perform automatic discoveries of the number of clusters. 
+The most notable project that spans between the two families is \emph{Orange} \citep{demvsar2013orange}, a data mining software suite that offers both visual programming front-end and \py APIs. In the context of data exploration, \emph{Orange} can be successfully employed. However, it does not support automatic pipeline generation
+% , hence it requires the user to manually create each pipeline. 
+and, as of today, \emph{Orange} lacks in several nonlinear methods such as isomap \citep{tenenbaum2000global}, locally linear embedding \citep{roweis2000nonlinear} and spectral clustering \citep{shi2000normalized}.
 
 We introduce \ade, a command-line \py tool for data exploration that, starting from a set of unsupervised algorithms, creates textual an graphical reports of an arbitrary number of pipelines. In this context data imputing, preprocessing, dimensionality reduction and clustering strategies are considered as building blocks for data analysis pipelines. The user is only required to specify input data and to select blocks, then \ade takes care of the generation and running of the pipelines composed by all possible combinations of the selected algorithms. Every algorithm implementation of \ade is inherited, or extended, from \texttt{scikit-learn} \citep{scikit-learn} which is, to the best of our knowledge, the most complete machine learning open source library freely available online.
 
+\todo{mettere qui?}
+In order to perform exploratory analysis on large datasets we took advantage of different parallel computing paradigms. %\ade pipelines are designed to be independent from each other, therefore they all run in parallel as separate \py processes on different cores. 
+Moreover, since \ade makes large use of \texttt{numpy} and \texttt{scipy}, it automatically benefits from their bindings with optimized linear algebra libraries (such as OpenBLAS\footnote{\url{http://www.openblas.net/}} or Intel\textsuperscript{\textregistered}~MKL).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Tool overview}\label{sec:implem}
@@ -110,14 +121,9 @@ For each task, different off-the-shelf algorithms are available (see Table~\ref{
 % \begin{enumerate}[leftmargin=*]
 % \item[]{\bf Step 0: Missing values imputing.}
 \paragraph{Step 0: Missing values imputing.}
-  % \subsection*{Missing values imputing}
   In order to cope with real-world datasets where entries are often missing, \ade offers an improved version of the Imputer class provided by \texttt{scikit-learn}. Our extension adds a k-nearest neighbor (KNN) imputing method to the pre-existent feature-wise \emph{mean}, \emph{median} and \emph{most frequent} value strategies. \citep{troyanskaya2001missing}
 %   KNN method is shown to be robust in microarray reconstruction experiments \citep{troyanskaya2001missing}.
   
-%   In real-world datasets groups of entries are often missing. In order to cope with this issue we developed in \ade an improved version of the \texttt{Imputer} class offered by \texttt{scikit-learn}. Our extension adds a k-nearest neighbor (KNN) imputing method to the pre-existent features-wise \emph{mean}, \emph{median} and \emph{most frequent} value strategies.
-%   % (whose names are already self-explanatory)
-%   We chose to add the KNN imputing method to the \emph{na\"ive} strategies offered by \texttt{scikit-learn} because of the robustness demonstrated in the microarray reconstruction experiments described in \citep{troyanskaya2001missing}.
-
 %   \item[]{\bf Step 1: Data preprocessing.}
 \paragraph{Step 1: Data preprocessing.}
   Collecting data from heterogeneous sources may imply dealing with features lying in very different numerical ranges. This could have a negative influence on the behavior of dimensionality reduction and clustering techniques. To tackle this issue \ade offers different strategies to preprocess data.
@@ -135,17 +141,20 @@ For each task, different off-the-shelf algorithms are available (see Table~\ref{
 
 %   \item[]{\bf Step 2: Dimensionality reduction.}
 \paragraph{Step 2: Dimensionality reduction.}
-  Data exploration of high dimensional dataset can be very tricky. Visualizing samples in high dimension is much less intuitive than representing them in two- or three-dimensional plots. However, it is often possible to \emph{decrease} the dimensionality of the problem estimating by means of different strategies, a low-dimensional embedding in which the data lie. %To accomplish this task 
+  Data exploration of high dimensional dataset can be very tricky. 
+%   Visualizing samples in high dimension is much less intuitive than representing them in two- or three-dimensional plots. 
+  However, it is often possible to \emph{decrease} the dimensionality of the problem estimating by means of different strategies, a low-dimensional embedding in which the data lie. %To accomplish this task 
   \ade offers a set of linear and nonlinear dimensionality reduction and manifold learning algorithms (see Table~\ref{tab:blocks}).
 
 %   \item[]{\bf Step 3: Unsupervised clustering.}
 \paragraph{Step 3: Unsupervised clustering.}
-  Cluster analysis is the last step of our pipelines. 
   %Clustering techniques in \ade are either centroid-based and non centroid-based. For both classes of methods, 
-  \ade offers strategies and heuristics to automatically estimate the parameter that yields the most suitable cluster separation. The optimal parameter selection of centroid-based algorithms follows the $B$-fold cross-validation strategy presented in Algorithm~\ref{alg:clusters}, where $\mathcal{S}(X,y)$ is the mean silhouette coefficient \citep{rousseeuw1987silhouettes} for all input samples.
+  Besides offering a wide range of clustering techniques,
+  \ade implements strategies and heuristics to automatically estimate parameters that yield the most suitable cluster separation. 
+  The optimal parameter selection of centroid-based algorithms follows the $B$-fold cross-validation strategy presented in Algorithm~\ref{alg:clusters}, where $\mathcal{S}(X,y)$ is the mean silhouette coefficient \citep{rousseeuw1987silhouettes} for all input samples.
   Clustering parameters for affinity propagation, that is the \emph{preference} \citep{frey2007clustering} and for k-means techniques, that is the \emph{number of clusters} \citep{bishop2006pattern} can be automatically extracted, while mean shift \citep{comaniciu2002mean} has an implicit cluster discovery.
 %   The tuning parameter for the affinity propagation technique \citep{frey2007clustering} is the so-called \emph{preference} and it affects the number of discovered clusters. For k-means \citep{bishop2006pattern} the tuning parameter is directly the \emph{number of clusters}, while mean shift \citep{comaniciu2002mean} has an implicit cluster discovery. 
-  For hierarchical \citep{friedman2001elements} and spectral clustering \citep{shi2000normalized} no automatic discovery of clustering parameters is offered. However, \ade generates graphical aids to evaluate the performance with fixed parameters such as, respectively, dendrogram tree and eigenvalues of the Laplacian of the affinity matrix plots.
+  For hierarchical \citep{friedman2001elements} and spectral clustering \citep{shi2000normalized} no automatic discovery of clustering parameters is offered. However, \ade generates graphical aids to evaluate clustering performance with fixed parameters such as, respectively, dendrogram tree and eigenvalues of the Laplacian of the affinity matrix plots.
  
 \begin{algorithm}
 \caption{Automatic discovery of the optimal clustering parameter.}\label{alg:clusters}
@@ -163,11 +172,7 @@ For each task, different off-the-shelf algorithms are available (see Table~\ref{
 \State $k_{opt} = \argmax{k}(\bar{S}_k)$
 \end{algorithmic}
 \end{algorithm}
-
 % \end{enumerate}
-
-\noindent In order to perform exploratory analysis on large datasets we took advantage of different parallel computing paradigms. %\ade pipelines are designed to be independent from each other, therefore they all run in parallel as separate \py processes on different cores. 
-Moreover, since \ade makes large use of \texttt{numpy} and \texttt{scipy}, it automatically benefits from their bindings with optimized linear algebra libraries (such as OpenBLAS\footnote{\url{http://www.openblas.net/}} or Intel\textsuperscript{\textregistered}~MKL).
 
 \section{Usage Example}
 In this section we show how to use \ade to perform an exploratory analysis on a relatively small dataset. Once \ade is installed, all we need to do is to execute the \py script \texttt{ade\_run.py} specifying as single input argument a configuration file (with \texttt{.py} extension) which should look like the snippet below.
@@ -195,12 +200,13 @@ Results of this first step are all stored in a single output folder. Once the an
         \includegraphics[width=0.4\textwidth]{figures/l2-iso-KMeans_5-clusts.pdf}%
         \label{fig:b}%
         }%
-\caption{K-means performance after two different nonlinear projections. Data-points colors refer to real classes, while backgrounds are colored according to clustering predictions. The dataset is composed by a random extraction of $801$ samples (with dimension $20531$) measuring RNA-Seq gene expression of patients affected by 5 different types of tumor: breast invasive carcinoma (BRCA), kidney renal clear cell carcinoma (KIRC), colon  (COAD), lung  (LUAD) and prostate adenocarcinoma (PRAD). This reduced dataset is available from \ade documentation website and it comes from the cancer genome atlas pan-cancer analysis project~\citep{weinstein2013cancer}. In both cases our algorithm automatically discovers the correct number of clusters, even if the isomap projection improves the clustering performance.} \label{fig:scatter}
+\caption{\small K-means performance after two different nonlinear projections. Data-points colors refer to real classes, while backgrounds are colored according to clustering predictions. The dataset is composed by a random extraction of $801$ samples (with dimension $20531$) measuring RNA-Seq gene expression of patients affected by 5 different types of tumor: breast invasive carcinoma (BRCA), kidney renal clear cell carcinoma (KIRC), colon  (COAD), lung  (LUAD) and prostate adenocarcinoma (PRAD). This reduced dataset is available from \ade documentation website and it comes from the cancer genome atlas pan-cancer analysis project~\citep{weinstein2013cancer}. In both cases our algorithm automatically discovers the correct number of clusters, even if the isomap projection improves the clustering performance.} \label{fig:scatter}
 \end{figure}
 
 
 % \acks{Acknowledgements go here.}
 
+\newpage
 %\vskip 0.2in
 \bibliography{adenine}
 
