@@ -1,6 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+######################################################################
+# Copyright (C) 2016 Samuele Fiorini, Federico Tomasi, Annalisa Barla
+#
+# FreeBSD License
+######################################################################
+
 import imp, sys, os, shutil
 import time
 import logging
