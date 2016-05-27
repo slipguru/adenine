@@ -1,6 +1,12 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+######################################################################
+# Copyright (C) 2016 Samuele Fiorini, Federico Tomasi, Annalisa Barla
+#
+# FreeBSD License
+######################################################################
+
 import logging
 import numpy as np
 from adenine.utils.extra import modified_cartesian, ensure_list, values_iterator

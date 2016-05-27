@@ -1,6 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+######################################################################
+# Copyright (C) 2016 Samuele Fiorini, Federico Tomasi, Annalisa Barla
+#
+# FreeBSD License
+######################################################################
+
 from adenine.utils import data_source
 from adenine.utils import extra
 

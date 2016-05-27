@@ -1,7 +1,13 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# This module is just a wrapper for some sklearn.datasets functions
+"""This module is just a wrapper for some sklearn.datasets functions"""
+
+######################################################################
+# Copyright (C) 2016 Samuele Fiorini, Federico Tomasi, Annalisa Barla
+#
+# FreeBSD License
+######################################################################
 
 import numpy as np
 import pandas as pd

@@ -1,6 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+######################################################################
+# Copyright (C) 2016 Samuele Fiorini, Federico Tomasi, Annalisa Barla
+#
+# FreeBSD License
+######################################################################
+
 from __future__ import print_function
 
 import imp, sys, os

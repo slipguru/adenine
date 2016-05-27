@@ -1,6 +1,12 @@
 #!/usr/bin/python -W ignore::DeprecationWarning
 # -*- coding: utf-8 -*-
 
+######################################################################
+# Copyright (C) 2016 Samuele Fiorini, Federico Tomasi, Annalisa Barla
+#
+# FreeBSD License
+######################################################################
+
 __all__ = ["make_silhouette", "make_scatter", "make_voronoi", "make_tree",
            "make_dendrogram", "plot_PCmagnitude", "plot_eigs"]
 
