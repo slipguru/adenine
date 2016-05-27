@@ -55,12 +55,12 @@ def main(config_file):
 # ----------------------------  RUN MAIN ---------------------------- #
 if __name__ == '__main__':
     from adenine import __version__
-    parser = argparse.ArgumentParser(usage="%(prog)s [-c] adenine-configuration-file.py",
+    parser = argparse.ArgumentParser(#usage="%(prog)s [-c] configuration_file.py",
                                      description='Adenine script for generating pipelines.')
     parser.add_argument('--version', action='version', version='%(prog)s v'+__version__)
     parser.add_argument("-c", "--create", dest="create", action="store_true",
                         help="create config file", default=False)
-    parser.add_argument("config", help="specify config file", default='ade_config.py')
+    parser.add_argument("configuration_file", help="specify config file", default='ade_config.py')
     args = parser.parse_args()
 
     if args.create:
@@ -70,9 +70,9 @@ if __name__ == '__main__':
         if std_config_path.endswith('.pyc'):
             std_config_path = std_config_path[:-1]
         # Check if the file already exists
-        if os.path.exists(args.config):
+        if os.path.exists(args.configuration_file):
             parser.error("adenine configuration file already exists")
         # Copy the config file
-        shutil.copy(std_config_path, args.config)
+        shutil.copy(std_config_path, args.configuration_file)
     else:
-        main(args.config)
+        main(args.configuration_file)

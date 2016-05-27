@@ -18,13 +18,13 @@ X, y, feat_names, class_names = data_source.load('custom', data_file, labels_fil
 # -----------------------  PIPELINE DEFINITION ------------------------ #
 
 # --- Missing Values Imputing --- #
-step0 = {'Impute': [True, {'missing_values': 'NaN',
+step0 = {'Impute': [False, {'missing_values': 'NaN',
                             'strategy': ['median','mean','nearest_neighbors']}]}
 
 # --- Data Preprocessing --- #
 step1 = {'None': [False], 'Recenter': [False], 'Standardize': [False],
          'Normalize': [False, {'norm': ['l1','l2']}],
-         'MinMax': [True, {'feature_range': [(0,1), (-1,1)]}]}
+         'MinMax': [False, {'feature_range': [(0,1), (-1,1)]}]}
 
 # --- Dimensionality Reduction & Manifold Learning --- #
 step2 = {'PCA': [False, {'n_components': 3}],

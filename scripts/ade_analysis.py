@@ -60,12 +60,12 @@ def main(dumpfile):
 # ----------------------------  RUN MAIN ---------------------------- #
 if __name__ == '__main__':
     from adenine import __version__
-    parser = argparse.ArgumentParser(usage="%(prog)s [-c] RESULTS_DIR",
+    parser = argparse.ArgumentParser(#usage="%(prog)s RESULTS_DIR",
                                      description='Adenine script for analysing pipelines.')
     parser.add_argument('--version', action='version', version='%(prog)s v'+__version__)
-    parser.add_argument("root_folder", help="specify results directory")
+    parser.add_argument("result_folder", help="specify results directory")
     args = parser.parse_args()
-    root_folder = args.root_folder
+    root_folder = args.result_folder
     filename = [f for f in os.listdir(root_folder) if os.path.isfile(os.path.join(root_folder, f)) and f.endswith('.pkl.tz') and f !=  "__data.pkl.tz"]
     if not filename:
         print("No .pkl file found in {}. Aborting...".format(root_folder), file=sys.stderr)
