@@ -89,7 +89,7 @@ already created::
 The script produces a set of textual and graphical results. An example of possible output obtained by one of the implemented pipelines is represented below.
 
 
-.. figure:: _static/KMeans.pdf
+.. figure:: KMeans.pdf
    :scale: 50 %
    :alt: broken link
 

@@ -18,9 +18,9 @@ plotting_context = 'paper' # one of {paper, notebook, talk, poster}
 
 # ----------------------------  INPUT DATA ---------------------------- #
 #X, y, feat_names, class_names = data_source.load('iris')
-#X, y, feat_names, class_names = data_source.load('gauss', n_samples=300)
+X, y, feat_names, class_names = data_source.load('gauss', n_samples=300)
 # X, y, feat_names, class_names = data_source.load('circles')
-X, y, feat_names, class_names = data_source.load('digits')
+# X, y, feat_names, class_names = data_source.load('digits')
 # X, y, feat_names, class_names = data_source.load('diabetes')
 # X, y, feat_names, class_names = data_source.load('boston')
 # X, y, feat_names, class_names = data_source.load('custom', 'data/X.npy', 'data/y.npy')
@@ -57,13 +57,13 @@ step2 = {'PCA': [False, {'n_components': 3}],
          }
 
 # --- Clustering --- #
-step3 = {'KMeans': [True, {'n_clusters': ['auto']}], # cannot be 'precomputed'
+step3 = {'KMeans': [False, {'n_clusters': ['auto']}], # cannot be 'precomputed'
          'AP': [False, {'preference': ['auto']}], # can be 'precomputed'
          'MS': [False], # cannot be 'precomputed'
          'Spectral': [False, {'n_clusters': [2]}], # can be 'precomputed'
-         'Hierarchical': [False, {'n_clusters': [10],
+         'Hierarchical': [True, {'n_clusters': [3],
                                   #'affinity': ['manhattan','euclidean'],
                                   'affinity': ['euclidean'],
                                   #'linkage':  ['ward','complete','average']}]
-                                  'linkage':  ['ward','average']}]
+                                  'linkage':  ['ward']}]
         }
