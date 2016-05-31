@@ -302,10 +302,8 @@ def analysis_worker(elem, root_folder, y, feat_names, class_names, lock):
 
         # Launch analysis
         if step_level == 'dimred':
-            make_scatter(root=rootname, data_in=step_out, labels=y,
-                         true_labels=True, model_param=step_param)
-            make_silhouette(root=rootname, labels=y, model_param=step_param,
-                         data_in=step_out, model=mdl_obj)
+            make_scatter(root=rootname, data_in=step_out, labels=y, true_labels=True)
+            make_silhouette(root=rootname, labels=y, data_in=step_out, model=mdl_obj)
 
             if hasattr(mdl_obj, 'explained_variance_ratio_'):
                 plot_PCmagnitude(root=rootname,
@@ -327,20 +325,16 @@ def analysis_worker(elem, root_folder, y, feat_names, class_names, lock):
             if hasattr(mdl_obj, 'cluster_centers_'):
                 _est_name = mdl_obj.__dict__.get('estimator_name', '') or type(mdl_obj).__name__
                 if _est_name != 'AffinityPropagation': # disable the voronoi plot for affinity prop
-                    make_voronoi(root=rootname, labels=y, model_param=step_param,
-                                 data_in=step_in, model=voronoi_mdl_obj)
+                    make_voronoi(root=rootname, labels=y, data_in=step_in,
+                                 model=voronoi_mdl_obj)
             elif hasattr(mdl_obj, 'n_leaves_'):
-                make_tree(root=rootname, labels=step_out, trueLabel=y,
-                          model_param=step_param, data_in=step_in, model=mdl_obj)
+                make_tree(root=rootname, labels=step_out, data_in=step_in, model=mdl_obj)
                 make_dendrogram(root=rootname, labels=step_out, trueLabel=y,
-                                model_param=step_param, data_in=step_in,
-                                model=mdl_obj)
+                                data_in=step_in, model=mdl_obj)
 
-            make_scatter(root=rootname, labels=step_out, model_param=step_param,
-                         data_in=step_in, model=mdl_obj)
+            make_scatter(root=rootname, labels=step_out, data_in=step_in, model=mdl_obj)
 
-            make_silhouette(root=rootname, labels=step_out, model_param=step_param,
-                         data_in=step_in, model=mdl_obj)
+            make_silhouette(root=rootname, labels=step_out, data_in=step_in, model=mdl_obj)
 
             est_clst_perf(root=rootname, data_in=step_in, labels=step_out,
                           t_labels=y, model=mdl_obj, metric=metric)

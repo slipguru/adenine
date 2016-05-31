@@ -27,7 +27,7 @@ try:
 except ImportError:
     from sklearn.cross_validation import StratifiedShuffleSplit
 
-from adenine.utils.extra import next_color, reset_palette, title_from_filename, values_iterator
+from adenine.utils.extra import next_color, reset_palette, title_from_filename, values_iterator, items_iterator, get_color, palette
 
 GLOBAL_FF = 'png'
 
@@ -35,32 +35,45 @@ def set_file_ext(ext):
     global GLOBAL_FF
     GLOBAL_FF = ext
 
-def make_silhouette(root, labels, model_param, data_in, model):
+def make_silhouette(root, data_in, labels, model=()):
+    """Generates and saves the silhouette plot of data_in w.r.t labels.
+
+    This function generates the silhouette plot representing how data are
+    correctly clustered, based on labels.
+    The plots will be saved into the root folder in a tree-like structure.
+
+    Parameters
+    -----------
+    root : string
+        The root path for the output creation
+
+    data_in : array of float, shape : (n_samples, n_dimensions)
+        The low space embedding estimated by the dimensionality reduction and
+        manifold learning algorithm.
+
+    labels : array of float, shape : n_samples
+        The label vector. It can contain true or estimated labels.
+
+    model : sklearn or sklearn-like object
+        An instance of the class that evaluates a step.
+    """
     # Create a subplot with 1 row and 2 columns
     fig, (ax1) = plt.subplots(1, 1)
     fig.set_size_inches(20, 15)
 
-    # The 1st subplot is the silhouette plot
-    # The silhouette coefficient can range from -1, 1 but in this example all
-    # lie within [-0.1, 1]
-    # ax1.set_xlim([-0.1, 1])
+    # The silhouette coefficient can range from -1, 1
+    # ax1.set_xlim([-1, 1])
+
     # The (n_clusters+1)*10 is for inserting blank space between silhouette
-    # plots of individual clusters, to demarcate them clearly.
+    # plots of individual clusters.
     n_clusters = np.unique(labels).shape[0]
     ax1.set_ylim([0, len(data_in) + (n_clusters + 1) * 10])
 
     # The silhouette_score gives the average value for all the samples.
     # This gives a perspective into the density and separation of the formed
     # clusters
-
-    # Compute the silhouette scores for each sample
-    if hasattr(model, 'affinity'):
-        sample_silhouette_values = metrics.silhouette_samples(data_in, labels,
-                                                          metric=model.affinity)
-    else:
-        sample_silhouette_values = metrics.silhouette_samples(data_in, labels,
-                                                          metric='euclidean')
-
+    metric = model.affinity if hasattr(model, 'affinity') else 'euclidean'
+    sample_silhouette_values = metrics.silhouette_samples(data_in, labels, metric=metric)
     sil = np.mean(sample_silhouette_values)
 
     y_lower = 10
@@ -92,19 +105,19 @@ def make_silhouette(root, labels, model_param, data_in, model):
 
     # The vertical line for average silhoutte score of all the values
     ax1.axvline(x=sil, color="red", linestyle="--")
-
-    ax1.set_yticks([])  # Clear the yaxis labels / ticks
+    ax1.set_yticks([])
     # ax1.set_xticks([-0.6, -0.4, -0.2, 0, 0.2, 0.4, 0.6, 0.8, 1])
 
-    title = "Silhouette analysis. {0} clusters for {2} samples, average score {1:.4f}".format(n_clusters, sil, data_in.shape[0])
-    plt.suptitle(title)#, fontsize=14, fontweight='bold')
+    plt.suptitle("Silhouette analysis. "
+        "{0} clusters for {2} samples, average score {1:.4f}"
+        .format(n_clusters, sil, data_in.shape[0]))
 
     filename = os.path.join(root,os.path.basename(root)+"_silhouette."+GLOBAL_FF)
     fig.savefig(filename)
     logging.info('Figured saved {}'.format(filename))
     plt.close()
 
-def make_scatter(root=(), data_in=(), model_param=(), labels=None, true_labels=False, model=()):
+def make_scatter(root, data_in, labels=None, true_labels=False, model=()):
     """Generates and saves the scatter plot of the dimensionality reduced data set.
 
     This function generates the scatter plot representing the dimensionality reduced data set. The plots will be saved into the root folder in a tree-like structure.
@@ -115,10 +128,8 @@ def make_scatter(root=(), data_in=(), model_param=(), labels=None, true_labels=F
         The root path for the output creation
 
     data_in : array of float, shape : (n_samples, n_dimensions)
-        The low space embedding estimated by the dimensinality reduction and manifold learning algorithm.
-
-    model_param : dictionary
-        The parameters of the dimensionality reduciont and manifold learning algorithm.
+        The low space embedding estimated by the dimensinality reduction and
+        manifold learning algorithm.
 
     labels : array of float, shape : n_samples
         The label vector. It can contain true or estimated labels.
@@ -127,7 +138,8 @@ def make_scatter(root=(), data_in=(), model_param=(), labels=None, true_labels=F
         Identify if labels contains true or estimated labels.
 
     model : sklearn or sklearn-like object
-        An instance of the class that evaluates a step. In particular this must be a clustering model provided with the clusters_centers_ attribute (e.g. KMeans).
+        An instance of the class that evaluates a step. In particular this must
+        be a clustering model provided with the clusters_centers_ attribute (e.g. KMeans).
     """
     n_samples, n_dim = data_in.shape
 
@@ -213,10 +225,13 @@ def make_scatter(root=(), data_in=(), model_param=(), labels=None, true_labels=F
     logging.info('Figured saved {}'.format(filename))
     plt.close()
 
-def make_voronoi(root=(), data_in=(), model_param=(), labels=None, true_labels=False, model=()):
+def make_voronoi(root, data_in, labels=None, true_labels=False, model=()):
     """Generate and save the Voronoi tessellation obtained from the clustering algorithm.
 
-    This function generates the Voronoi tessellation obtained from the clustering algorithm applied on the data projected on a two-dimensional embedding. The plots will be saved into the appropriate folder of the tree-like structure created into the root folder.
+    This function generates the Voronoi tessellation obtained from the clustering
+    algorithm applied on the data projected on a two-dimensional embedding.
+    The plots will be saved into the appropriate folder of the tree-like
+    structure created into the root folder.
 
     Parameters
     -----------
@@ -224,10 +239,8 @@ def make_voronoi(root=(), data_in=(), model_param=(), labels=None, true_labels=F
         The root path for the output creation
 
     data_in : array of float, shape : (n_samples, n_dimensions)
-        The low space embedding estimated by the dimensinality reduction and manifold learning algorithm.
-
-    model_param : dictionary
-        The parameters of the dimensionality reduciont and manifold learning algorithm.
+        The low space embedding estimated by the dimensinality reduction and
+        manifold learning algorithm.
 
     labels : array of int, shape : n_samples
         The result of the clustering step.
@@ -236,7 +249,8 @@ def make_voronoi(root=(), data_in=(), model_param=(), labels=None, true_labels=F
         Identify if labels contains true or estimated labels.
 
     model : sklearn or sklearn-like object
-        An instance of the class that evaluates a step. In particular this must be a clustering model provided with the clusters_centers_ attribute (e.g. KMeans).
+        An instance of the class that evaluates a step. In particular this must
+        be a clustering model provided with the clusters_centers_ attribute (e.g. KMeans).
     """
     n_samples, n_dim = data_in.shape
 
@@ -293,10 +307,12 @@ def make_voronoi(root=(), data_in=(), model_param=(), labels=None, true_labels=F
     logging.info('Figured saved {}'.format(filename))
     plt.close()
 
-def make_tree(root=(), data_in=(), model_param=(), trueLabel=None, labels=(), model=()):
+def make_tree(root, data_in, labels=None, model=()):
     """Generate and save the tree structure obtained from the clustering algorithm.
 
-    This function generates the tree obtained from the clustering algorithm applied on the data. The plots will be saved into the appropriate folder of the tree-like structure created into the root folder.
+    This function generates the tree obtained from the clustering algorithm
+    applied on the data. The plots will be saved into the appropriate folder of
+    the tree-like structure created into the root folder.
 
     Parameters
     -----------
@@ -304,45 +320,51 @@ def make_tree(root=(), data_in=(), model_param=(), trueLabel=None, labels=(), mo
         The root path for the output creation
 
     data_in : array of float, shape : (n_samples, n_dimensions)
-        The low space embedding estimated by the dimensinality reduction and manifold learning algorithm.
-
-    model_param : dictionary
-        The parameters of the dimensionality reduciont and manifold learning algorithm.
-
-    trueLabel : array of float, shape : n_samples
-        The true label vector; np.nan if missing (useful for plotting reasons).
+        The low space embedding estimated by the dimensinality reduction and
+        manifold learning algorithm.
 
     labels : array of int, shape : n_samples
         The result of the clustering step.
 
     model : sklearn or sklearn-like object
-        An instance of the class that evaluates a step. In particular this must be a clustering model provided with the clusters_centers_ attribute (e.g. KMeans).
+        An instance of the class that evaluates a step. In particular this must
+        be a clustering model provided with the clusters_centers_ attribute (e.g. KMeans).
     """
     filename = os.path.join(root, os.path.basename(root)+'_tree.pdf')
     try:
         import itertools
         import pydot
-
         graph = pydot.Dot(graph_type='graph')
 
+        reset_palette(len(np.unique(labels)))
+        global palette
+        colors = {v: k for k, v in items_iterator(dict(enumerate(np.unique(labels))))}
         ii = itertools.count(data_in.shape[0])
         for k, x in enumerate(model.children_):
             root_node = next(ii)
-            left_edge = pydot.Edge(root_node, x[0])
-            right_edge = pydot.Edge(root_node, x[1])
-            graph.add_edge(right_edge)
-            graph.add_edge(left_edge)
+            left_node = pydot.Node(str(x[0]), style="filled", fillcolor=
+                palette.as_hex()[colors[labels[x[0]]]] if x[0] < labels.shape[0] else 'white')
+            right_node = pydot.Node(str(x[1]), style="filled", fillcolor=
+                palette.as_hex()[colors[labels[x[1]]]] if x[1] < labels.shape[0] else 'white')
+
+            graph.add_node(left_node)
+            graph.add_node(right_node)
+            graph.add_edge(pydot.Edge(root_node, left_node))
+            graph.add_edge(pydot.Edge(root_node, right_node))
 
         # graph.write_png(filename[:-2]+"ng")
         graph.write_pdf(filename)
         logging.info('Figured saved {}'.format(filename))
-    except:
-        logging.info('Cannot create {}'.format(filename))
+    except Exception as e:
+        logging.critical('Cannot create {}. tb: {}'.format(filename, e))
 
-def make_dendrogram(root=(), data_in=(), model_param=(), trueLabel=None, labels=(), model=(), n_max=150):
+def make_dendrogram(root, data_in, labels, model=(), n_max=150):
     """Generate and save the dendrogram obtained from the clustering algorithm.
 
-    This function generates the dendrogram obtained from the clustering algorithm applied on the data. The plots will be saved into the appropriate folder of the tree-like structure created into the root folder. The row colors of of the heatmap are either the true labels, when provided, or the estimated ones (when trueLabel is None).
+    This function generates the dendrogram obtained from the clustering algorithm
+    applied on the data. The plots will be saved into the appropriate folder of
+    the tree-like structure created into the root folder. The row colors of of
+    the heatmap are the either true or estimaed data labels.
 
     Parameters
     -----------
@@ -350,28 +372,23 @@ def make_dendrogram(root=(), data_in=(), model_param=(), trueLabel=None, labels=
         The root path for the output creation
 
     data_in : array of float, shape : (n_samples, n_dimensions)
-        The low space embedding estimated by the dimensinality reduction and manifold learning algorithm.
-
-    model_param : dictionary
-        The parameters of the dimensionality reduciont and manifold learning algorithm.
-
-    trueLabel : array of float, shape : n_samples
-        The true label vector; None if missing (useful for plotting reasons).
+        The low space embedding estimated by the dimensinality reduction and
+        manifold learning algorithm.
 
     labels : array of int, shape : n_samples
         The result of the clustering step.
 
     model : sklearn or sklearn-like object
-        An instance of the class that evaluates a step. In particular this must be a clustering model provided with the clusters_centers_ attribute (e.g. KMeans).
+        An instance of the class that evaluates a step. In particular this must
+        be a clustering model provided with the clusters_centers_ attribute (e.g. KMeans).
 
     n_max : int, (INACTIVE)
-        The maximum number of samples to include in the dendrogram. When the number of samples is bigger than n_max, only n_max samples randomly extracted from the dataset are represented. The random extraction is performed using sklearn.model_selection.StratifiedShuffleSplit (or sklearn.cross_validation.StratifiedShuffleSplit for legacy reasons).
+        The maximum number of samples to include in the dendrogram.
+        When the number of samples is bigger than n_max, only n_max samples
+        randomly extracted from the dataset are represented. The random
+        extraction is performed using sklearn.model_selection.StratifiedShuffleSplit
+        (or sklearn.cross_validation.StratifiedShuffleSplit for legacy reasons).
     """
-    if trueLabel is not None:
-        _y = trueLabel
-    else:
-        _y = labels
-
     # # Check for the number of samples
     # n_samples = data_in.shape[0]
     # if n_samples > n_max:
@@ -392,12 +409,12 @@ def make_dendrogram(root=(), data_in=(), model_param=(), trueLabel=None, labels=
     # -- Code for row colors adapted from:
     # https://stanford.edu/~mwaskom/software/seaborn/examples/structured_heatmap.html
     # Create a custom palette to identify the classes
-    n_colors = len(set(_y))
+    n_colors = len(set(labels))
     custom_pal = sns.color_palette("hls", n_colors)
     custom_lut = dict(zip(map(str, range(n_colors)), custom_pal))
 
     # Convert the palette to vectors that will be drawn on the side of the matrix
-    custom_colors = pd.Series(map(str, _y)).map(custom_lut)
+    custom_colors = pd.Series(map(str, labels)).map(custom_lut)
 
     # Create a custom colormap for the heatmap values
     cmap = sns.diverging_palette(200, 10, sep=1, n=15, center="dark", as_cmap=True)#[::-1]
@@ -424,12 +441,11 @@ def make_dendrogram(root=(), data_in=(), model_param=(), trueLabel=None, labels=
                 filename = plot_avg_silhouette(tmp)
                 logging.info('Figured saved {}'.format(filename))
             except:
-                logging.warn("Cannot import name {}".format('ignet.plotting'))
+                logging.critical("Cannot import name {}".format('ignet.plotting'))
         return
 
     # workaround to a different name used for manhatta / cityblock distance
     if model.affinity == 'manhattan': model.affinity = 'cityblock'
-
     g = sns.clustermap(df, method=model.linkage, metric=model.affinity,
                        row_colors=custom_colors, linewidths=.5, cmap=cmap)
 
@@ -439,12 +455,11 @@ def make_dendrogram(root=(), data_in=(), model_param=(), trueLabel=None, labels=
     logging.info('Figured saved {}'.format(filename))
     plt.close()
 
-def plot_PCmagnitude(root=(), points=(), title='', ylabel=''):
+def plot_PCmagnitude(root, points, title='', ylabel=''):
     """Generate and save the plot representing the trend of principal components magnitude.
 
     Parameters
     -----------
-
     rootFolder : string
         The root path for the output creation
 
@@ -464,13 +479,12 @@ def plot_PCmagnitude(root=(), points=(), title='', ylabel=''):
     plt.savefig(filename)
     plt.close()
 
-def plot_eigs(root='', affinity=(), n_clusters=0, title='', ylabel='', normalised=True):
+def plot_eigs(root, affinity, n_clusters=0, title='', ylabel='', normalised=True):
     """Generate and save the plot representing the eigenvalues of the Laplacian
     associated to data affinity matrix.
 
     Parameters
     -----------
-
     rootFolder : string
         The root path for the output creation
 
