@@ -16,6 +16,9 @@ from itertools import product
 
 palette = sns.color_palette("Set1")
 
+def get_color(i=0):
+    return palette[i]
+
 def next_color():
     palette.append(palette.pop(0))
     return palette[-1]
@@ -141,8 +144,8 @@ def timed(function):
 
 def set_module_defaults(module, dictionary):
     """Set default variables of a module, given a dictionary.
-    Used after the loading of the configuration file."""
-    for k, v in extra.items_iterator(dictionary):
+    Used after the loading of the configuration file to set some defaults."""
+    for k, v in items_iterator(dictionary):
         try:
             getattr(module, k)
         except AttributeError:
