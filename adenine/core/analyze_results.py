@@ -287,7 +287,7 @@ def analysis_worker(elem, root_folder, y, feat_names, class_names, lock):
     """Parallel pipelines analysis.
 
     Parameters
-    -----------
+    ----------
     elem : list
         The first two element of this list are the pipe_id and all the data of
         that pipeline.
