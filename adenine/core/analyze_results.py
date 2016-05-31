@@ -25,37 +25,41 @@ from adenine.utils.extra import timed, items_iterator
 
 GLOBAL_INFO = ''  # to save info before logging is loaded
 
-def est_clst_perf(root=(), data_in=(), labels=None, t_labels=None, model=(), metric='euclidean'):
+def est_clst_perf(root, data_in, labels=None, t_labels=None, model=(), metric='euclidean'):
     """Estimate the clustering performance.
 
-    This function estimate the clustering performance by means of several indexes. Then eventually saves the results in a tree-like structure in the root folder.
+    This function estimate the clustering performance by means of several indexes.
+    Then saves the results in a tree-like structure in the root folder.
 
     Parameters
     -----------
     root : string
-        The root path for the output creation
+        The root path for the output creation.
 
     data_in : array of float, shape : (n_samples, n_dimensions)
-        The low space embedding estimated by the dimensinality reduction and manifold learning algorithm.
+        The low space embedding estimated by the dimensinality reduction and
+        manifold learning algorithm.
 
     labels : array of float, shape : n_samples
-        The label assignment performed by the clusterin algorithm.
+        The label assignment performed by the clustering algorithm.
 
     t_labels : array of float, shape : n_samples
         The true label vector; None if missing.
 
     model : sklearn or sklearn-like object
-        An instance of the class that evaluates a step. In particular this must be a clustering model provided with the clusters_centers_ attribute (e.g. KMeans).
+        An instance of the class that evaluates a step. In particular this must
+        be a clustering model provided with the clusters_centers_ attribute (e.g. KMeans).
+
+    metric : string
+        The metric used during the clustering algorithms.
     """
     perf_out = dict()
-
     try:
-        perf_out['silhouette'] = metrics.silhouette_score(data_in, labels, metric=metric)
-
         if hasattr(model, 'inertia_'):
             # Sum of distances of samples to their closest cluster center.
             perf_out['inertia'] = model.inertia_
 
+        perf_out['silhouette'] = metrics.silhouette_score(data_in, labels, metric=metric)
         if t_labels is not None:
             # the next indexes need a gold standard
             perf_out['ari'] = metrics.adjusted_rand_score(t_labels, labels)
@@ -90,7 +94,7 @@ def est_clst_perf(root=(), data_in=(), labels=None, t_labels=None, model=(), met
     logging.info("Dumped : {}".format(filename+'_scores.pkl'))
 
 
-def get_step_attributes(step=(), pos=()):
+def get_step_attributes(step, pos):
     """Get the attributes of the input step.
 
     This function returns the attributes (i.e. level, name, outcome) of the input step. This comes handy when dealing with steps with more than one parameter (e.g. KernelPCA 'poly' or 'rbf').
@@ -98,7 +102,8 @@ def get_step_attributes(step=(), pos=()):
     Parameters
     -----------
     step : list
-        A step coded by ade_run.py as [name, level, param, data_out, data_in, mdl obj, voronoi_mdl_obj]
+        A step coded by ade_run.py as
+        [name, level, param, data_out, data_in, mdl obj, voronoi_mdl_obj]
 
     pos : int
         The position of the step inside the pipeline.
@@ -115,7 +120,9 @@ def get_step_attributes(step=(), pos=()):
         Where n_out is n_dimensions for dimensionality reduction step, or 1 for clustering.
 
     data_in : array of float, shape : (n_samples, n_in)
-        Where n_in is n_dimensions for preprocessing/imputing/dimensionality reduction step, or n_dim for clustering (because the data have already been dimensionality reduced).
+        Where n_in is n_dimensions for preprocessing/imputing/dimensionality
+        reduction step, or n_dim for clustering (because the data have already
+        been dimensionality reduced).
 
     param : dictionary
         The parameters of the sklearn object implementing the algorithm.
@@ -174,7 +181,19 @@ def get_step_attributes(step=(), pos=()):
 
 
 def make_df_clst_perf(root_folder):
-    measures = ('ami', 'ari', 'completeness', 'homogeneity', 'v_measure', 'inertia', 'silhouette')
+    """Summarize all the clustering performance estimations.
+
+    Given the output file produced by est_clst_perf(), this function groups all
+    of them together in friendly text and latex files, and saves the two files
+    produced in a tree-like structure in the root folder.
+
+    Parameters
+    -----------
+    root_folder : string
+        The root path for the output creation.
+    """
+    measures = ('ami', 'ari', 'completeness', 'homogeneity', 'v_measure',
+                'inertia', 'silhouette')
     df = pd.DataFrame(columns=['pipeline']+list(measures))
     for root, directories, filenames in os.walk(root_folder):
         for fn in filenames:
@@ -264,24 +283,30 @@ def make_df_clst_perf(root_folder):
                 r"\end{document}")
     # df.to_csv(os.path.join(rootFolder,'all_scores.csv'), na_rep='-', index_label=False, index=False)
 
-
 def analysis_worker(elem, root_folder, y, feat_names, class_names, lock):
     """Parallel pipelines analysis.
 
     Parameters
     -----------
+    elem : list
+        The first two element of this list are the pipe_id and all the data of
+        that pipeline.
 
-    rootFolder : string
-        The root path for the output creation
+    root_folder : string
+        The root path for the output creation.
 
     y : array of float, shape : n_samples
         The label vector; None if missing.
 
-    feature_names : array of integers (or strings), shape : n_features
+    feat_names : array of integers (or strings), shape : n_features
         The feature names; a range of numbers if missing.
 
     class_names : array of integers (or strings), shape : n_features
         The class names; a range of numbers if missing.
+
+    lock : multiprocessing.synchronize.Lock
+        Obtained by multiprocessing.Lock().
+        Needed for optional creation of directories.
     """
     # Getting pipeID and content
     pipe, content = elem[:2]
@@ -328,14 +353,11 @@ def analysis_worker(elem, root_folder, y, feat_names, class_names, lock):
                     make_voronoi(root=rootname, labels=y, data_in=step_in,
                                  model=voronoi_mdl_obj)
             elif hasattr(mdl_obj, 'n_leaves_'):
-                make_tree(root=rootname, labels=step_out, data_in=step_in, model=mdl_obj)
-                make_dendrogram(root=rootname, labels=step_out, trueLabel=y,
-                                data_in=step_in, model=mdl_obj)
+                make_tree(root=rootname, data_in=step_in, labels=step_out, model=mdl_obj)
+                make_dendrogram(root=rootname, data_in=step_in, labels=y, model=mdl_obj)
 
             make_scatter(root=rootname, labels=step_out, data_in=step_in, model=mdl_obj)
-
             make_silhouette(root=rootname, labels=step_out, data_in=step_in, model=mdl_obj)
-
             est_clst_perf(root=rootname, data_in=step_in, labels=step_out,
                           t_labels=y, model=mdl_obj, metric=metric)
 
@@ -348,20 +370,25 @@ def analyze(input_dict=(), root_folder=(), y=None, feat_names=(), class_names=()
 
     Parameters
     -----------
-    inputDict : dictionary
+    input_dict : dictionary
         The dictionary created by ade_run.py on some data.
 
-    rootFolder : string
-        The root path for the output creation
+    root_folder : string
+        The root path for output creation.
 
     y : array of float, shape : n_samples
         The label vector; None if missing.
 
-    feature_names : array of integers (or strings), shape : n_features
+    feat_names : array of integers (or strings), shape : n_features
         The feature names; a range of numbers if missing.
 
     class_names : array of integers (or strings), shape : n_features
         The class names; a range of numbers if missing.
+
+    kwargs : dictionary
+        Additional optional parameters. In particular it can contain
+        'plotting_context' and 'file_format' variables, if specified in
+        the config file.
     """
     if GLOBAL_INFO:
         logging.info(GLOBAL_INFO)
@@ -378,7 +405,6 @@ def analyze(input_dict=(), root_folder=(), y=None, feat_names=(), class_names=()
     else:
         plotting.set_file_ext(ff)
     logging.info("File format set to {}".format(plotting.GLOBAL_FF))
-
     lock = mp.Lock()
     # Parallel(n_jobs=len(inputDict))(delayed(analysis_worker)(elem,rootFolder,y,feat_names,class_names,lock) for elem in inputDict.iteritems())
     ps = []

@@ -27,7 +27,8 @@ try:
 except ImportError:
     from sklearn.cross_validation import StratifiedShuffleSplit
 
-from adenine.utils.extra import next_color, reset_palette, title_from_filename, values_iterator, items_iterator, get_color, palette
+from adenine.utils.extra import \
+    (next_color, reset_palette, title_from_filename, items_iterator, palette)
 
 GLOBAL_FF = 'png'
 
@@ -460,14 +461,19 @@ def plot_PCmagnitude(root, points, title='', ylabel=''):
 
     Parameters
     -----------
-    rootFolder : string
-        The root path for the output creation
+    root : string
+        The root path for the output creation.
 
     points : array of float, shape : n_components
-        This could be the explained variance ratio or the eigenvalues of the centered matrix, according to the PCA algorithm of choice, respectively: PCA or KernelPCA.
+        This could be the explained variance ratio or the eigenvalues of the
+        centered matrix, according to the PCA algorithm of choice, respectively:
+        PCA or KernelPCA.
 
     title : string
-        Plot title
+        Plot title.
+
+    ylabel : string
+        Y-axis label.
     """
     plt.plot(np.arange(1, len(points)+1), points, '-o')
     plt.title(title)
@@ -485,20 +491,23 @@ def plot_eigs(root, affinity, n_clusters=0, title='', ylabel='', normalised=True
 
     Parameters
     -----------
-    rootFolder : string
-        The root path for the output creation
+    root : string
+        The root path for the output creation.
 
     affinity : array of float, shape : (n_samples, n_samples)
         The affinity matrix.
 
-    n_clusters : float
+    n_clusters : int
         The number of clusters.
 
-    ylabel : string
-        The label of the vertical axis.
-
     title : string
-        Plot title
+        Plot title.
+
+    ylabel : string
+        Y-axis label.
+
+    normalised : boolean
+        Choose to normalise the Laplacian matrix or not.
     """
     W = affinity - np.diag(np.diag(affinity))
     D = np.diag([np.sum(x) for x in W])

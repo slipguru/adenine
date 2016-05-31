@@ -45,7 +45,7 @@ def main(dumpfile):
                         format='%(levelname)s (%(name)s): %(message)s')
     root_logger = logging.getLogger()
     ch = logging.StreamHandler()
-    ch.setLevel(logging.CRITICAL)
+    ch.setLevel(logging.ERROR)
     ch.setFormatter(logging.Formatter('%(levelname)s (%(name)s): %(message)s'))
     root_logger.addHandler(ch)
 
