@@ -14,24 +14,24 @@ import numpy as np
 from adenine.utils import data_source
 from adenine.utils.extensions import Imputer
 
+
 def test(missing_rate):
     """
     Testing the KNN data imputing.
     """
-    Xreal, y, feat_names, class_names = data_source.load('gauss',n_samples=100)
-    n,p = Xreal.shape
-    print("{} x {} matrix loaded".format(n,p))
-
+    Xreal, y, feat_names, class_names = data_source.load('gauss', n_samples=100)
+    n, p = Xreal.shape
+    print("{} x {} matrix loaded".format(n, p))
 
     # Choose the missing rate
     # missing_rate = 0.5
     n_missing = int(missing_rate * (n*p))
 
     # Create holes in the matrix
-    idx = np.random.permutation(n*p);
+    idx = np.random.permutation(n*p)
     xx = Xreal.ravel().copy()
     xx[idx[:n_missing]] = np.nan
-    X = np.reshape(xx, (n,p))
+    X = np.reshape(xx, (n, p))
     print("{} values deleted".format(n_missing))
 
     # Save data
@@ -53,8 +53,9 @@ def test(missing_rate):
     dist = np.sqrt(np.sum((Xreal[imp._mask,:].ravel() - Ximp.ravel())**2))
     print("dist(Xreal - Ximp) = {}".format(dist))
 
+
 def main():
-    for missing_rate in np.linspace(0.01,0.7,100):
+    for missing_rate in np.linspace(0.01, 0.7, 100):
         print("\nmissing rate: {}".format(missing_rate))
         test(missing_rate)
 

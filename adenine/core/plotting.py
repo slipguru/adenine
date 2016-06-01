@@ -356,10 +356,10 @@ def make_tree(root, data_in, labels=None, model=()):
         ii = itertools.count(data_in.shape[0])
         for k, x in enumerate(model.children_):
             root_node = next(ii)
-            left_node = pydot.Node(str(x[0]), style="filled", fillcolor=
-                palette.as_hex()[colors[labels[x[0]]]] if x[0] < labels.shape[0] else 'white')
-            right_node = pydot.Node(str(x[1]), style="filled", fillcolor=
-                palette.as_hex()[colors[labels[x[1]]]] if x[1] < labels.shape[0] else 'white')
+            left_node = pydot.Node(str(x[0]), style="filled",
+                                   fillcolor=palette.as_hex()[colors[labels[x[0]]]] if x[0] < labels.shape[0] else 'white')
+            right_node = pydot.Node(str(x[1]), style="filled",
+                                    fillcolor=palette.as_hex()[colors[labels[x[1]]]] if x[1] < labels.shape[0] else 'white')
 
             graph.add_node(left_node)
             graph.add_node(right_node)
@@ -459,7 +459,7 @@ def make_dendrogram(root, data_in, labels, model=(), n_max=150):
         #         filename = plot_avg_silhouette(data_in)
         #         logging.info('Figured saved {}'.format(filename))
         #     except:
-        #         logging.critical("Cannot import name {}".format('ignet.plotting'))
+        #         logging.critical("Cannot import name ignet.plotting'))
         # return
 
     # workaround to a different name used for manhatta / cityblock distance
@@ -473,8 +473,10 @@ def make_dendrogram(root, data_in, labels, model=(), n_max=150):
     logging.info('Figured saved {}'.format(filename))
     plt.close()
 
+
 def plot_PCmagnitude(root, points, title='', ylabel=''):
-    """Generate and save the plot representing the trend of principal components magnitude.
+    """Generate and save the plot representing the trend of principal
+    components magnitude.
 
     Parameters
     -----------
@@ -483,7 +485,7 @@ def plot_PCmagnitude(root, points, title='', ylabel=''):
 
     points : array of float, shape : n_components
         This could be the explained variance ratio or the eigenvalues of the
-        centered matrix, according to the PCA algorithm of choice, respectively:
+        centered matrix, according to the PCA algorithm of choice, respectively
         PCA or KernelPCA.
 
     title : string
@@ -496,13 +498,15 @@ def plot_PCmagnitude(root, points, title='', ylabel=''):
     plt.title(title)
     plt.grid('on')
     plt.ylabel(ylabel)
-    plt.xlim([1,min(20,len(points)+1)]) # Show maximum 20 components
-    plt.ylim([0,1])
-    filename = os.path.join(root,os.path.basename(root)+"_magnitude."+GLOBAL_FF)
+    plt.xlim([1, min(20, len(points)+1)])  # Show maximum 20 components
+    plt.ylim([0, 1])
+    filename = os.path.join(root, os.path.basename(root)+"_magnitude."+GLOBAL_FF)
     plt.savefig(filename)
     plt.close()
 
-def plot_eigs(root, affinity, n_clusters=0, title='', ylabel='', normalised=True):
+
+def plot_eigs(root, affinity, n_clusters=0, title='', ylabel='',
+              normalised=True):
     """Generate and save the plot representing the eigenvalues of the Laplacian
     associated to data affinity matrix.
 
@@ -514,17 +518,17 @@ def plot_eigs(root, affinity, n_clusters=0, title='', ylabel='', normalised=True
     affinity : array of float, shape : (n_samples, n_samples)
         The affinity matrix.
 
-    n_clusters : int
+    n_clusters : int, optional
         The number of clusters.
 
-    title : string
+    title : string, optional
         Plot title.
 
-    ylabel : string
+    ylabel : string, optional
         Y-axis label.
 
-    normalised : boolean
-        Choose to normalise the Laplacian matrix or not.
+    normalised : boolean, optional
+        Choose whether to normalise the Laplacian matrix.
     """
     W = affinity - np.diag(np.diag(affinity))
     D = np.diag([np.sum(x) for x in W])
@@ -532,8 +536,8 @@ def plot_eigs(root, affinity, n_clusters=0, title='', ylabel='', normalised=True
 
     if normalised:
         # aux = np.linalg.inv(np.diag([np.sqrt(np.sum(x)) for x in W]))
-        aux =  np.diag(1. / np.array([np.sqrt(np.sum(x)) for x in W]))
-        L = np.eye(L.shape[0]) - (np.dot(np.dot(aux,W),aux)) # normalised L
+        aux = np.diag(1. / np.array([np.sqrt(np.sum(x)) for x in W]))
+        L = np.eye(L.shape[0]) - (np.dot(np.dot(aux, W), aux))  # normalised L
 
     try:
         w, v = np.linalg.eig(L)
@@ -542,13 +546,16 @@ def plot_eigs(root, affinity, n_clusters=0, title='', ylabel='', normalised=True
         plt.title(title)
         plt.grid('on')
         plt.ylabel(ylabel)
-        plt.xlim([1,min(20,len(w)+1)]) # Show maximum 20 components
+        plt.xlim([1, min(20, len(w)+1)])  # Show maximum 20 components
         if n_clusters > 0:
-            plt.axvline(x=n_clusters+.5, linestyle='--', color='r', label='selected clusters')
-        plt.legend(loc='upper right', numpoints=1, ncol=10, fontsize=8)#, bbox_to_anchor=(1, 1))
-        filename = os.path.join(root,os.path.basename(root)+"_eigenvals."+GLOBAL_FF)
+            plt.axvline(x=n_clusters+.5, linestyle='--', color='r',
+                        label='selected clusters')
+        plt.legend(loc='upper right', numpoints=1, ncol=10, fontsize=8)
+        # , bbox_to_anchor=(1, 1))
+        filename = os.path.join(root, os.path.basename(root)+"_eigenvals."+GLOBAL_FF)
         plt.savefig(filename)
     except np.linalg.LinAlgError:
-        logging.critical("Error in plot_eigs: Affinity matrix contained negative"
-                         " values. You can try by specifying normalised=False")
+        logging.critical("Error in plot_eigs: Affinity matrix contained"
+                         "negative values. You can try by specifying"
+                         "normalised=False")
     plt.close()
