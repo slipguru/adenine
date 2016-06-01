@@ -7,20 +7,14 @@
 # FreeBSD License
 ######################################################################
 
-__all__ = ["make_silhouette", "make_scatter", "make_voronoi", "make_tree",
-           "make_dendrogram", "plot_PCmagnitude", "plot_eigs"]
-
 import os
 import logging
-import cPickle as pkl
+# import cPickle as pkl
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import seaborn as sns
-sns.set(font="monospace")
-
+import seaborn as sns; sns.set(font="monospace")
 from sklearn import metrics
-
 # Legacy import
 try:
     from sklearn.model_selection import StratifiedShuffleSplit
@@ -28,16 +22,21 @@ except ImportError:
     from sklearn.cross_validation import StratifiedShuffleSplit
 
 from adenine.utils.extra import \
-    (next_color, reset_palette, title_from_filename, items_iterator, palette)
+    (next_color, reset_palette, title_from_filename, items_iterator)
+
+__all__ = ["make_silhouette", "make_scatter", "make_voronoi", "make_tree",
+           "make_dendrogram", "plot_PCmagnitude", "plot_eigs"]
 
 GLOBAL_FF = 'png'
+
 
 def set_file_ext(ext):
     global GLOBAL_FF
     GLOBAL_FF = ext
 
+
 def make_silhouette(root, data_in, labels, model=()):
-    """Generates and saves the silhouette plot of data_in w.r.t labels.
+    """Generate and save the silhouette plot of data_in w.r.t labels.
 
     This function generates the silhouette plot representing how data are
     correctly clustered, based on labels.
@@ -110,21 +109,24 @@ def make_silhouette(root, data_in, labels, model=()):
     # ax1.set_xticks([-0.6, -0.4, -0.2, 0, 0.2, 0.4, 0.6, 0.8, 1])
 
     plt.suptitle("Silhouette analysis. "
-        "{0} clusters for {2} samples, average score {1:.4f}"
-        .format(n_clusters, sil, data_in.shape[0]))
+                 "{0} clusters for {2} samples, average score {1:.4f}"
+                 .format(n_clusters, sil, data_in.shape[0]))
 
-    filename = os.path.join(root,os.path.basename(root)+"_silhouette."+GLOBAL_FF)
+    filename = os.path.join(root, os.path.basename(root)+"_silhouette."+GLOBAL_FF)
     fig.savefig(filename)
     logging.info('Figured saved {}'.format(filename))
     plt.close()
 
+
 def make_scatter(root, data_in, labels=None, true_labels=False, model=()):
     """Generates and saves the scatter plot of the dimensionality reduced data set.
 
-    This function generates the scatter plot representing the dimensionality reduced data set. The plots will be saved into the root folder in a tree-like structure.
+    This function generates the scatter plot representing the dimensionality
+    reduced data set. The plots will be saved into the root folder in a
+    tree-like structure.
 
     Parameters
-    -----------
+    ----------
     root : string
         The root path for the output creation
 
@@ -140,7 +142,8 @@ def make_scatter(root, data_in, labels=None, true_labels=False, model=()):
 
     model : sklearn or sklearn-like object
         An instance of the class that evaluates a step. In particular this must
-        be a clustering model provided with the clusters_centers_ attribute (e.g. KMeans).
+        be a clustering model provided with the clusters_centers_ attribute
+        (e.g. KMeans).
     """
     n_samples, n_dim = data_in.shape
 
@@ -155,12 +158,13 @@ def make_scatter(root, data_in, labels=None, true_labels=False, model=()):
     title = title_from_filename(root)
 
     # Seaborn scatter plot
-    #2D plot
-    X = data_in[:,:2]
+    # 2D plot
+    X = data_in[:, :2]
     idx = np.argsort(y)
 
     # df = pd.DataFrame(data=np.hstack((X[idx,:2],y[idx,np.newaxis])), columns=["$x_1$","$x_2$",_hue])
-    df = pd.DataFrame(data=np.hstack((X[idx,:2],y[idx][:,np.newaxis])), columns=["$x_1$","$x_2$",_hue])
+    df = pd.DataFrame(data=np.hstack((X[idx, :2], y[idx][:, np.newaxis])),
+                      columns=["$x_1$", "$x_2$", _hue])
     if df.dtypes[_hue] != 'O': df[_hue] = df[_hue].astype('int64')
     # Generate seaborn plot
     g = sns.FacetGrid(df, hue=_hue, palette="Set1", size=5, legend_out=False)
@@ -168,16 +172,16 @@ def make_scatter(root, data_in, labels=None, true_labels=False, model=()):
     if _hue != ' ': g.add_legend() #!! customize legend
     # g.set_xticklabels([])
     # g.set_yticklabels([])
-    g.ax.autoscale_view(True,True,True)
+    g.ax.autoscale_view(True, True, True)
     plt.title(title)
-    filename = os.path.join(root,os.path.basename(root)+"_scatter2D."+GLOBAL_FF)
+    filename = os.path.join(root, os.path.basename(root)+"_scatter2D."+GLOBAL_FF)
     plt.savefig(filename)
     logging.info('Figured saved {}'.format(filename))
     plt.close()
 
-    #3D plot
+    # 3D plot
     filename = os.path.join(root,os.path.basename(root)+"_scatter3D."+GLOBAL_FF)
-    X = data_in[:,:3]
+    X = data_in[:, :3]
     if X.shape[1] < 3:
         logging.warning('{} not generated (data have less than 3 dimensions)'
                         .format(filename))
@@ -189,14 +193,14 @@ def make_scatter(root, data_in, labels=None, true_labels=False, model=()):
             y = np.array(y)
             reset_palette(len(np.unique(y)))
             for _, label in enumerate(np.unique(y)):
-                idx = np.where(y==label)[0]
-                ax.plot(X[:,0][idx], X[:,1][idx], X[:,2][idx], 'o',
+                idx = np.where(y == label)[0]
+                ax.plot(X[:, 0][idx], X[:, 1][idx], X[:, 2][idx], 'o',
                         c=next_color(), label=str(label), mew=.5, mec="white")
 
             ax.set_xlabel(r'$x_1$')
             ax.set_ylabel(r'$x_2$')
             ax.set_zlabel(r'$x_3$')
-            ax.autoscale_view(True,True,True)
+            ax.autoscale_view(True, True, True)
             ax.set_title(title)
             ax.legend(loc='upper left', numpoints=1, ncol=10, fontsize=8,
                       bbox_to_anchor=(0, 0))
@@ -210,29 +214,32 @@ def make_scatter(root, data_in, labels=None, true_labels=False, model=()):
     # seaborn pairplot
     n_cols = min(data_in.shape[1], 3)
     cols = ["$x_{}$".format(i+1) for i in range(n_cols)]
-    X = data_in[:,:3]
+    X = data_in[:, :3]
     idx = np.argsort(y)
-    df = pd.DataFrame(data=np.hstack((X[idx,:],y[idx,np.newaxis])), columns=cols+[_hue])
+    df = pd.DataFrame(data=np.hstack((X[idx,:],y[idx,np.newaxis])),
+                      columns=cols+[_hue])
     if df.dtypes[_hue] != 'O': df[_hue] = df[_hue].astype('int64')
     g = sns.PairGrid(df, hue=_hue, palette="Set1", vars=cols)
-    g = g.map_diag(plt.hist)#, palette="Set1")
+    g = g.map_diag(plt.hist)  # , palette="Set1")
     g = g.map_offdiag(plt.scatter, s=100, linewidth=.5, edgecolor="white")
 
     # g = sns.pairplot(df, hue=_hue, palette="Set1", vars=["$x_1$","$x_2$","$x_3$"]), size=5)
     if _hue != ' ': plt.legend(title=_hue,bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0., fontsize="large")
-    plt.suptitle(title,x=0.6, y=1.01,fontsize="large")
-    filename = os.path.join(root,os.path.basename(root)+"_pairgrid."+GLOBAL_FF)
+    plt.suptitle(title, x=0.6, y=1.01, fontsize="large")
+    filename = os.path.join(root, os.path.basename(root)+"_pairgrid."+GLOBAL_FF)
     g.savefig(filename)
     logging.info('Figured saved {}'.format(filename))
     plt.close()
 
-def make_voronoi(root, data_in, labels=None, true_labels=False, model=()):
-    """Generate and save the Voronoi tessellation obtained from the clustering algorithm.
 
-    This function generates the Voronoi tessellation obtained from the clustering
-    algorithm applied on the data projected on a two-dimensional embedding.
-    The plots will be saved into the appropriate folder of the tree-like
-    structure created into the root folder.
+def make_voronoi(root, data_in, labels=None, true_labels=False, model=()):
+    """Generate and save the Voronoi tessellation obtained from the clustering
+    algorithm.
+
+    This function generates the Voronoi tessellation obtained from the
+    clustering algorithm applied on the data projected on a two-dimensional
+    embedding. The plots will be saved into the appropriate folder of the
+    tree-like structure created into the root folder.
 
     Parameters
     -----------
@@ -251,7 +258,8 @@ def make_voronoi(root, data_in, labels=None, true_labels=False, model=()):
 
     model : sklearn or sklearn-like object
         An instance of the class that evaluates a step. In particular this must
-        be a clustering model provided with the clusters_centers_ attribute (e.g. KMeans).
+        be a clustering model provided with the clusters_centers_ attribute
+        (e.g. KMeans).
     """
     n_samples, n_dim = data_in.shape
 
@@ -260,35 +268,37 @@ def make_voronoi(root, data_in, labels=None, true_labels=False, model=()):
         y = np.zeros((n_samples))
         _hue = ' '
     else:
-        y = labels # use the labels if provided
+        y = labels  # use the labels if provided
         _hue = 'Classes'
 
     title = title_from_filename(root)
 
     # Seaborn scatter Plot
-    X = data_in[:,:2]
+    X = data_in[:, :2]
     idx = np.argsort(y)
     X = X[idx,:]
-    y = y[idx,np.newaxis]
-    df = pd.DataFrame(data=np.hstack((X, y)), columns=["$x_1$","$x_2$",_hue])
+    y = y[idx, np.newaxis]
+    df = pd.DataFrame(data=np.hstack((X, y)), columns=["$x_1$", "$x_2$", _hue])
     if df.dtypes[_hue] != 'O': df[_hue] = df[_hue].astype('int64')
     # Generate seaborn plot
     g = sns.FacetGrid(df, hue=_hue, palette="Set1", size=5, legend_out=False)
     g.map(plt.scatter, "$x_1$", "$x_2$", s=100, linewidth=.5, edgecolor="white")
     if _hue != ' ': g.add_legend() #!! customize legend
-    g.ax.autoscale_view(True,True,True)
+    g.ax.autoscale_view(True, True, True)
     plt.title(title)
 
     # Add centroids
     if hasattr(model, 'cluster_centers_'):
-        plt.scatter(model.cluster_centers_[:,0], model.cluster_centers_[:,1], s=100, marker='h', c='w')
+        plt.scatter(model.cluster_centers_[:, 0], model.cluster_centers_[:, 1],
+                    s=100, marker='h', c='w')
 
     # Make and add to the Plot the decision boundary.
-    npoints = 1000 # the number of points in that makes the background. Reducing this will decrease the quality of the voronoi background
+    npoints = 1000  # the number of points in that makes the background. Reducing this will decrease the quality of the voronoi background
     x_min, x_max = X[:, 0].min(), X[:, 0].max()
     y_min, y_max = X[:, 1].min(), X[:, 1].max()
-    offset = (x_max - x_min) / 5. + (y_max - y_min) / 5. # zoom out the plot a bit
-    xx, yy = np.meshgrid(np.linspace(x_min-offset, x_max+offset, npoints), np.linspace(y_min-offset, y_max+offset, npoints))
+    offset = (x_max - x_min) / 5. + (y_max - y_min) / 5.  # zoom out the plot
+    xx, yy = np.meshgrid(np.linspace(x_min-offset, x_max+offset, npoints),
+                         np.linspace(y_min-offset, y_max+offset, npoints))
 
     # Obtain labels for each point in mesh. Use last trained model.
 
@@ -303,13 +313,15 @@ def make_voronoi(root, data_in, labels=None, true_labels=False, model=()):
     plt.xlim([xx.min(), xx.max()])
     plt.ylim([yy.min(), yy.max()])
 
-    filename = os.path.join(root,os.path.basename(root)+"."+GLOBAL_FF)
+    filename = os.path.join(root, os.path.basename(root)+"."+GLOBAL_FF)
     plt.savefig(filename)
     logging.info('Figured saved {}'.format(filename))
     plt.close()
 
+
 def make_tree(root, data_in, labels=None, model=()):
-    """Generate and save the tree structure obtained from the clustering algorithm.
+    """Generate and save the tree structure obtained from the clustering
+    algorithm.
 
     This function generates the tree obtained from the clustering algorithm
     applied on the data. The plots will be saved into the appropriate folder of
@@ -329,7 +341,8 @@ def make_tree(root, data_in, labels=None, model=()):
 
     model : sklearn or sklearn-like object
         An instance of the class that evaluates a step. In particular this must
-        be a clustering model provided with the clusters_centers_ attribute (e.g. KMeans).
+        be a clustering model provided with the clusters_centers_ attribute
+        (e.g. KMeans).
     """
     filename = os.path.join(root, os.path.basename(root)+'_tree.pdf')
     try:
@@ -359,13 +372,14 @@ def make_tree(root, data_in, labels=None, model=()):
     except Exception as e:
         logging.critical('Cannot create {}. tb: {}'.format(filename, e))
 
+
 def make_dendrogram(root, data_in, labels, model=(), n_max=150):
     """Generate and save the dendrogram obtained from the clustering algorithm.
 
-    This function generates the dendrogram obtained from the clustering algorithm
-    applied on the data. The plots will be saved into the appropriate folder of
-    the tree-like structure created into the root folder. The row colors of of
-    the heatmap are the either true or estimaed data labels.
+    This function generates the dendrogram obtained from the clustering
+    algorithm applied on the data. The plots will be saved into the appropriate
+    folder of the tree-like structure created into the root folder. The row
+    colors of the heatmap are the either true or estimated data labels.
 
     Parameters
     -----------
@@ -381,14 +395,17 @@ def make_dendrogram(root, data_in, labels, model=(), n_max=150):
 
     model : sklearn or sklearn-like object
         An instance of the class that evaluates a step. In particular this must
-        be a clustering model provided with the clusters_centers_ attribute (e.g. KMeans).
+        be a clustering model provided with the clusters_centers_ attribute
+        (e.g. KMeans).
 
     n_max : int, (INACTIVE)
         The maximum number of samples to include in the dendrogram.
         When the number of samples is bigger than n_max, only n_max samples
         randomly extracted from the dataset are represented. The random
-        extraction is performed using sklearn.model_selection.StratifiedShuffleSplit
-        (or sklearn.cross_validation.StratifiedShuffleSplit for legacy reasons).
+        extraction is performed using
+        sklearn.model_selection.StratifiedShuffleSplit
+        (or sklearn.cross_validation.StratifiedShuffleSplit for legacy
+        reasons).
     """
     # # Check for the number of samples
     # n_samples = data_in.shape[0]
@@ -429,21 +446,21 @@ def make_dendrogram(root, data_in, labels, model=(), n_max=150):
             for method in ['single','complete','average','weighted','centroid','median','ward']:
                 from scipy.cluster.hierarchy import linkage
                 # print("Compute linkage matrix with metric={} ...".format(method))
-                Z = linkage(tmp, method=method, metric='euclidean')
+                Z = linkage(data_in, method=method, metric='euclidean')
                 g = sns.clustermap(df.corr(), method=method, row_linkage=Z, col_linkage=Z)
                 filename = os.path.join(root, '_'.join((os.path.basename(root), method, '_dendrogram.png')))
                 g.savefig(filename)
                 logging.info('Figured saved {}'.format(filename))
                 plt.close()
-        avg_sil = True
-        if avg_sil:
-            try:
-                from ignet.plotting.silhouette_hierarchical import plot_avg_silhouette
-                filename = plot_avg_silhouette(tmp)
-                logging.info('Figured saved {}'.format(filename))
-            except:
-                logging.critical("Cannot import name {}".format('ignet.plotting'))
-        return
+        # avg_sil = True
+        # if avg_sil:
+        #     try:
+        #         from ignet.plotting.silhouette_hierarchical import plot_avg_silhouette
+        #         filename = plot_avg_silhouette(data_in)
+        #         logging.info('Figured saved {}'.format(filename))
+        #     except:
+        #         logging.critical("Cannot import name {}".format('ignet.plotting'))
+        # return
 
     # workaround to a different name used for manhatta / cityblock distance
     if model.affinity == 'manhattan': model.affinity = 'cityblock'

@@ -57,6 +57,13 @@ Input Data
 
 .. automodule:: adenine.utils.data_source
    :members:
+   
+   
+Plotting functions
+-----------------------------
+
+.. automodule:: adenine.core.plotting
+   :members:
 
 
 Extra tools

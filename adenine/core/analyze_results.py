@@ -25,11 +25,13 @@ from adenine.utils.extra import timed, items_iterator
 
 GLOBAL_INFO = ''  # to save info before logging is loaded
 
-def est_clst_perf(root, data_in, labels=None, t_labels=None, model=(), metric='euclidean'):
+
+def est_clst_perf(root, data_in, labels=None, t_labels=None, model=(),
+                  metric='euclidean'):
     """Estimate the clustering performance.
 
-    This function estimate the clustering performance by means of several indexes.
-    Then saves the results in a tree-like structure in the root folder.
+    This function estimate the clustering performance by means of several
+    indexes. Then saves the results in a tree-like structure in the root folder.
 
     Parameters
     -----------
@@ -48,7 +50,8 @@ def est_clst_perf(root, data_in, labels=None, t_labels=None, model=(), metric='e
 
     model : sklearn or sklearn-like object
         An instance of the class that evaluates a step. In particular this must
-        be a clustering model provided with the clusters_centers_ attribute (e.g. KMeans).
+        be a clustering model provided with the clusters_centers_ attribute
+        (e.g. KMeans).
 
     metric : string
         The metric used during the clustering algorithms.
@@ -75,17 +78,18 @@ def est_clst_perf(root, data_in, labels=None, t_labels=None, model=(), metric='e
         perf_out['###'] = 0.
 
     # Define the filename
-    filename = os.path.join(root,os.path.basename(root))
+    filename = os.path.join(root, os.path.basename(root))
     with open(filename+'_scores.txt', 'w') as f:
         f.write("------------------------------------\n")
         f.write("Adenine: Clustering Performance for \n")
         f.write("\n")
         f.write(title_from_filename(root, " --> ") + "\n")
         f.write("------------------------------------\n")
-        f.write("Index Name{}|{}Index Score\n".format(' '*10,' '*4))
+        f.write("Index Name{}|{}Index Score\n".format(' '*10, ' '*4))
         f.write("------------------------------------\n")
         for elem in sorted(perf_out.keys()):
-            f.write("{}{}|{}{:.4}\n".format(elem,' '*(20-len(elem)),' '*4,perf_out[elem]))
+            f.write("{}{}|{}{:.4}\n"
+                    .format(elem, ' '*(20-len(elem)), ' '*4, perf_out[elem]))
             f.write("------------------------------------\n")
 
     # pkl Dump
@@ -97,7 +101,9 @@ def est_clst_perf(root, data_in, labels=None, t_labels=None, model=(), metric='e
 def get_step_attributes(step, pos):
     """Get the attributes of the input step.
 
-    This function returns the attributes (i.e. level, name, outcome) of the input step. This comes handy when dealing with steps with more than one parameter (e.g. KernelPCA 'poly' or 'rbf').
+    This function returns the attributes (i.e. level, name, outcome) of the
+    input step. This comes handy when dealing with steps with more than one
+    parameter (e.g. KernelPCA 'poly' or 'rbf').
 
     Parameters
     -----------
@@ -117,7 +123,8 @@ def get_step_attributes(step, pos):
         The step level.
 
     data_out : array of float, shape : (n_samples, n_out)
-        Where n_out is n_dimensions for dimensionality reduction step, or 1 for clustering.
+        Where n_out is n_dimensions for dimensionality reduction step, or 1
+        for clustering.
 
     data_in : array of float, shape : (n_samples, n_in)
         Where n_in is n_dimensions for preprocessing/imputing/dimensionality
@@ -131,14 +138,17 @@ def get_step_attributes(step, pos):
         This is an instance of the class that evaluates a step.
     """
     name = step[0]
-    level = step[1] # {imputing, preproc, dimred, clustering}
+    level = step[1]  # {imputing, preproc, dimred, clustering}
     param = step[2]
     data_out = step[3]
     data_in = step[4]
     mdl_obj = step[5]
     voronoi_mdl_obj = step[6]
-    if level.lower() == 'none' and pos == 0: level = 'preproc'
-    if level.lower() == 'none' and pos == 1: level = 'dimred'
+    if level.lower() == 'none':
+        if pos == 0:
+            level = 'preproc'
+        elif pos == 1:
+            level = 'dimred'
     metric = 'euclidean'
 
     # Imputing level
@@ -148,9 +158,9 @@ def get_step_attributes(step, pos):
         name += '_'+param['strategy']
 
     # Preprocessing level
-    if param.get('norm', ''): # normalize
+    if param.get('norm', ''):  # normalize
         name += '_'+param['norm']
-    elif param.get('feature_range', ''): # minmax
+    elif param.get('feature_range', ''):  # minmax
         name += "_({} - {})".format(*param['feature_range'])
 
     # Append additional parameters in the step name
@@ -170,17 +180,19 @@ def get_step_attributes(step, pos):
         metric = 'precomputed'
 
     # n_clusters = param.get('n_clusters', 0) or param.get('best_estimator_', dict()).get('n_clusters', 0) or param.get('best_estimator_', dict()).get('clusters_centers_', np.array([])).shape[0]
-    n_clusters = param.get('n_clusters', 0) or param.get('best_estimator_',
-      dict()).get('cluster_centers_', np.empty(0)).shape[0] or param.get('cluster_centers_',
-       np.empty(0)).shape[0] or mdl_obj.__dict__.get('cluster_centers_', np.empty(0)).shape[0]
+    n_clusters = param.get('n_clusters', 0) or  \
+                 param.get('best_estimator_', dict()).get('cluster_centers_',
+                           np.empty(0)).shape[0] or \
+                 param.get('cluster_centers_', np.empty(0)).shape[0] or \
+                 mdl_obj.__dict__.get('cluster_centers_', np.empty(0)).shape[0]
     if n_clusters > 0:
         name += '_' + str(n_clusters) + '-clusts'
 
-    logging.info("{} : {}".format(level,name))
+    logging.info("{} : {}".format(level, name))
     return name, level, param, data_out, data_in, mdl_obj, voronoi_mdl_obj, metric
 
 
-def make_df_clst_perf(root_folder):
+def make_df_clst_perf(root):
     """Summarize all the clustering performance estimations.
 
     Given the output file produced by est_clst_perf(), this function groups all
@@ -189,13 +201,13 @@ def make_df_clst_perf(root_folder):
 
     Parameters
     -----------
-    root_folder : string
+    root : string
         The root path for the output creation.
     """
     measures = ('ami', 'ari', 'completeness', 'homogeneity', 'v_measure',
                 'inertia', 'silhouette')
     df = pd.DataFrame(columns=['pipeline']+list(measures))
-    for root, directories, filenames in os.walk(root_folder):
+    for root, directories, filenames in os.walk(root):
         for fn in filenames:
             if fn.endswith('_scores.pkl'):
                 with open(os.path.join(root, fn), 'r') as f:
@@ -208,14 +220,14 @@ def make_df_clst_perf(root_folder):
     size_pipe = max([len(p) for p in df['pipeline']]+[len(pipe_header)])
     size_ami, size_ari, size_com, size_hom, \
     size_vme, size_ine, size_sil = [2 +
-        max([len('{: .3}'.format(p)) if p != '' else 3 for p in df[__]] + [len(__)]) \
+        max([len('{: .3}'.format(p)) if p != '' else 3 for p in df[__]] + [len(__)])
             for __ in measures]
 
     # find the best value for each score
-    best_scores = {__ : max([p for p in df[__] if p != ''] or [np.nan]) for __ in measures}
+    best_scores = {__: max([p for p in df[__] if p != ''] or [np.nan]) for __ in measures}
 
-    with open(os.path.join(root_folder,'summary_scores.txt'), 'w') as f, \
-         open(os.path.join(root_folder,'summary_scores.tex'), 'w') as g:
+    with open(os.path.join(root,'summary_scores.txt'), 'w') as f, \
+         open(os.path.join(root,'summary_scores.tex'), 'w') as g:
         header = "{}{}|{}ami  |{}ari  |{}completeness  |{}homogeneity  |{}v_measure  |{}inertia  |{}silhouette  \n" \
             .format(pipe_header, ' '*(size_pipe-len(pipe_header)),
                     ' '*(size_ami-5), ' '*(size_ari-5),
@@ -253,14 +265,14 @@ def make_df_clst_perf(root_folder):
 
             star = {__ : ' *' if row[__] == best_scores[__] else '  ' for __ in measures}
             f.write("{}{}|{}{}{}|{}{}{}|{}{}{}|{}{}{}|{}{}{}|{}{}{}|{}{}{}\n"
-                .format(row['pipeline'],' '*(size_pipe-len(row['pipeline'])),
-                ' '*(abs(size_ami-len(str(ami))-2)), ami, star['ami'],
-                ' '*(abs(size_ari-len(str(ari))-2)), ari, star['ari'],
-                ' '*(abs(size_com-len(str(com))-2)), com, star['completeness'],
-                ' '*(abs(size_hom-len(str(hom))-2)), hom, star['homogeneity'],
-                ' '*(abs(size_vme-len(str(vme))-2)), vme, star['v_measure'],
-                ' '*(abs(size_ine-len(str(ine))-2)), ine, star['inertia'],
-                ' '*(abs(size_sil-len(str(sil))-2)), sil, star['silhouette']
+                 .format(row['pipeline'],' '*(size_pipe-len(row['pipeline'])),
+                 ' '*(abs(size_ami-len(str(ami))-2)), ami, star['ami'],
+                 ' '*(abs(size_ari-len(str(ari))-2)), ari, star['ari'],
+                 ' '*(abs(size_com-len(str(com))-2)), com, star['completeness'],
+                 ' '*(abs(size_hom-len(str(hom))-2)), hom, star['homogeneity'],
+                 ' '*(abs(size_vme-len(str(vme))-2)), vme, star['v_measure'],
+                 ' '*(abs(size_ine-len(str(ine))-2)), ine, star['inertia'],
+                 ' '*(abs(size_sil-len(str(sil))-2)), sil, star['silhouette']
             ))
 
             g.write(r"{} & {}&{} & {}&{} & {}&{} & {}&{} & {}&{} & {}&{} & {}&{} \\" "\n"
@@ -283,7 +295,8 @@ def make_df_clst_perf(root_folder):
                 r"\end{document}")
     # df.to_csv(os.path.join(rootFolder,'all_scores.csv'), na_rep='-', index_label=False, index=False)
 
-def analysis_worker(elem, root_folder, y, feat_names, class_names, lock):
+
+def analysis_worker(elem, root, y, feat_names, class_names, lock):
     """Parallel pipelines analysis.
 
     Parameters
@@ -292,7 +305,7 @@ def analysis_worker(elem, root_folder, y, feat_names, class_names, lock):
         The first two element of this list are the pipe_id and all the data of
         that pipeline.
 
-    root_folder : string
+    root : string
         The root path for the output creation.
 
     y : array of float, shape : n_samples
@@ -311,16 +324,16 @@ def analysis_worker(elem, root_folder, y, feat_names, class_names, lock):
     # Getting pipeID and content
     pipe, content = elem[:2]
 
-    out_folder = '' # where the results will be placed
+    out_folder = ''  # where the results will be placed
     logging.info("------\n{} : \n".format(pipe))
     for i, step in enumerate(sorted(content.keys())):
         # Tree-like folder structure definition
         step_name, step_level, step_param, step_out, step_in, mdl_obj, \
-        voronoi_mdl_obj, metric = get_step_attributes(content[step], pos=i)
+            voronoi_mdl_obj, metric = get_step_attributes(content[step], pos=i)
 
         # Output folder definition & creation
         out_folder = os.path.join(out_folder, step_name)
-        rootname = os.path.join(root_folder, out_folder)
+        rootname = os.path.join(root, out_folder)
         with lock:
             if not os.path.exists(rootname):
                 os.makedirs(rootname)
@@ -340,7 +353,7 @@ def analysis_worker(elem, root_folder, y, feat_names, class_names, lock):
                                  title='Normalized eigenvalues of the centered kernel matrix')
         if step_level == 'clustering':
             if hasattr(mdl_obj, 'affinity_matrix_'):
-                n_clusters = mdl_obj.__dict__.get('cluster_centers_',np.empty(0)).shape[0]
+                n_clusters = mdl_obj.__dict__.get('cluster_centers_', np.empty(0)).shape[0]
                 if hasattr(mdl_obj, 'n_clusters'):
                     n_clusters = mdl_obj.n_clusters
 
@@ -349,7 +362,8 @@ def analysis_worker(elem, root_folder, y, feat_names, class_names, lock):
                           title='Eigenvalues of the graph associated to the affinity matrix')
             if hasattr(mdl_obj, 'cluster_centers_'):
                 _est_name = mdl_obj.__dict__.get('estimator_name', '') or type(mdl_obj).__name__
-                if _est_name != 'AffinityPropagation': # disable the voronoi plot for affinity prop
+                if _est_name != 'AffinityPropagation':
+                    # disable the voronoi plot for affinity prop
                     make_voronoi(root=rootname, labels=y, data_in=step_in,
                                  model=voronoi_mdl_obj)
             elif hasattr(mdl_obj, 'n_leaves_'):
@@ -361,8 +375,9 @@ def analysis_worker(elem, root_folder, y, feat_names, class_names, lock):
             est_clst_perf(root=rootname, data_in=step_in, labels=step_out,
                           t_labels=y, model=mdl_obj, metric=metric)
 
+
 @timed
-def analyze(input_dict, root_folder, y=None, feat_names=(), class_names=(), **kwargs):
+def analyze(input_dict, root, y=None, feat_names=(), class_names=(), **kwargs):
     """Analyze the results of ade_run.
 
     This function analyze the dictionary generated by ade_run, generates the
@@ -373,7 +388,7 @@ def analyze(input_dict, root_folder, y=None, feat_names=(), class_names=(), **kw
     input_dict : dictionary
         The dictionary created by ade_run.py on some data.
 
-    root_folder : string
+    root : string
         The root path for output creation.
 
     y : array of float, shape : n_samples
@@ -410,11 +425,11 @@ def analyze(input_dict, root_folder, y=None, feat_names=(), class_names=(), **kw
     ps = []
     for elem in items_iterator(input_dict):
         p = mp.Process(target=analysis_worker,
-                       args=(elem, root_folder, y, feat_names, class_names, lock))
+                       args=(elem, root, y, feat_names, class_names, lock))
         p.start()
         ps.append(p)
 
     for p in ps:
         p.join()
 
-    make_df_clst_perf(root_folder)
+    make_df_clst_perf(root)

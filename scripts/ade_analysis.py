@@ -58,7 +58,7 @@ def main(dumpfile):
     print("done: {} s".format(extra.sec_to_time(time.time()-tic)))
 
     # Analyze the pipelines
-    analyze_results.analyze(input_dict=res, root_folder=os.path.dirname(dumpfile),
+    analyze_results.analyze(input_dict=res, root=os.path.dirname(dumpfile),
                             y=y, feat_names=feat_names, class_names=class_names,
                             plotting_context=config.plotting_context,
                             file_format=config.file_format)
@@ -74,7 +74,7 @@ if __name__ == '__main__':
     root_folder = args.result_folder
     filename = [f for f in os.listdir(root_folder) if os.path.isfile(os.path.join(root_folder, f)) and f.endswith('.pkl.tz') and f !=  "__data.pkl.tz"]
     if not filename:
-        print("No .pkl file found in {}. Aborting...".format(root_folder), file=sys.stderr)
+        sys.stderr.write("No .pkl file found in {}. Aborting...".format(root_folder))
         sys.exit(-1)
 
     # print("Starting the analysis of {}".format(filename))
