@@ -2,7 +2,7 @@
 
 Quick start tutorial
 ====================
-**Adenine** may be installed using standard Python tools (with
+**ADENINE** may be installed using standard Python tools (with
 administrative or sudo permissions on GNU-Linux platforms)::
 
     $ pip install adenine
@@ -13,7 +13,7 @@ administrative or sudo permissions on GNU-Linux platforms)::
 
 Installation from sources
 -------------------------
-If you like to manually install **Adenine**, download the .zip or .tar.gz archive
+If you like to manually install **ADENINE**, download the .zip or .tar.gz archive
 from `<http://slipguru.github.io/adenine/>`_. Then extract it and move into the root directory::
 
     $ unzip slipguru-adenine-|release|.zip
@@ -32,17 +32,17 @@ From here, you can follow the standard Python installation step::
 
     $ python setup.py install
 
-After **Adenine** installation, you should have access to two scripts,
+After **ADENINE** installation, you should have access to two scripts,
 named with a common ``ade_`` prefix::
 
     $ ade_<TAB>
     ade_analysis.py    ade_run.py
 
-This tutorial assumes that you downloaded and extracted **Adenine**
+This tutorial assumes that you downloaded and extracted **ADENINE**
 source package which contains a ``examples`` directory with some ``.npy`` files
-which will be used to show **Adenine**'s' functionalities.
+which will be used to show **ADENINE** functionalities.
 
-**Adenine** needs only 3 ingredients:
+**ADENINE** needs only 3 ingredients:
 
 * A ``n_samples x n_variables`` input matrix
 * A ``n_samples x 1`` output vector (optional)
@@ -61,7 +61,7 @@ Input data are assumed to be:
 
 Configuration File
 ------------------
-**Adenine** configuration file is a standard Python script. It is
+**ADENINE** configuration file is a standard Python script. It is
 imported as a module, then all the code is executed. In this file the user can define all the option needed to read the data and to create the pipelines.
 
 .. literalinclude:: ../../adenine/ade_config.py
@@ -71,7 +71,7 @@ imported as a module, then all the code is executed. In this file the user can d
 
 Experiment runner
 -----------------
-The ``ade_run.py`` script, executes the full **Adenine** framework. The prototype is the following::
+The ``ade_run.py`` script, executes the full **ADENINE** framework. The prototype is the following::
 
     $ ade_run.py ade_config.py
 
@@ -87,7 +87,6 @@ already created::
     $ ade_analysis.py result-dir
 
 The script produces a set of textual and graphical results. An example of possible output obtained by one of the implemented pipelines is represented below.
-
 
 .. figure:: KMeans.pdf
    :scale: 50 %

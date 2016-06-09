@@ -62,8 +62,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'adenine'
-copyright = u'2015, Samuele Fiorini'
+project = u'ADENINE'
+copyright = u'2016, Samuele Fiorini - Federico Tomasi - Annalisa Barla'
 #modindex_common_prefix = ['adenine.']
 
 # The version info for the project you're documenting, acts as replacement for
@@ -220,7 +220,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
   ('index', 'adenine.tex', u'adenine Documentation',
-   u'Samuele Fiorini', 'manual'),
+   u'Samuele Fiorini - Federico Tomasi - Annalisa Barla', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -250,7 +250,7 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     ('index', 'adenine', u'adenine Documentation',
-     [u'Samuele Fiorini'], 1)
+     [u'Samuele Fiorini - Federico Tomasi - Annalisa Barla'], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -264,7 +264,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
   ('index', 'adenine', u'adenine Documentation',
-   u'Samuele Fiorini', 'adenine', 'One line description of project.',
+   u'Samuele Fiorini - Federico Tomasi - Annalisa Barla', 'adenine', 'One line description of project.',
    'Miscellaneous'),
 ]
 
