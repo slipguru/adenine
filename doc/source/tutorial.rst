@@ -43,9 +43,9 @@ source package which contains a ``examples\data`` directory with some data files
 
 ADENINE needs only 3 ingredients:
 
-* A ``n_samples x n_variables`` input matrix
-* A ``n_samples x 1`` output vector (optional)
-* A ``configuration`` file
+* ``n_samples x n_variables`` input matrix
+* ``n_samples x 1`` output vector (optional)
+* ``configuration`` file
 
 
 Input data format
