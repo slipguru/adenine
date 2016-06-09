@@ -32,7 +32,7 @@ var/
 *.egg
 
 # Numpy files
-*.npy
+#*.npy
 
 # Dump files
 *.pkl
