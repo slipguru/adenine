@@ -91,19 +91,19 @@ In the last few years, a fair number of data exploration software and libraries 
 Among the first group we recall \emph{Divvy} \citep{lewis2013divvy}, a software tool that performs dimensionality reduction and clustering on input data sets. \emph{Divvy} is a light framework; however,
 % with a Mac OS X designed interface. However,
 %it heavily lacks in documentation,
-its collection of {C/C++} algorithm implementations does not cover common strategies such as kernel principal component analysis (KPCA) \citep{scholkopf1997kernel} or hierarchical clustering \citep{friedman2001elements} and it does not offer strategies to perform automatic discoveries of the number of clusters.
+its collection of {C/C++} algorithm implementations does not cover common strategies such as kernel principal component analysis \citep{scholkopf1997kernel} or hierarchical clustering \citep{friedman2001elements} and it does not offer strategies to perform automatic discoveries of the number of clusters.
 The most notable project that spans between the two families is \emph{Orange} \citep{demvsar2013orange}, a data mining software suite that offers both visual programming front-end and \py APIs. In the context of data exploration, \emph{Orange} can be successfully employed. However, it does not support automatic pipeline generation
 % , hence it requires the user to manually create each pipeline.
 and, as of today, \emph{Orange} lacks in several nonlinear methods such as isomap \citep{tenenbaum2000global}, locally linear embedding \citep{roweis2000nonlinear} and spectral clustering \citep{shi2000normalized}.
 
 \input{methods}
 
-We introduce \ade, a command-line \py tool for data exploration that, starting from a set of unsupervised algorithms, creates textual an graphical reports of an arbitrary number of pipelines. In this context data imputing, preprocessing, dimensionality reduction and clustering strategies are considered as building blocks for data analysis pipelines. The user is only required to specify input data and to select blocks, then \ade takes care of the generation and running of the pipelines composed by all possible combinations of the selected algorithms. Every algorithm implementation of \ade is inherited, or extended, from \texttt{scikit-learn} \citep{scikit-learn} which is, to the best of our knowledge, the most complete machine learning open source library freely available online.
+We introduce \ade, a command-line \py tool for data exploration that, starting from a set of unsupervised algorithms, creates textual an graphical reports of an arbitrary number of pipelines. In this context data imputing, preprocessing, dimensionality reduction and clustering strategies are considered as building blocks for data analysis pipelines. The user is only required to specify input data and to select blocks, then \ade takes care of generating and running the pipelines made by all possible combinations of the selected blocks. Every algorithm implementation of \ade is inherited, or extended, from {\sc scikit-learn} \citep{scikit-learn} which is, to the best of our knowledge, the most complete machine learning open source library freely available online.
 
 %In order to perform exploratory analysis on large datasets we took advantage of different parallel computing paradigms.
 \ade pipelines are designed to be independent from each other, therefore they all run in parallel as separate \py processes on different cores.
-Moreover, since \ade makes large use of \texttt{numpy} and \texttt{scipy}, it automatically benefits from their bindings with optimized linear algebra libraries (such as OpenBLAS or Intel \textsuperscript{\textregistered}~MKL).
-% %\footnote{\url{http://www.openblas.net/}
+Moreover, since \ade makes large use of {\sc numpy} and {\sc scipy}, it automatically benefits from their bindings with optimized linear algebra libraries (such as OpenBLAS or Intel \textsuperscript{\textregistered}~MKL).
+% %\footnote{\url{http://www.openblas.net/}}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Tool overview}\label{sec:implem}
 \ade is developed around the data analysis concept of \emph{pipeline}. A pipeline is a sequence of the following fundamental steps:
@@ -125,7 +125,7 @@ For each task, different off-the-shelf algorithms are available (see Table~\ref{
 % \paragraph{Step 0: Missing values imputing.}
 % \subsection{Missing values imputing.}
 
-  In order to cope with real-world data sets, where entries are often missing, \ade offers an improved version of the Imputer class provided by \texttt{scikit-learn}. Our extension adds a $k$-nearest neighbors ($k$-NN) imputing method \citep{troyanskaya2001missing} to the pre-existent feature-wise \emph{mean}, \emph{median} and \emph{most frequent} value strategies.
+  In order to cope with real-world data sets, where entries are often missing, \ade offers an improved version of the Imputer class provided by {\sc scikit-learn}. Our extension adds a $k$-nearest neighbors imputing method \citep{troyanskaya2001missing} to the pre-existent feature-wise \emph{mean}, \emph{median} and \emph{most frequent} value strategies.
 %   KNN method is shown to be robust in microarray reconstruction experiments \citep{troyanskaya2001missing}.
 %   \item[]{\bf Step 1: Data preprocessing.}
 % \paragraph{Step 1: Data preprocessing.}
@@ -190,7 +190,7 @@ In this section we show how to use \ade to perform an exploratory analysis on a 
 \input{snippet}
 
 \noindent Each \texttt{step} variable refers to a dictionary having the name of the building block as key and a {list} as value. Each list has a \emph{on$\backslash$off} trigger in first position followed by a dictionary of keyword arguments for the class implementing the correspondent method. When more than one method is specified in a single step (or a single parameter is passed as {list}) \ade generates the pipelines made by all possible combinations.
-For a comprehensive description of options specifiable in the configuration file we refer to \ade documentation and tutorials: {\small\url{www.slipguru.unige.it/Software/Adenine}}. %\footnote{\url{www.slipguru.unige.it/Software/Adenine}}.
+For a comprehensive description of options available in the configuration file we refer to \ade documentation and tutorials: {\small\url{www.slipguru.unige.it/Software/Adenine}}. %\footnote{\url{www.slipguru.unige.it/Software/Adenine}}.
 
 % Several other options can be specified in the configuration file, we refer to \ade documentation and tutorials\footnote{\href{www.slipguru.unige.it/Software/Adenine}{www.slipguru.unige.it/Software/Adenine}} for a comprehensive description.
 The configuration file above generates two pipelines with similar structure. They both have $\ell^2$-normalized samples, projected on a 2D space by Gaussian kernel principal component analysis with $\gamma=2$ (pipeline \textit{a}) and isomap (pipeline \textit{b}); on the dimensionality-reduced data set a k-means clustering with automatic cluster discovery (as in Algorithm~\ref{alg:clusters}) is eventually performed.
