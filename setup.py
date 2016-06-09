@@ -16,22 +16,22 @@ setup(
     author_email='{samuele.fiorini, federico.tomasi}@dibris.unige.it',
     maintainer='Samuele Fiorini, Federico Tomasi',
     maintainer_email='{samuele.fiorini, federico.tomasi}@dibris.unige.it',
-    url='http://slipguru.github.io/adenine/',
-
+    url='https://github.com/slipguru/adenine',
+    download_url = 'https://github.com/slipguru/adenine/tarball/master',
     classifiers=[
         'Development Status :: Beta',
         'Environment :: Console',
         'Intended Audience :: Science/Research',
         'Intended Audience :: Developers',
         'Programming Language :: Python',
-        'License :: OSI Approved :: GPL v3 License',
+        'License :: OSI Approved :: FreeBSD',
         'Topic :: Software Development',
         'Topic :: Scientific/Engineering :: Bio-Informatics',
         'Operating System :: POSIX',
         'Operating System :: Unix',
         'Operating System :: MacOS'
     ],
-    license = 'GLP v3',
+    license = 'FreeBSD',
 
     packages=['adenine', 'adenine.core', 'adenine.utils'],
     requires=['numpy (>=1.10.1)',
