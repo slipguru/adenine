@@ -86,12 +86,23 @@ already created::
 
     $ ade_analysis.py result-dir
 
-The script produces a set of textual and graphical results. An example of possible output obtained by one of the implemented pipelines is represented below.
+The script produces a set of textual and graphical results. An output example obtained by one of the implemented pipelines is represented below.
 
-.. figure:: KMeans.pdf
-   :scale: 50 %
+.. image:: pca.png
+   :scale: 80 %
    :alt: broken link
 
+.. image:: kpca.png
+   :scale: 80 %
+   :alt: broken link
 
+You can reproduce the example above specifying ``data_source.load('circles')`` in the configuration file.
 
+Example dataset
+----------------
+An example dataset can be dowloaded :download:`here <TCGA-PANCAN-HiSeq-801x20531.tar.gz>`. The dataset is a random extraction of 801 samples (with dimension 20531) measuring RNA-Seq gene expression of patients affected by 5 different types of tumor: breast invasive carcinoma (BRCA), kidney renal clear cell carcinoma (KIRC), colon  (COAD), lung  (LUAD) and prostate adenocarcinoma (PRAD). The full dataset is maintained by The Cancer Genome Atlas Pan-Cancer Project [1] and we refer to the `original repository <https://www.synapse.org/#!Synapse:syn4301332>`_ for furher details.
+
+Reference
+----------------
+[1] Weinstein, John N., et al. "The cancer genome atlas pan-cancer analysis project." Nature genetics 45.10 (2013): 1113-1120.
 

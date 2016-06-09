@@ -11,8 +11,8 @@ plotting_context = 'notebook' # one of {paper, notebook, talk, poster}
 file_format = 'pdf' # or 'png'
 
 # ----------------------------  INPUT DATA ---------------------------- #
-data_file = 'X.csv'
-labels_file = 'y.csv' # OPTIONAL
+data_file = 'data.csv'
+labels_file = 'labels.csv' # OPTIONAL
 X, y, feat_names, class_names = data_source.load('custom', data_file, labels_file)
 
 # -----------------------  PIPELINE DEFINITION ------------------------ #

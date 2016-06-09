@@ -13,13 +13,13 @@ from adenine.utils import extra
 # --------------------------  EXPERMIENT INFO ------------------------- #
 exp_tag = 'debug'
 output_root_folder = 'results'
-file_format = 'pdf' # or 'png'
+file_format = 'png' # or 'png'
 plotting_context = 'paper' # one of {paper, notebook, talk, poster}
 
 # ----------------------------  INPUT DATA ---------------------------- #
 #X, y, feat_names, class_names = data_source.load('iris')
-X, y, feat_names, class_names = data_source.load('gauss', n_samples=300)
-# X, y, feat_names, class_names = data_source.load('circles')
+#X, y, feat_names, class_names = data_source.load('gauss', n_samples=300)
+X, y, feat_names, class_names = data_source.load('circles')
 # X, y, feat_names, class_names = data_source.load('digits')
 # X, y, feat_names, class_names = data_source.load('diabetes')
 # X, y, feat_names, class_names = data_source.load('boston')
@@ -37,12 +37,12 @@ X, y, feat_names, class_names = data_source.load('gauss', n_samples=300)
                             # 'strategy': ['median','mean','nearest_neighbors']}]}
 
 # --- Data Preprocessing --- #
-step1 = {'None': [False], 'Recenter': [False], 'Standardize': [False],
-         'Normalize': [True, {'norm': ['l2']}],
+step1 = {'None': [True], 'Recenter': [False], 'Standardize': [False],
+         'Normalize': [False, {'norm': ['l2']}],
          'MinMax': [False, {'feature_range': [(0,1), (-1,1)]}]}
 
 # --- Dimensionality Reduction & Manifold Learning --- #
-step2 = {'PCA': [False, {'n_components': 3}],
+step2 = {'PCA': [True, {'n_components': 2}],
          'IncrementalPCA': [False, {'n_components': 3}],
          'RandomizedPCA':  [False, {'n_components': 3}],
          'KernelPCA':      [True, {'n_components': 2,
@@ -57,11 +57,11 @@ step2 = {'PCA': [False, {'n_components': 3}],
          }
 
 # --- Clustering --- #
-step3 = {'KMeans': [False, {'n_clusters': ['auto']}], # cannot be 'precomputed'
+step3 = {'KMeans': [True, {'n_clusters': [2]}], # cannot be 'precomputed'
          'AP': [False, {'preference': ['auto']}], # can be 'precomputed'
          'MS': [False], # cannot be 'precomputed'
          'Spectral': [False, {'n_clusters': [2]}], # can be 'precomputed'
-         'Hierarchical': [True, {'n_clusters': [3],
+         'Hierarchical': [False, {'n_clusters': [3],
                                   #'affinity': ['manhattan','euclidean'],
                                   'affinity': ['euclidean'],
                                   #'linkage':  ['ward','complete','average']}]
