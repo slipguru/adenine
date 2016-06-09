@@ -15,3 +15,5 @@ adenine/utils/extra.py
 adenine/utils/templates.py
 scripts/ade_analysis.py
 scripts/ade_run.py
+include README.md
+include LICENSE.txt
