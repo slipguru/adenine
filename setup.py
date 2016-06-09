@@ -19,7 +19,7 @@ setup(
     url='https://github.com/slipguru/adenine',
     download_url = 'https://github.com/slipguru/adenine/tarball/0.1.0',
     classifiers=[
-        'Development Status :: Beta',
+	'Development Status :: 4 - Beta',
         'Environment :: Console',
         'Intended Audience :: Science/Research',
         'Intended Audience :: Developers',
