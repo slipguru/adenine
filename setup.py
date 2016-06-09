@@ -17,7 +17,7 @@ setup(
     maintainer='Samuele Fiorini, Federico Tomasi',
     maintainer_email='{samuele.fiorini, federico.tomasi}@dibris.unige.it',
     url='https://github.com/slipguru/adenine',
-    download_url = 'https://github.com/slipguru/adenine/tarball/0.1.1',
+    download_url = 'https://github.com/slipguru/adenine/tarball/0.1.2',
     classifiers=[
 	'Development Status :: 4 - Beta',
         'Environment :: Console',
