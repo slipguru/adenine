@@ -24,7 +24,7 @@ setup(
         'Intended Audience :: Science/Research',
         'Intended Audience :: Developers',
         'Programming Language :: Python',
-        'License :: OSI Approved :: FreeBSD',
+        'License :: OSI Approved :: BSD License',
         'Topic :: Software Development',
         'Topic :: Scientific/Engineering :: Bio-Informatics',
         'Operating System :: POSIX',
