@@ -23,6 +23,6 @@ ADENINE is developed using Python 2.7 and inherits its main functionalities from
 Current developers: Samuele Fiorini (@samuelefiorini) and Federico Tomasi (@fdtomasi).
 
 ### Support or Contact
-Having trouble with ADENINE? Check out our [documentation](http://www.slipguru.unige.it/Software/ADENINE/) or contact us:
+Having trouble with ADENINE? Check out our [documentation](http://www.slipguru.unige.it/Software/adenine/) or contact us:
 * samuele [dot] fiorini [at] dibris [dot] unige [dot] it
 * federico [dot] tomasi [at] dibris [dot] unige [dot] it
