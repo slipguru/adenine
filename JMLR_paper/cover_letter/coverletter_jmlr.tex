@@ -1,0 +1,60 @@
+\documentclass[a4paper]{letter}
+%%%% choose one of the following 4 lines to set colour and/or  date style,
+\usepackage[myukdate,colour]{dibrisletter} % Day, num Month year, and colour (use lp2)
+%\usepackage[]{leedsletter} % Black-and-white, with US style date Month num, year
+%\usepackage[myukdate]{leedsletter}
+%\usepackage[colour]{leedsletter}
+%%%% end
+\department{{\bf Department of Informatics, Bioengineering,
+Robotics and System Engineering (DIBRIS)}\\[38pt]
+University of Genoa\\
+via Dodecaneso, 35\\
+Genova$\;$ I-$16146$ $\;$ Italy\\[12pt]
+%%%% edit the following three lines to suit you.  If you add a line, then 38pt -> 26pt above
++39 010 353 6717\\
+% F~~ +39 010 353 6699\\
+samuele.fiorini@dibris.unige.it\\
+federico.tomasi@dibris.unige.it\\
+annalisa.barla@unige.it}
+%%%% end
+
+\alignit{50pt} %%  tweaking parameter - probably no need to change.
+
+
+%%%  need to edit  user info
+\signature{Samuele Fiorini\\[2pt]
+Federico Tomasi\\[2pt]
+Annalisa Barla}
+% end personal details
+%%%%%%%%%%%%%%%%%%%%%% a bove this line is sender specific %%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%% and probably only needs edited once %%%%%%%%%%%%
+%%% what follows is letter specific
+
+
+% the next line is specific to this letter, and may be used for "short" letters
+
+\skipit{1.7}  % this amount (default = 1.7) increases 2 gaps: address-date-opening
+
+\begin{document}
+\begin{letter}{}
+
+%% if this is a ``short'' or long address, then alter \skipit above
+
+\opening{To Whom It May Concern,}
+%\medskip
+%\centerline{\bf New letterhead in \LaTeX}
+%\medskip
+We hereby submit to the machine learning open source software section of the Journal of Machine Learning Research the paper entitled: {\sc ADENINE: A Data ExploratioN pIpeliNE}.
+
+The paper describes in detail the {\sc ADENINE} package version $0.1.3$, a Python software licensed under the FreeBSD license.
+
+The package, its documentation and all the references can be found online at the either at project homepage \ulr{http://slipguru.unige.it/Software/adenine/} and on GitHub \url{https://github.com/slipguru/adenine}. The package is also available via Python Package Index at \url{https://pypi.python.org/pypi/adenine/0.1.3} and it is listed on mloss forum \url{http://mloss.org/software/}.
+
+The submission of this manuscript is not simultaneous to any other venue and it does not significantly overlap with previous submissions of the authors.
+
+All the co-authors are aware of this submission and they all consent to its review.
+
+
+\closing{Best Regards,}
+\end{letter}
+\end{document}

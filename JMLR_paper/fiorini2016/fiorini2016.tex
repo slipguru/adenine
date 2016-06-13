@@ -278,24 +278,28 @@ Mean shift \citep{comaniciu2002mean} has an implicit cluster discovery.
 For hierarchical \citep{friedman2001elements} and spectral clustering \citep{shi2000normalized}, no automatic discovery of clustering parameters is offered. However, graphical aids are generated to evaluate clustering performance such as dendrogram tree and eigenvalues of the Laplacian of the affinity matrix plots, respectively.
 
 \section{Usage Example}
-In this section we show how to use \ade to perform an exploratory analysis on a relatively small data set. Once \ade is installed, all one needs to do is to execute the \py script \texttt{ade\_run.py} specifying as single input argument a configuration file (with \texttt{.py} extension) which should look like the snippet below.
+% In this section we show how to use \ade to perform an exploratory analysis on a relatively small data set.
+Figure~\ref{fig:scatter} shows one of several possible comparisons between three pipelines on an RNA-Seq gene expression data set available both on UCI Machine Learning Repository and \ade documentation webpage.
+% First \ade is installed via the Python Package Index, then
+Exploratory data analysis is performed by
+% one needs to do is to
+executing the \py script \texttt{ade\_run.py}, specifying as single input argument a configuration file (with \texttt{.py} extension) which should look like the snippet below.
 
 \begin{Verbatim}[commandchars=\\\{\},numbers=left,firstnumber=1,stepnumber=1,fontsize=\small]
 \PY{k+kn}{from} \PY{n+nn}{adenine.utils} \PY{k+kn}{import} \PY{n}{data\PYZus{}source}
 \PY{n}{X}\PY{p}{,}\PY{n}{y}\PY{p}{,}\PY{n}{feat\PYZus{}names}\PY{p}{,}\PY{n}{class\PYZus{}names} \PY{o}{=} \PY{n}{data\PYZus{}source}\PY{o}{.}\PY{n}{load}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{custom}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{data.csv}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{labels.csv}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
 \PY{n}{step1} \PY{o}{=} \PY{p}{\PYZob{}}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Normalize}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:}\PY{p}{[}\PY{n+nb+bp}{True}\PY{p}{,}\PY{p}{\PYZob{}}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{norm}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{l2}\PY{l+s+s1}{\PYZsq{}}\PY{p}{\PYZcb{}}\PY{p}{]}\PY{p}{\PYZcb{}} \PY{c+c1}{\PYZsh{}Preprocessing}
 \PY{n}{step2} \PY{o}{=} \PY{p}{\PYZob{}}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{PCA}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:}\PY{p}{[}\PY{n+nb+bp}{True}\PY{p}{,}\PY{p}{\PYZob{}}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{n\PYZus{}components}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:}\PY{l+m+mi}{2}\PY{p}{\PYZcb{}}\PY{p}{]}\PY{p}{,}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{KernelPCA}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:}\PY{p}{[}\PY{n+nb+bp}{True}\PY{p}{,}\PY{p}{\PYZob{}}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{kernel}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{rbf}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{p}{,} \PYZbs{}
-\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{n\PYZus{}components}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:}\PY{l+m+mi}{3}\PY{p}{,}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{gamma}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:}\PY{l+m+mi}{2}\PY{p}{\PYZcb{}}\PY{p}{]}\PY{p}{,}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Isomap}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:}\PY{p}{[}\PY{n+nb+bp}{True}\PY{p}{,}\PY{p}{\PYZob{}}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{n\PYZus{}components}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:}\PY{l+m+mi}{3}\PY{p}{\PYZcb{}}\PY{p}{]}\PY{p}{\PYZcb{}} \PY{c+c1}{\PYZsh{}Dim. Reduction}
+\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{n\PYZus{}components}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:}\PY{l+m+mi}{2}\PY{p}{,}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{gamma}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:}\PY{l+m+mi}{2}\PY{p}{\PYZcb{}}\PY{p}{]}\PY{p}{,}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Isomap}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:}\PY{p}{[}\PY{n+nb+bp}{True}\PY{p}{,}\PY{p}{\PYZob{}}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{n\PYZus{}components}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:}\PY{l+m+mi}{2}\PY{p}{\PYZcb{}}\PY{p}{]}\PY{p}{\PYZcb{}} \PY{c+c1}{\PYZsh{}Dim. Reduction}
 \PY{n}{step3} \PY{o}{=} \PY{p}{\PYZob{}}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{KMeans}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:}\PY{p}{[}\PY{n+nb+bp}{True}\PY{p}{,}\PY{p}{\PYZob{}}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{n\PYZus{}clusters}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{auto}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{p}{\PYZcb{}}\PY{p}{]}\PY{p}{\PYZcb{}} \PY{c+c1}{\PYZsh{}Clustering}
 \end{Verbatim}
 
 
-Each \texttt{step} variable refers to a dictionary having the name of the building block as key and a {list} as value. Each list has a \emph{on$\backslash$off} trigger in first position followed by a dictionary of keyword arguments for the class implementing the correspondent method. When more than one method is specified in a single step, or more than a single parameter is passed as {list}, \ade generates the pipelines made by all possible combinations.
+Each \texttt{step} variable refers to a dictionary having the name of the building block as key and a {list} as value. Each list has a \emph{on$\backslash$off} trigger in first position followed by a dictionary of keyword arguments for the class implementing the corresponding method. When more than one method is specified in a single step, or more than a single parameter is passed as {list}, \ade generates the pipelines composed of all possible combinations.
 For a comprehensive description of options available in the configuration file we refer to \ade documentation and tutorials: {\small\url{http://slipguru.unige.it/Software/adenine}}.
 
 The configuration snippet above generates three pipelines with similar structure. All three of them have $\ell^2$-normalized samples, projected on a 2D space by PCA (pipeline \textit{a}), Gaussian kernel PCA with $\gamma=2$ (pipeline \textit{b}) and isomap (pipeline \textit{c}); on the dimensionality-reduced data set a $k$-means clustering with automatic cluster discovery is eventually performed as in Algorithm~\ref{alg:clusters}.
-Results of such pipelines are all stored in a single output folder. Once the process is completed, plots and reports can be automatically generated running the \py script \texttt{ade\_analysis.py} specifying the output folder previously created as single input argument. Figure~\ref{fig:scatter} shows one of several possible comparisons between the three pipelines on an RNA-Seq gene expression data set available both on UCI Machine Learning Repository and
-\ade documentation webpage.
+Results of such pipelines are all stored in a single output folder. Once the process is completed, plots and reports can be automatically generated running \texttt{ade\_analysis.py} with the output folder previously created as the only input argument.
 % Data-points and backgrounds are colored as real classes and clustering predictions.
 
 \begin{figure}[]
