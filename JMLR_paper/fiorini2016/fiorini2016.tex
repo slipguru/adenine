@@ -217,7 +217,7 @@ and, as of today, \emph{Orange} lacks in several nonlinear methods such as isoma
         & \begin{tabular}{@{}l@{}}t-distributed stochastic \\ neighbor embedding \end{tabular}   & \citep{van2008visualizing} \\
         \midrule
 
-        \multirow{5}{*}{Clustering} & k-means &  \citep{bishop2006pattern}\\
+        \multirow{5}{*}{Clustering} & $k$-means &  \citep{bishop2006pattern}\\
         & affinity propagation & \citep{frey2007clustering} \\
         & mean shift & \citep{comaniciu2002mean} \\
         & spectral & \citep{shi2000normalized} \\
@@ -244,7 +244,7 @@ For each task, different off-the-shelf algorithms are available (see Table~\ref{
 
 \ade offers an improved version of the \texttt{Imputer} class provided by {\sc scikit-learn} to cope with real-world data sets, where entries are often missing. Our extension adds a $k$-nearest neighbors imputing method \citep{troyanskaya2001missing} to the pre-existent feature-wise \emph{mean}, \emph{median} and \emph{most frequent} strategies.
 
-\ade presents different strategies to preprocess data to tackle undesired effects that may arise from heterogeneous data possibly lying in very different numerical range.
+\ade presents different data preprocessing strategies to tackle undesired effects that may arise from heterogeneous measures possibly lying in very different numerical range.
  % when dealing with data collected from heterogeneous sources.
 % Collecting data from heterogeneous sources may imply dealing with features lying in very different numerical ranges. This could have a negative influence on the behavior of dimensionality reduction and clustering techniques. To tackle this issue \ade offers different strategies to preprocess data.
 
@@ -272,7 +272,7 @@ The optimal parameter selection of centroid-based algorithms follows the $B$-fol
     \end{algorithmic}
 \end{algorithm}
 
-For affinity propagation \citep{frey2007clustering} and k-means \citep{bishop2006pattern} clustering parameters can be automatically defined (\emph{preference} and \emph{number of clusters}, respectively).
+For affinity propagation \citep{frey2007clustering} and $k$-means \citep{bishop2006pattern} clustering parameters can be automatically defined (\emph{preference} and \emph{number of clusters}, respectively).
 % Clustering parameters for affinity propagation \citep{frey2007clustering} and k-means \citep{bishop2006pattern}, that are \emph{preference} and \emph{number of clusters}, can be automatically defined.
 Mean shift \citep{comaniciu2002mean} has an implicit cluster discovery.
 For hierarchical \citep{friedman2001elements} and spectral clustering \citep{shi2000normalized}, no automatic discovery of clustering parameters is offered. However, graphical aids are generated to evaluate clustering performance such as dendrogram tree and eigenvalues of the Laplacian of the affinity matrix plots, respectively.
@@ -290,11 +290,11 @@ In this section we show how to use \ade to perform an exploratory analysis on a 
 \end{Verbatim}
 
 
-\noindent Each \texttt{step} variable refers to a dictionary having the name of the building block as key and a {list} as value. Each list has a \emph{on$\backslash$off} trigger in first position followed by a dictionary of keyword arguments for the class implementing the correspondent method. When more than one method is specified in a single step (or a single parameter is passed as {list}), \ade generates the pipelines made by all possible combinations.
+Each \texttt{step} variable refers to a dictionary having the name of the building block as key and a {list} as value. Each list has a \emph{on$\backslash$off} trigger in first position followed by a dictionary of keyword arguments for the class implementing the correspondent method. When more than one method is specified in a single step, or more than a single parameter is passed as {list}, \ade generates the pipelines made by all possible combinations.
 For a comprehensive description of options available in the configuration file we refer to \ade documentation and tutorials: {\small\url{http://slipguru.unige.it/Software/adenine}}.
 
-The configuration snippet above generates three pipelines with similar structure. All three of them have $\ell^2$-normalized samples, projected on a 2D space by PCA (pipeline \textit{a}), Gaussian kernel PCA with $\gamma=2$ (pipeline \textit{b}) and isomap (pipeline \textit{c}); on the dimensionality-reduced data set a k-means clustering with automatic cluster discovery is eventually performed as in Algorithm~\ref{alg:clusters}.
-Results of such pipelines are all stored in a single output folder. Once the process is completed, plots and reports can be automatically generated running the \py script \texttt{ade\_analysis.py} specifying the output folder previously created as single input argument. Figure~\ref{fig:scatter} shows one of several possible comparisons between the two pipelines on an RNA-Seq gene expression data set available both on UCI Machine Learning Repository and
+The configuration snippet above generates three pipelines with similar structure. All three of them have $\ell^2$-normalized samples, projected on a 2D space by PCA (pipeline \textit{a}), Gaussian kernel PCA with $\gamma=2$ (pipeline \textit{b}) and isomap (pipeline \textit{c}); on the dimensionality-reduced data set a $k$-means clustering with automatic cluster discovery is eventually performed as in Algorithm~\ref{alg:clusters}.
+Results of such pipelines are all stored in a single output folder. Once the process is completed, plots and reports can be automatically generated running the \py script \texttt{ade\_analysis.py} specifying the output folder previously created as single input argument. Figure~\ref{fig:scatter} shows one of several possible comparisons between the three pipelines on an RNA-Seq gene expression data set available both on UCI Machine Learning Repository and
 \ade documentation webpage.
 % Data-points and backgrounds are colored as real classes and clustering predictions.
 
@@ -314,7 +314,7 @@ Results of such pipelines are all stored in a single output folder. Once the pro
         \includegraphics[width=0.3\textwidth]{figures/l2-iso-KMeans_5-clusts.pdf}%
         \label{fig:c}%
     }%
-    \caption{\small K-means on three different 2D projections of an RNA-Seq data set.}\label{fig:scatter}
+    \caption{\small $k$-means on three different 2D projections of an RNA-Seq data set.}\label{fig:scatter}
 \end{figure}
 
 
