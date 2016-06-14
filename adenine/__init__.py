@@ -4,7 +4,7 @@
 # FreeBSD License
 ######################################################################
 
-__version__ = "0.1.3"
+__version__ = "0.1.3b"
 
 from adenine import utils
 from adenine import core
