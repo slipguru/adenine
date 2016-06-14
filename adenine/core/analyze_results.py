@@ -207,12 +207,12 @@ def make_df_clst_perf(root):
     measures = ('ami', 'ari', 'completeness', 'homogeneity', 'v_measure',
                 'inertia', 'silhouette')
     df = pd.DataFrame(columns=['pipeline']+list(measures))
-    for root, directories, filenames in os.walk(root):
+    for _root, directories, filenames in os.walk(root):
         for fn in filenames:
             if fn.endswith('_scores.pkl'):
-                with open(os.path.join(root, fn), 'r') as f:
+                with open(os.path.join(_root, fn), 'r') as f:
                     perf_out = pkl.load(f)
-                perf_out['pipeline'] = title_from_filename(root, step_sep=" --> ")
+                perf_out['pipeline'] = title_from_filename(_root, step_sep=" --> ")
                 df = df.append(perf_out, ignore_index=True)
     df = df.fillna('')
 
@@ -294,7 +294,6 @@ def make_df_clst_perf(root):
                 r"\end{table}" "\n"
                 r"\end{document}")
     # df.to_csv(os.path.join(rootFolder,'all_scores.csv'), na_rep='-', index_label=False, index=False)
-
 
 def analysis_worker(elem, root, y, feat_names, class_names, lock):
     """Parallel pipelines analysis.
