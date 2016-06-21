@@ -74,7 +74,7 @@ The ``ade_run.py`` script, executes the full ADENINE framework. The prototype is
 
     $ ade_run.py ade_config.py
 
-When launched, the script reads the data, then it creates and runs each pipeline saving the results in a three-like structure which has the current folder as root.
+When launched, the script reads the data, then it creates and runs each pipeline saving the results in a tree-like structure which has the current folder as root.
 
 .. _analysis:
 
