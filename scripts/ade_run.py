@@ -48,7 +48,7 @@ def main(config_file):
 
     # Pipelines Definition
     pipes = define_pipeline.parse_steps([config.step0, config.step1,
-                                             config.step2, config.step3])
+                                         config.step2, config.step3])
 
     # Pipelines Evaluation
     outFolder = pipelines.run(pipes=pipes, X=X, exp_tag=fileName, root=root, y=y)
