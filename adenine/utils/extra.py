@@ -16,36 +16,43 @@ from itertools import product
 
 palette = sns.color_palette("Set1")
 
+
 def get_color(i=0):
     return palette[i]
+
 
 def next_color():
     palette.append(palette.pop(0))
     return palette[-1]
 
+
 def reset_palette(n_colors=6):
     global palette
     palette = sns.color_palette("Set1", n_colors)
+
 
 # ensure_list = lambda x: x if type(x) == list else [x]
 def ensure_list(x):
     return x if type(x) == list else [x]
 
+
 def values_iterator(dictionary):
     '''Add support for python2 or 3 dictionary iterators. '''
     try:
-        v = dictionary.itervalues() # python 2
+        v = dictionary.itervalues()  # python 2
     except:
-        v = dictionary.values() # python 3
+        v = dictionary.values()  # python 3
     return v
+
 
 def items_iterator(dictionary):
     '''Add support for python2 or 3 dictionary iterators. '''
     try:
-        gen = dictionary.iteritems() # python 2
+        gen = dictionary.iteritems()  # python 2
     except:
-        gen = dictionary.items() # python 3
+        gen = dictionary.items()  # python 3
     return gen
+
 
 def modified_cartesian(*args, **kwargs):
     """Modified Cartesian product.
@@ -72,6 +79,7 @@ def modified_cartesian(*args, **kwargs):
     # Cartesian product
     return [list(c) for c in product(*nonempty)]
 
+
 def make_time_flag():
     """Generate a time flag.
 
@@ -90,6 +98,7 @@ def make_time_flag():
     s = str(time.localtime().tm_sec)
     return h+':'+mi+':'+s+'_'+d+'-'+mo+'-'+y
 
+
 def sec_to_time(seconds):
     """Transform seconds into a formatted time string.
 
@@ -107,8 +116,10 @@ def sec_to_time(seconds):
     h, m = divmod(m, 60)
     return "%02d:%02d:%02d" % (h, m, s)
 
+
 def get_time():
     return datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H.%M.%S')
+
 
 def title_from_filename(root, step_sep="$\mapsto$"):
     # Define the plot title. List is smth like ['results', 'ade_debug_', 'Standardize', 'PCA']
@@ -116,6 +127,7 @@ def title_from_filename(root, step_sep="$\mapsto$"):
 
     # lambda function below does: ('a_b_c') -> 'c b a'
     return step_sep.join(map(lambda x: ' '.join(x.split('_')[::-1]), root.split(os.sep)[i+1:]))
+
 
 def ensure_symmetry(X):
     """Ensure matrix symmetry.
@@ -133,6 +145,7 @@ def ensure_symmetry(X):
     if not (X.T == X).all():
         return (X.T + X) / 2.
 
+
 def timed(function):
     """Decorator that measures wall time of the decored function."""
     def timed_function(*args, **kwargs):
@@ -141,6 +154,7 @@ def timed(function):
         print("\nAdenine {} - Elapsed time : {} s\n".format(function.__name__, sec_to_time(time.time() - t0)))
         return result
     return timed_function
+
 
 def set_module_defaults(module, dictionary):
     """Set default variables of a module, given a dictionary.

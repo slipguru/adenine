@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 ######################################################################
 # Copyright (C) 2016 Samuele Fiorini, Federico Tomasi, Annalisa Barla
@@ -9,12 +8,14 @@
 
 from __future__ import print_function
 
-import imp, sys, os
+import imp
+import sys
+import os
 import time
 import logging
+import argparse
 import cPickle as pkl
 import gzip
-import argparse
 
 from adenine.core import analyze_results
 from adenine.utils import extra
@@ -31,7 +32,7 @@ def main(dumpfile):
     feat_names, class_names = config.feat_names, config.class_names
     # Load the results used with ade_run.py
     try:
-        with gzip.open(os.path.join(os.path.dirname(dumpfile),'__data.pkl.tz'), 'r') as f:
+        with gzip.open(os.path.join(os.path.dirname(dumpfile), '__data.pkl.tz'), 'r') as f:
             data = pkl.load(f)
             X, y = data['X'], data['y']
     except:
@@ -57,7 +58,7 @@ def main(dumpfile):
 
     print("done: {} s".format(extra.sec_to_time(time.time()-tic)))
 
-    # Analyze the pipelines    
+    # Analyze the pipelines
     analyze_results.analyze(input_dict=res, root=os.path.dirname(dumpfile),
                             y=y, feat_names=feat_names, class_names=class_names,
                             plotting_context=config.plotting_context,
@@ -66,16 +67,17 @@ def main(dumpfile):
 # ----------------------------  RUN MAIN ---------------------------- #
 if __name__ == '__main__':
     from adenine import __version__
-    parser = argparse.ArgumentParser(#usage="%(prog)s RESULTS_DIR",
+    parser = argparse.ArgumentParser(  # usage="%(prog)s RESULTS_DIR",
                                      description='Adenine script for analysing pipelines.')
     parser.add_argument('--version', action='version', version='%(prog)s v'+__version__)
     parser.add_argument("result_folder", help="specify results directory")
     args = parser.parse_args()
     root_folder = args.result_folder
-    filename = [f for f in os.listdir(root_folder) if os.path.isfile(os.path.join(root_folder, f)) and f.endswith('.pkl.tz') and f !=  "__data.pkl.tz"]
+    filename = [f for f in os.listdir(root_folder) if os.path.isfile(os.path.join(root_folder, f)) and f.endswith('.pkl.tz') and f != "__data.pkl.tz"]
     if not filename:
         sys.stderr.write("No .pkl file found in {}. Aborting...".format(root_folder))
         sys.exit(-1)
 
+    # Run analysis
     # print("Starting the analysis of {}".format(filename))
-    main(os.path.join(os.path.abspath(root_folder), filename[0])) # Run analysis
+    main(os.path.join(os.path.abspath(root_folder), filename[0]))
