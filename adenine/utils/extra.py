@@ -144,6 +144,8 @@ def ensure_symmetry(X):
     """
     if not (X.T == X).all():
         return (X.T + X) / 2.
+    else:
+        return X
 
 
 def timed(function):
