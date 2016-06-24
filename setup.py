@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# adenine setup script
+"""adenine setup script."""
 
 from distutils.core import setup
 
@@ -17,9 +17,9 @@ setup(
     maintainer='Samuele Fiorini, Federico Tomasi',
     maintainer_email='{samuele.fiorini, federico.tomasi}@dibris.unige.it',
     url='https://github.com/slipguru/adenine',
-    download_url = 'https://github.com/slipguru/adenine/tarball/'+version,
+    download_url='https://github.com/slipguru/adenine/tarball/'+version,
     classifiers=[
-	'Development Status :: 4 - Beta',
+        'Development Status :: 4 - Beta',
         'Environment :: Console',
         'Intended Audience :: Science/Research',
         'Intended Audience :: Developers',
@@ -31,7 +31,7 @@ setup(
         'Operating System :: Unix',
         'Operating System :: MacOS'
     ],
-    license = 'FreeBSD',
+    license='FreeBSD',
 
     packages=['adenine', 'adenine.core', 'adenine.utils'],
     requires=['numpy (>=1.10.1)',
@@ -40,5 +40,5 @@ setup(
               'matplotlib (>=1.5.1)',
               'seaborn (>=0.7.0)',
               'fastcluster (>=1.1.20)'],
-    scripts=['scripts/ade_run.py','scripts/ade_analysis.py'],
+    scripts=['scripts/ade_run.py', 'scripts/ade_analysis.py'],
 )
