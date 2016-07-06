@@ -219,7 +219,7 @@ def run(pipes=(), X=(), exp_tag='def_tag', root='', y=None):
 
     Returns
     -----------
-    outputFolderName : string
+    output_folder : string
         The path of the output folder.
     """
     # Check root folder
