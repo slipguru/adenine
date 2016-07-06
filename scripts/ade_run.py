@@ -7,8 +7,9 @@
 # FreeBSD License
 ######################################################################
 
-import imp, sys, os, shutil
-import time
+import imp
+import os
+import shutil
 import logging
 import argparse
 
@@ -16,7 +17,9 @@ from adenine.core import define_pipeline
 from adenine.core import pipelines
 from adenine.utils import extra
 
+
 def main(config_file):
+    """Generate the pipelines."""
     # Load the configuration file
     config_path = os.path.abspath(config_file)
     config = imp.load_source('ade_config', config_path)
@@ -28,7 +31,7 @@ def main(config_file):
                                        'output_root_folder': 'results'})
 
     # Read the variables from the config file
-    X, y, feat_names, class_names = config.X, config.y, config.feat_names, config.class_names
+    X, y = config.X, config.y
 
     # Get the experiment tag and the output root folder
     exp_tag, root = config.exp_tag, config.output_root_folder
@@ -36,9 +39,9 @@ def main(config_file):
         os.makedirs(root)
 
     # Define the ade.log file (a new one for each run)
-    fileName = '_'.join(('ade', exp_tag, extra.get_time()))
-    logFileName = os.path.join(root, fileName+'.log')
-    logging.basicConfig(filename=logFileName, level=logging.INFO, filemode='w',
+    filename = '_'.join(('ade', exp_tag, extra.get_time()))
+    logfile = os.path.join(root, filename+'.log')
+    logging.basicConfig(filename=logfile, level=logging.INFO, filemode='w',
                         format='%(levelname)s (%(name)s): %(message)s')
     root_logger = logging.getLogger()
     ch = logging.StreamHandler()
@@ -51,22 +54,25 @@ def main(config_file):
                                          config.step2, config.step3])
 
     # Pipelines Evaluation
-    outFolder = pipelines.run(pipes=pipes, X=X, exp_tag=fileName, root=root, y=y)
+    out_folder = pipelines.run(pipes=pipes, X=X, exp_tag=filename,
+                               root=root, y=y)
 
     # Copy the ade_config just used into the outFolder
-    shutil.copy(config_path, os.path.join(outFolder, 'ade_config.py'))
+    shutil.copy(config_path, os.path.join(out_folder, 'ade_config.py'))
     # Move the logging file into the outFolder
-    shutil.move(logFileName, outFolder)
+    shutil.move(logfile, out_folder)
 
 # ----------------------------  RUN MAIN ---------------------------- #
 if __name__ == '__main__':
     from adenine import __version__
-    parser = argparse.ArgumentParser(#usage="%(prog)s [-c] configuration_file.py",
-                                     description='Adenine script for generating pipelines.')
-    parser.add_argument('--version', action='version', version='%(prog)s v'+__version__)
+    parser = argparse.ArgumentParser(description='Adenine script for '
+                                                 'pipeline generation.')
+    parser.add_argument('--version', action='version',
+                        version='%(prog)s v'+__version__)
     parser.add_argument("-c", "--create", dest="create", action="store_true",
                         help="create config file", default=False)
-    parser.add_argument("configuration_file", help="specify config file", default='ade_config.py')
+    parser.add_argument("configuration_file", help="specify config file",
+                        default='ade_config.py')
     args = parser.parse_args()
 
     if args.create:

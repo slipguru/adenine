@@ -20,7 +20,9 @@ import gzip
 from adenine.core import analyze_results
 from adenine.utils import extra
 
+
 def main(dumpfile):
+    """Analyze the pipelines."""
     # Load the configuration file
     config_path = os.path.dirname(dumpfile)
     config_path = os.path.join(os.path.abspath(config_path), 'ade_config.py')
@@ -32,17 +34,19 @@ def main(dumpfile):
     feat_names, class_names = config.feat_names, config.class_names
     # Load the results used with ade_run.py
     try:
-        with gzip.open(os.path.join(os.path.dirname(dumpfile), '__data.pkl.tz'), 'r') as f:
+        with gzip.open(os.path.join(os.path.dirname(dumpfile),
+                                    '__data.pkl.tz'), 'r') as f:
             data = pkl.load(f)
             X, y = data['X'], data['y']
     except:
-        sys.stderr("Cannot load __data.pkl.tz. Reloading data from config file ...")
+        sys.stderr("Cannot load __data.pkl.tz. "
+                   "Reloading data from config file ...")
         X, y = config.X, config.y
 
     # Initialize the log file
-    fileName = 'results_'+os.path.basename(dumpfile)[0:-7]
-    logFileName = os.path.join(os.path.dirname(dumpfile), fileName+'.log')
-    logging.basicConfig(filename=logFileName, level=logging.INFO, filemode='w',
+    filename = 'results_'+os.path.basename(dumpfile)[0:-7]
+    logfile = os.path.join(os.path.dirname(dumpfile), filename+'.log')
+    logging.basicConfig(filename=logfile, level=logging.INFO, filemode='w',
                         format='%(levelname)s (%(name)s): %(message)s')
     root_logger = logging.getLogger()
     ch = logging.StreamHandler()
@@ -60,16 +64,18 @@ def main(dumpfile):
 
     # Analyze the pipelines
     analyze_results.analyze(input_dict=res, root=os.path.dirname(dumpfile),
-                            y=y, feat_names=feat_names, class_names=class_names,
+                            y=y, feat_names=feat_names,
+                            class_names=class_names,
                             plotting_context=config.plotting_context,
                             file_format=config.file_format)
 
 # ----------------------------  RUN MAIN ---------------------------- #
 if __name__ == '__main__':
     from adenine import __version__
-    parser = argparse.ArgumentParser(  # usage="%(prog)s RESULTS_DIR",
-                                     description='Adenine script for analysing pipelines.')
-    parser.add_argument('--version', action='version', version='%(prog)s v'+__version__)
+    parser = argparse.ArgumentParser(description='Adenine script for '
+                                                 'analysing pipelines.')
+    parser.add_argument('--version', action='version',
+                        version='%(prog)s v'+__version__)
     parser.add_argument("result_folder", help="specify results directory")
     args = parser.parse_args()
     root_folder = args.result_folder
