@@ -14,21 +14,23 @@ import seaborn as sns
 from datetime import datetime
 from itertools import product
 
-palette = sns.color_palette("Set1")
 
+class Palette():
+    """Wrapper for seaborn palette."""
 
-def get_color(i=0):
-    return palette[i]
+    def __init__(self, name='Set1', n_colors=6):
+        self.name = name
+        self.palette = sns.color_palette(name, n_colors)
 
+    def get(self, i=0):
+        return self.palette[i]
 
-def next_color():
-    palette.append(palette.pop(0))
-    return palette[-1]
+    def next(self):
+        self.palette.append(self.palette.pop(0))
+        return self.palette[-1]
 
-
-def reset_palette(n_colors=6):
-    global palette
-    palette = sns.color_palette("Set1", n_colors)
+    def reset(self, n_colors=6):
+        self.palette = sns.color_palette(self.name, n_colors)
 
 
 # ensure_list = lambda x: x if type(x) == list else [x]

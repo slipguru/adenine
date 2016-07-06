@@ -21,14 +21,14 @@ try:
 except ImportError:
     from sklearn.cross_validation import StratifiedShuffleSplit
 
-from adenine.utils.extra import \
-    (next_color, reset_palette, title_from_filename, items_iterator, palette)
+from adenine.utils.extra import (title_from_filename, items_iterator, Palette)
 
 __all__ = ["make_silhouette", "make_scatter", "make_voronoi", "make_tree",
            "make_dendrogram", "plot_PCmagnitude", "plot_eigs"]
 
 GLOBAL_FF = 'png'
 
+global_palette = Palette()
 
 def set_file_ext(ext):
     global GLOBAL_FF
@@ -77,7 +77,7 @@ def make_silhouette(root, data_in, labels, model=()):
     sil = np.mean(sample_silhouette_values)
 
     y_lower = 10
-    reset_palette()
+    palette = Palette()
     for i, label in enumerate(np.unique(labels)):
         # Aggregate the silhouette scores for samples belonging to
         # cluster i, and sort them
@@ -88,7 +88,7 @@ def make_silhouette(root, data_in, labels, model=()):
         y_upper = y_lower + size_cluster_i
 
         # color = cm.spectral(float(i) / n_clusters)
-        color = next_color()
+        color = palette.next()
         ax1.fill_betweenx(np.arange(y_lower, y_upper),
                           0, ith_cluster_silhouette_values,
                           facecolor=color, edgecolor=color, alpha=0.7)
@@ -169,7 +169,7 @@ def make_scatter(root, data_in, labels=None, true_labels=False, model=()):
     # Generate seaborn plot
     g = sns.FacetGrid(df, hue=_hue, palette="Set1", size=5, legend_out=False)
     g.map(plt.scatter, "$x_1$", "$x_2$", s=100, linewidth=.5, edgecolor="white")
-    if _hue != ' ': g.add_legend() #!! customize legend
+    if _hue != ' ': g.add_legend()  # customize legend
     # g.set_xticklabels([])
     # g.set_yticklabels([])
     g.ax.autoscale_view(True, True, True)
@@ -180,7 +180,7 @@ def make_scatter(root, data_in, labels=None, true_labels=False, model=()):
     plt.close()
 
     # 3D plot
-    filename = os.path.join(root,os.path.basename(root)+"_scatter3D."+GLOBAL_FF)
+    filename = os.path.join(root, os.path.basename(root)+"_scatter3D."+GLOBAL_FF)
     X = data_in[:, :3]
     if X.shape[1] < 3:
         logging.warning('{} not generated (data have less than 3 dimensions)'
@@ -191,11 +191,11 @@ def make_scatter(root, data_in, labels=None, true_labels=False, model=()):
             ax = plt.figure().gca(projection='3d')
             # ax.scatter(X[:,0], X[:,1], X[:,2], y, c=y, cmap='hot', s=100, linewidth=.5, edgecolor="white")
             y = np.array(y)
-            reset_palette(len(np.unique(y)))
+            palette = Palette(n_colors=len(np.unique(y)))
             for _, label in enumerate(np.unique(y)):
                 idx = np.where(y == label)[0]
                 ax.plot(X[:, 0][idx], X[:, 1][idx], X[:, 2][idx], 'o',
-                        c=next_color(), label=str(label), mew=.5, mec="white")
+                        c=palette.next(), label=str(label), mew=.5, mec="white")
 
             ax.set_xlabel(r'$x_1$')
             ax.set_ylabel(r'$x_2$')
@@ -216,7 +216,7 @@ def make_scatter(root, data_in, labels=None, true_labels=False, model=()):
     cols = ["$x_{}$".format(i+1) for i in range(n_cols)]
     X = data_in[:, :3]
     idx = np.argsort(y)
-    df = pd.DataFrame(data=np.hstack((X[idx,:],y[idx,np.newaxis])),
+    df = pd.DataFrame(data=np.hstack((X[idx, :], y[idx, np.newaxis])),
                       columns=cols+[_hue])
     if df.dtypes[_hue] != 'O': df[_hue] = df[_hue].astype('int64')
     g = sns.PairGrid(df, hue=_hue, palette="Set1", vars=cols)
@@ -350,16 +350,20 @@ def make_tree(root, data_in, labels=None, model=()):
         import pydot
         graph = pydot.Dot(graph_type='graph')
 
-        reset_palette(len(np.unique(labels)))
-        global palette
+        if labels is None:
+            labels = np.array([0])
+
+        palette = Palette(n_colors=len(np.unique(labels)))
         colors = {v: k for k, v in items_iterator(dict(enumerate(np.unique(labels))))}
         ii = itertools.count(data_in.shape[0])
         for k, x in enumerate(model.children_):
             root_node = next(ii)
+            fillcolor = (lambda _: palette.palette.as_hex()[colors[labels[x[_]]]]
+                                   if x[_] < labels.shape[0] else 'white')
             left_node = pydot.Node(str(x[0]), style="filled",
-                                   fillcolor=palette.as_hex()[colors[labels[x[0]]]] if x[0] < labels.shape[0] else 'white')
+                                   fillcolor=fillcolor(0))
             right_node = pydot.Node(str(x[1]), style="filled",
-                                    fillcolor=palette.as_hex()[colors[labels[x[1]]]] if x[1] < labels.shape[0] else 'white')
+                                    fillcolor=fillcolor(1))
 
             graph.add_node(left_node)
             graph.add_node(right_node)
@@ -413,59 +417,48 @@ def make_dendrogram(root, data_in, labels, model=(), n_max=150):
     #     try: # Legacy for sklearn
     #         sss = StratifiedShuffleSplit(_y, test_size=n_max, n_iter=1)
     #     except TypeError:
-    #         sss = StratifiedShuffleSplit(n_iter=1, test_size=n_max).split(data_in, _y)
+    #         sss = StratifiedShuffleSplit(n_iter=1, test_size=n_max)
+    #               .split(data_in, _y)
     #
     #     _, idx = list(sss)[0]
     #     data_in = data_in[idx, :]
     #     labels = labels[idx]
     #     trueLabel = trueLabel[idx]
 
-    # tmp = np.hstack((np.arange(0,data_in.shape[0],1)[:,np.newaxis], data_in[:,0][:,np.newaxis], data_in[:,1][:,np.newaxis]))
+    # tmp = np.hstack((np.arange(0,data_in.shape[0],1)[:,np.newaxis],
+    # data_in[:, 0][:,np.newaxis], data_in[:,1][:,np.newaxis]))
     col = ["$x_{"+str(i)+"}$" for i in np.arange(0, data_in.shape[1], 1)]
     df = pd.DataFrame(data=data_in, columns=col)
 
     # -- Code for row colors adapted from:
     # https://stanford.edu/~mwaskom/software/seaborn/examples/structured_heatmap.html
     # Create a custom palette to identify the classes
+    if labels is None:
+        labels = (0,)
     n_colors = len(set(labels))
     custom_pal = sns.color_palette("hls", n_colors)
     custom_lut = dict(zip(map(str, range(n_colors)), custom_pal))
 
-    # Convert the palette to vectors that will be drawn on the side of the matrix
+    # Convert the palette to vectors that will be drawn on the matrix side
     custom_colors = pd.Series(map(str, labels)).map(custom_lut)
 
     # Create a custom colormap for the heatmap values
-    cmap = sns.diverging_palette(200, 10, sep=1, n=15, center="dark", as_cmap=True)#[::-1]
-    # ---------------------------------------- #
+    cmap = sns.diverging_palette(200, 10, sep=1, n=15, center="dark",
+                                 as_cmap=True)
 
-    if model.affinity == 'precomputed': # TODO fix me: fede
-        # tmp is the distance matrix
-        make_dendrograms = False
-        if make_dendrograms:
-            sns.set(font="monospace")
-            for method in ['single','complete','average','weighted','centroid','median','ward']:
-                from scipy.cluster.hierarchy import linkage
-                # print("Compute linkage matrix with metric={} ...".format(method))
-                Z = linkage(data_in, method=method, metric='euclidean')
-                g = sns.clustermap(df.corr(), method=method, row_linkage=Z, col_linkage=Z)
-                filename = os.path.join(root, '_'.join((os.path.basename(root), method, '_dendrogram.png')))
-                g.savefig(filename)
-                logging.info('Figured saved {}'.format(filename))
-                plt.close()
-        # avg_sil = True
-        # if avg_sil:
-        #     try:
-        #         from ignet.plotting.silhouette_hierarchical import plot_avg_silhouette
-        #         filename = plot_avg_silhouette(data_in)
-        #         logging.info('Figured saved {}'.format(filename))
-        #     except:
-        #         logging.critical("Cannot import name ignet.plotting'))
-        # return
+    if model.affinity == 'precomputed':
+        from scipy.cluster.hierarchy import linkage
+        # print("Compute linkage matrix with metric={} ...".format(method))
+        Z = linkage(data_in, method=model.linkage, metric='euclidean')
+        g = sns.clustermap(df, method=model.linkage,
+                           row_linkage=Z, col_linkage=Z)
+    else:
+        # workaround to a different name used for manhattan / cityblock distance
+        if model.affinity == 'manhattan':
+            model.affinity = 'cityblock'
 
-    # workaround to a different name used for manhatta / cityblock distance
-    if model.affinity == 'manhattan': model.affinity = 'cityblock'
-    g = sns.clustermap(df, method=model.linkage, metric=model.affinity,
-                       row_colors=custom_colors, linewidths=.5, cmap=cmap)
+        g = sns.clustermap(df, method=model.linkage, metric=model.affinity,
+                           row_colors=custom_colors, linewidths=.5, cmap=cmap)
 
     plt.setp(g.ax_heatmap.yaxis.get_majorticklabels(), rotation=0, fontsize=5)
     filename = os.path.join(root, os.path.basename(root)+'_dendrogram.'+GLOBAL_FF)

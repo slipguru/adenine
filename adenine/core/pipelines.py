@@ -180,8 +180,8 @@ def pipe_worker(pipeID, pipe, pipes_dump, X):
         except (AssertionError, ValueError) as e:
             logging.critical("Pipeline {} failed at step {}. "
                              "Traceback: {}".format(pipeID, step[0], e))
-            step_dump[stepID] = [step[0], level, step[1].get_params(), np.nan,
-                                 np.nan, np.nan]
+            # step_dump[stepID] = [step[0], level, step[1].get_params(), (),
+            #                      (), (), ()]
 
     pipes_dump[pipeID] = step_dump
     logging.debug("DUMP: \n {} \n #########".format(pipes_dump))

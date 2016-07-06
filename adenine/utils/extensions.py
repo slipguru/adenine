@@ -168,11 +168,13 @@ class Imputer(Imputer):
 
 
 class GridSearchCV(GridSearchCV):
-    """
-    Wrapper class that automatically detects the optimal number of clusters for centroid based algorithm like KMeans and Affinity Propagation.
+    """Wrapper for sklearn's GridSearchCV.
+
+    Automatically detects the optimal number of clusters for centroid-based
+    algorithms like KMeans and Affinity Propagation.
     """
     def __init__(self, estimator, param_grid, scoring=None, fit_params=None, n_jobs=1, iid=True, refit=True, cv=None, verbose=0, pre_dispatch='2*n_jobs', error_score='raise', affinity='euclidean'):
-        super(GridSearchCV, self).__init__( estimator, param_grid, scoring, fit_params, n_jobs, iid, refit, cv, verbose, pre_dispatch, error_score)
+        super(GridSearchCV, self).__init__(estimator, param_grid, scoring, fit_params, n_jobs, iid, refit, cv, verbose, pre_dispatch, error_score)
         self.affinity = affinity # add the attribute affinity
         self.cluster_centers_ = None
         self.inertia_ = None
@@ -180,21 +182,28 @@ class GridSearchCV(GridSearchCV):
         self.estimator_name = type(self.estimator).__name__
 
     def _sqrtn_heuristic(self, n):
+        """Heuristic for KMeans.
+
+        n_clusters grid for KMeans: logaritmic scale in
+        [2,...,log10(sqrt(n))] with max length = 30
         """
-        n_clusters grid for KMeans: logaritmic scale in [2,...,log10(sqrt(n))] with max length = 30
-        """
-        return np.unique(map(int, np.logspace(np.log10(2), np.log10(np.sqrt(n)) ,30)))
+        return np.unique(map(int, np.logspace(np.log10(2),
+                                              np.log10(np.sqrt(n)), 30)))
 
     def _min_max_dist_heuristic(self, X, affinity):
-        """
-        preference grid for Affinity Propagation: linear scale in [min(similarity matrix),...,median(similarity matrix)]
+        """Heuristic for AffinityPropagation.
+
+        Preference grid for Affinity Propagation: linear scale in
+        [min(similarity matrix),...,median(similarity matrix)]
         """
         S = -pairwise_distances(X, metric=affinity, squared=True)
         return np.unique(map(int, np.linspace(np.min(S), np.median(S), 30)))
 
     def fit(self, X, y=None):
-        """
-        This new definition of the fit method sets the grid follwing a different heuristic according to the clustering algorithm
+        """Re-definition of the fit method.
+
+        This new definition of the fit method sets the grid following a
+        different heuristic according to the clustering algorithm
         """
         # Pick the heuristic
         if type(self.estimator).__name__ == 'KMeans':
@@ -202,16 +211,17 @@ class GridSearchCV(GridSearchCV):
             self.param_grid = {'n_clusters': self._sqrtn_heuristic(X.shape[0])}
         elif type(self.estimator).__name__ == 'AffinityPropagation':
             # pick heuristic 2
-            self.param_grid = {'preference': self._min_max_dist_heuristic(X, self.affinity)}
+            self.param_grid = {'preference':
+                               self._min_max_dist_heuristic(X, self.affinity)}
 
         # Then perform standard fit
         if y:
-            super(GridSearchCV, self).fit(X,y)
+            super(GridSearchCV, self).fit(X, y)
         else:
             super(GridSearchCV, self).fit(X)
 
         # Propagate the cluster_centers_ attribute (needed for voronoi plot)
-        if hasattr(self.best_estimator_, 'cluster_centers_'): # added for consistency only
+        if hasattr(self.best_estimator_, 'cluster_centers_'):  # added for consistency only
             self.cluster_centers_ = self.best_estimator_.cluster_centers_
 
         # Propagate the inertia_ attribute
@@ -235,15 +245,18 @@ class GridSearchCV(GridSearchCV):
         return params_
 
 
-
 def silhouette_score(estimator, X, y=None):
-    """
-    scorer wrapper for metrics.silhouette_score
-    """
+    """Scorer wrapper for metrics.silhouette_score."""
+    if estimator.affinity == 'precomputed':
+        return np.nan
+
     _y = estimator.predict(X)
     n_labels = len(np.unique(_y))
     if 1 < n_labels < X.shape[0]:
         return sil(X, _y)
     else:
-        logging.info("adenine.utils.extension.silhouette_score() returned NaN because the number of labels is {}. Valid values are 2 to n_samples - 1 (inclusive) = {}".format(n_labels, X.shape[0]-1))
+        logging.warn("adenine.utils.extension.silhouette_score() returned NaN "
+                     "because the number of labels is {}. Valid values are 2 "
+                     "to n_samples - 1 (inclusive) = {}"
+                     .format(n_labels, X.shape[0]-1))
         return np.nan
