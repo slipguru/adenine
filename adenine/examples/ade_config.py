@@ -61,7 +61,7 @@ step3 = {'KMeans': [True, {'n_clusters': [2]}], # cannot be 'precomputed'
          'AP': [False, {'preference': ['auto']}], # can be 'precomputed'
          'MS': [False], # cannot be 'precomputed'
          'Spectral': [False, {'n_clusters': [2]}], # can be 'precomputed'
-         'Hierarchical': [False, {'n_clusters': [3],
+         'Hierarchical': [True, {'n_clusters': [3],
                                   #'affinity': ['manhattan','euclidean'],
                                   'affinity': ['euclidean'],
                                   #'linkage':  ['ward','complete','average']}]

@@ -22,7 +22,7 @@ except ImportError:
     from sklearn.cross_validation import StratifiedShuffleSplit
 
 from adenine.utils.extra import \
-    (next_color, reset_palette, title_from_filename, items_iterator)
+    (next_color, reset_palette, title_from_filename, items_iterator, palette)
 
 __all__ = ["make_silhouette", "make_scatter", "make_voronoi", "make_tree",
            "make_dendrogram", "plot_PCmagnitude", "plot_eigs"]
