@@ -28,7 +28,8 @@ def main(dumpfile):
     config_path = os.path.join(os.path.abspath(config_path), 'ade_config.py')
     config = imp.load_source('ade_config', config_path)
     extra.set_module_defaults(config, {'file_format': 'pdf',
-                                       'plotting_context': 'paper'})
+                                       'plotting_context': 'paper',
+                                       '__ade__debug__': False})
 
     # Read the variables from the config file
     feat_names, class_names = config.feat_names, config.class_names
@@ -37,20 +38,22 @@ def main(dumpfile):
         with gzip.open(os.path.join(os.path.dirname(dumpfile),
                                     '__data.pkl.tz'), 'r') as f:
             data = pkl.load(f)
-            X, y = data['X'], data['y']
+            # X, y = data['X'], data['y']
+            y = data['y']
     except:
         sys.stderr("Cannot load __data.pkl.tz. "
                    "Reloading data from config file ...")
-        X, y = config.X, config.y
+        # X, y = config.X, config.y
+        y = config.y
 
     # Initialize the log file
-    filename = 'results_'+os.path.basename(dumpfile)[0:-7]
-    logfile = os.path.join(os.path.dirname(dumpfile), filename+'.log')
+    filename = 'results_' + os.path.basename(dumpfile)[0:-7]
+    logfile = os.path.join(os.path.dirname(dumpfile), filename + '.log')
     logging.basicConfig(filename=logfile, level=logging.INFO, filemode='w',
                         format='%(levelname)s (%(name)s): %(message)s')
     root_logger = logging.getLogger()
     ch = logging.StreamHandler()
-    ch.setLevel(logging.ERROR)
+    ch.setLevel(20) if config.__ade__debug__ else ch.setLevel(logging.ERROR)
     ch.setFormatter(logging.Formatter('%(levelname)s (%(name)s): %(message)s'))
     root_logger.addHandler(ch)
 
@@ -60,7 +63,7 @@ def main(dumpfile):
     with gzip.open(dumpfile, 'r') as f:
         res = pkl.load(f)
 
-    print("done: {} s".format(extra.sec_to_time(time.time()-tic)))
+    print("done: {} s".format(extra.sec_to_time(time.time() - tic)))
 
     # Analyze the pipelines
     analyze_results.analyze(input_dict=res, root=os.path.dirname(dumpfile),
@@ -75,11 +78,13 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Adenine script for '
                                                  'analysing pipelines.')
     parser.add_argument('--version', action='version',
-                        version='%(prog)s v'+__version__)
+                        version='%(prog)s v' + __version__)
     parser.add_argument("result_folder", help="specify results directory")
     args = parser.parse_args()
     root_folder = args.result_folder
-    filename = [f for f in os.listdir(root_folder) if os.path.isfile(os.path.join(root_folder, f)) and f.endswith('.pkl.tz') and f != "__data.pkl.tz"]
+    filename = [f for f in os.listdir(root_folder)
+                if os.path.isfile(os.path.join(root_folder, f)) and
+                f.endswith('.pkl.tz') and f != "__data.pkl.tz"]
     if not filename:
         sys.stderr.write("No .pkl file found in {}. Aborting...\n"
                          .format(root_folder))

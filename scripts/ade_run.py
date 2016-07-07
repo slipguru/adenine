@@ -28,7 +28,8 @@ def main(config_file):
                                        'step2': {'None': [True]},
                                        'step3': {'None': [False]},
                                        'exp_tag': 'debug',
-                                       'output_root_folder': 'results'})
+                                       'output_root_folder': 'results',
+                                       '__ade__debug__': False})
 
     # Read the variables from the config file
     X, y = config.X, config.y
@@ -45,7 +46,7 @@ def main(config_file):
                         format='%(levelname)s (%(name)s): %(message)s')
     root_logger = logging.getLogger()
     ch = logging.StreamHandler()
-    ch.setLevel(logging.ERROR)
+    ch.setLevel(20) if config.__ade__debug__ else ch.setLevel(logging.ERROR)
     ch.setFormatter(logging.Formatter('%(levelname)s (%(name)s): %(message)s'))
     root_logger.addHandler(ch)
 
@@ -68,7 +69,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Adenine script for '
                                                  'pipeline generation.')
     parser.add_argument('--version', action='version',
-                        version='%(prog)s v'+__version__)
+                        version='%(prog)s v' + __version__)
     parser.add_argument("-c", "--create", dest="create", action="store_true",
                         help="create config file", default=False)
     parser.add_argument("configuration_file", help="specify config file",
