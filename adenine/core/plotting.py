@@ -21,21 +21,23 @@ try:
 except ImportError:
     from sklearn.cross_validation import StratifiedShuffleSplit
 
-from adenine.utils.extra import (title_from_filename, items_iterator, Palette)
+from adenine.utils.extra import (title_from_filename, items_iterator, Palette,
+                                 timed)
 
-__all__ = ["make_silhouette", "make_scatter", "make_voronoi", "make_tree",
-           "make_dendrogram", "plot_PCmagnitude", "plot_eigs"]
+__all__ = ["silhouette", "scatter", "voronoi", "tree",
+           "dendrogram", "pcmagnitude", "eigs"]
 
 GLOBAL_FF = 'png'
 
 global_palette = Palette()
+
 
 def set_file_ext(ext):
     global GLOBAL_FF
     GLOBAL_FF = ext
 
 
-def make_silhouette(root, data_in, labels, model=()):
+def silhouette(root, data_in, labels, model=()):
     """Generate and save the silhouette plot of data_in w.r.t labels.
 
     This function generates the silhouette plot representing how data are
@@ -118,8 +120,8 @@ def make_silhouette(root, data_in, labels, model=()):
     plt.close()
 
 
-def make_scatter(root, data_in, labels=None, true_labels=False, model=()):
-    """Generates and saves the scatter plot of the dimensionality reduced data set.
+def scatter(root, data_in, labels=None, true_labels=False, model=()):
+    """Generate the scatter plot of the dimensionality reduced data set.
 
     This function generates the scatter plot representing the dimensionality
     reduced data set. The plots will be saved into the root folder in a
@@ -145,6 +147,10 @@ def make_scatter(root, data_in, labels=None, true_labels=False, model=()):
         be a clustering model provided with the clusters_centers_ attribute
         (e.g. KMeans).
     """
+    if hasattr(model, 'affinity') and model.affinity == 'precomputed':
+        logging.info("Scatter cannot be performed with precomputed distances.")
+        return
+
     n_samples, n_dim = data_in.shape
 
     # Define plot color
@@ -162,7 +168,6 @@ def make_scatter(root, data_in, labels=None, true_labels=False, model=()):
     X = data_in[:, :2]
     idx = np.argsort(y)
 
-    # df = pd.DataFrame(data=np.hstack((X[idx,:2],y[idx,np.newaxis])), columns=["$x_1$","$x_2$",_hue])
     df = pd.DataFrame(data=np.hstack((X[idx, :2], y[idx][:, np.newaxis])),
                       columns=["$x_1$", "$x_2$", _hue])
     if df.dtypes[_hue] != 'O': df[_hue] = df[_hue].astype('int64')
@@ -204,7 +209,6 @@ def make_scatter(root, data_in, labels=None, true_labels=False, model=()):
             ax.set_title(title)
             ax.legend(loc='upper left', numpoints=1, ncol=10, fontsize=8,
                       bbox_to_anchor=(0, 0))
-            # plt.legend(loc='upper left', numpoints=1, ncol=3, fontsize=8, bbox_to_anchor=(0, 0111))
             plt.savefig(filename)
             logging.info('Figured saved {}'.format(filename))
             plt.close()
@@ -232,9 +236,8 @@ def make_scatter(root, data_in, labels=None, true_labels=False, model=()):
     plt.close()
 
 
-def make_voronoi(root, data_in, labels=None, true_labels=False, model=()):
-    """Generate and save the Voronoi tessellation obtained from the clustering
-    algorithm.
+def voronoi(root, data_in, labels=None, true_labels=False, model=()):
+    """Generate the Voronoi tessellation obtained from the clustering algorithm.
 
     This function generates the Voronoi tessellation obtained from the
     clustering algorithm applied on the data projected on a two-dimensional
@@ -319,9 +322,8 @@ def make_voronoi(root, data_in, labels=None, true_labels=False, model=()):
     plt.close()
 
 
-def make_tree(root, data_in, labels=None, model=()):
-    """Generate and save the tree structure obtained from the clustering
-    algorithm.
+def tree(root, data_in, labels=None, model=()):
+    """Generate the tree structure obtained from the clustering algorithm.
 
     This function generates the tree obtained from the clustering algorithm
     applied on the data. The plots will be saved into the appropriate folder of
@@ -344,7 +346,7 @@ def make_tree(root, data_in, labels=None, model=()):
         be a clustering model provided with the clusters_centers_ attribute
         (e.g. KMeans).
     """
-    filename = os.path.join(root, os.path.basename(root)+'_tree.pdf')
+    filename = os.path.join(root, os.path.basename(root) + '_tree.pdf')
     try:
         import itertools
         import pydot
@@ -354,12 +356,14 @@ def make_tree(root, data_in, labels=None, model=()):
             labels = np.array([0])
 
         palette = Palette(n_colors=len(np.unique(labels)))
-        colors = {v: k for k, v in items_iterator(dict(enumerate(np.unique(labels))))}
+        colors = {v: k for k, v in
+                  items_iterator(dict(enumerate(np.unique(labels))))}
         ii = itertools.count(data_in.shape[0])
         for k, x in enumerate(model.children_):
             root_node = next(ii)
-            fillcolor = (lambda _: palette.palette.as_hex()[colors[labels[x[_]]]]
-                                   if x[_] < labels.shape[0] else 'white')
+            fillcolor = (lambda _:
+                         palette.palette.as_hex()[colors[labels[x[_]]]]
+                         if x[_] < labels.shape[0] else 'white')
             left_node = pydot.Node(str(x[0]), style="filled",
                                    fillcolor=fillcolor(0))
             right_node = pydot.Node(str(x[1]), style="filled",
@@ -376,8 +380,8 @@ def make_tree(root, data_in, labels=None, model=()):
     except Exception as e:
         logging.critical('Cannot create {}. tb: {}'.format(filename, e))
 
-
-def make_dendrogram(root, data_in, labels, model=(), n_max=150):
+@timed
+def dendrogram(root, data_in, labels, model=(), n_max=150):
     """Generate and save the dendrogram obtained from the clustering algorithm.
 
     This function generates the dendrogram obtained from the clustering
@@ -427,7 +431,7 @@ def make_dendrogram(root, data_in, labels, model=(), n_max=150):
 
     # tmp = np.hstack((np.arange(0,data_in.shape[0],1)[:,np.newaxis],
     # data_in[:, 0][:,np.newaxis], data_in[:,1][:,np.newaxis]))
-    col = ["$x_{"+str(i)+"}$" for i in np.arange(0, data_in.shape[1], 1)]
+    col = ["$x_{" + str(i) + "}$" for i in np.arange(0, data_in.shape[1], 1)]
     df = pd.DataFrame(data=data_in, columns=col)
 
     # -- Code for row colors adapted from:
@@ -448,12 +452,16 @@ def make_dendrogram(root, data_in, labels, model=(), n_max=150):
 
     if model.affinity == 'precomputed':
         from scipy.cluster.hierarchy import linkage
-        # print("Compute linkage matrix with metric={} ...".format(method))
         Z = linkage(data_in, method=model.linkage, metric='euclidean')
+        import time
+        tic = time.time()
         g = sns.clustermap(df, method=model.linkage,
-                           row_linkage=Z, col_linkage=Z)
+                           row_linkage=Z, col_linkage=Z,
+                           linewidths=.5, cmap=cmap)
+        print("Clustermap done in {:.2f}s".format(time.time() - tic))
+
     else:
-        # workaround to a different name used for manhattan / cityblock distance
+        # workaround to a different name used for manhattan/cityblock distance
         if model.affinity == 'manhattan':
             model.affinity = 'cityblock'
 
@@ -461,15 +469,18 @@ def make_dendrogram(root, data_in, labels, model=(), n_max=150):
                            row_colors=custom_colors, linewidths=.5, cmap=cmap)
 
     plt.setp(g.ax_heatmap.yaxis.get_majorticklabels(), rotation=0, fontsize=5)
-    filename = os.path.join(root, os.path.basename(root)+'_dendrogram.'+GLOBAL_FF)
+    filename = os.path.join(root, os.path.basename(root) +
+                            '_dendrogram.' + GLOBAL_FF)
+    tic = time.time()
     g.savefig(filename)
+    print("savefig in {:.2f}s".format(time.time() - tic))
     logging.info('Figured saved {}'.format(filename))
     plt.close()
 
 
-def plot_PCmagnitude(root, points, title='', ylabel=''):
-    """Generate and save the plot representing the trend of principal
-    components magnitude.
+def pcmagnitude(root, points, title='', ylabel=''):
+    """Generate the plot representing the trend of principal components
+    magnitude.
 
     Parameters
     -----------
@@ -487,21 +498,20 @@ def plot_PCmagnitude(root, points, title='', ylabel=''):
     ylabel : string
         Y-axis label.
     """
-    plt.plot(np.arange(1, len(points)+1), points, '-o')
+    plt.plot(np.arange(1, len(points) + 1), points, '-o')
     plt.title(title)
     plt.grid('on')
     plt.ylabel(ylabel)
-    plt.xlim([1, min(20, len(points)+1)])  # Show maximum 20 components
+    plt.xlim([1, min(20, len(points) + 1)])  # Show maximum 20 components
     plt.ylim([0, 1])
-    filename = os.path.join(root, os.path.basename(root)+"_magnitude."+GLOBAL_FF)
+    filename = os.path.join(root, os.path.basename(root) +
+                            "_magnitude." + GLOBAL_FF)
     plt.savefig(filename)
     plt.close()
 
 
-def plot_eigs(root, affinity, n_clusters=0, title='', ylabel='',
-              normalised=True):
-    """Generate and save the plot representing the eigenvalues of the Laplacian
-    associated to data affinity matrix.
+def eigs(root, affinity, n_clusters=0, title='', ylabel='', normalised=True):
+    """Plot eigenvalues of the Laplacian associated to data affinity matrix.
 
     Parameters
     -----------
@@ -525,30 +535,32 @@ def plot_eigs(root, affinity, n_clusters=0, title='', ylabel='',
     """
     W = affinity - np.diag(np.diag(affinity))
     D = np.diag([np.sum(x) for x in W])
-    L = D - W
+    laplacian = D - W
 
     if normalised:
+        # Compute the normalised Laplacian
         # aux = np.linalg.inv(np.diag([np.sqrt(np.sum(x)) for x in W]))
         aux = np.diag(1. / np.array([np.sqrt(np.sum(x)) for x in W]))
-        L = np.eye(L.shape[0]) - (np.dot(np.dot(aux, W), aux))  # normalised L
+        laplacian = np.eye(laplacian.shape[0]) - (np.dot(np.dot(aux, W), aux))
 
     try:
-        w, v = np.linalg.eig(L)
+        w = np.linalg.eigvals(laplacian)
         w = np.array(sorted(np.abs(w)))
-        plt.plot(np.arange(1, len(w)+1), w, '-o')
+        plt.plot(np.arange(1, len(w) + 1), w, '-o')
         plt.title(title)
         plt.grid('on')
         plt.ylabel(ylabel)
-        plt.xlim([1, min(20, len(w)+1)])  # Show maximum 20 components
+        plt.xlim([1, min(20, len(w) + 1)])  # Show maximum 20 components
         if n_clusters > 0:
-            plt.axvline(x=n_clusters+.5, linestyle='--', color='r',
+            plt.axvline(x=n_clusters + .5, linestyle='--', color='r',
                         label='selected clusters')
         plt.legend(loc='upper right', numpoints=1, ncol=10, fontsize=8)
         # , bbox_to_anchor=(1, 1))
-        filename = os.path.join(root, os.path.basename(root)+"_eigenvals."+GLOBAL_FF)
+        filename = os.path.join(root, os.path.basename(root) +
+                                "_eigenvals." + GLOBAL_FF)
         plt.savefig(filename)
     except np.linalg.LinAlgError:
-        logging.critical("Error in plot_eigs: Affinity matrix contained"
-                         "negative values. You can try by specifying"
+        logging.critical("Error in plot_eigs: Affinity matrix contained "
+                         "negative values. You can try by specifying "
                          "normalised=False")
     plt.close()
