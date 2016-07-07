@@ -157,7 +157,8 @@ def parse_clustering(key, content):
         A tuple made like that ('clust_name', clust_obj), where clust_obj
         implements the .fit method.
     """
-    if 'auto' in [content.get('n_clusters', ''), content.get('preference', '')]:
+    if 'auto' in (content.get('n_clusters', ''),
+                  content.get('preference', '')):
         # Wrapper class that automatically detects the best number of clusters
         # via 10-Fold CV
         content.pop('n_clusters', '')
@@ -174,8 +175,9 @@ def parse_clustering(key, content):
             kwargs['estimator'] = AffinityPropagation(**content)
             kwargs['affinity'] = kwargs['estimator'].affinity
         else:
-            logging.warning("n_clusters = 'auto' specified outside kmeans or ap."
-                            " Creating GridSearchCV pipeline anyway ...")
+            logging.error("n_clusters = 'auto' specified outside kmeans or "
+                          "ap. Trying to create GridSearchCV pipeline anyway "
+                          " ...")
         cl = GridSearchCV(**kwargs)
 
     else:

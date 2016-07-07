@@ -39,7 +39,7 @@ def ensure_list(x):
 
 
 def values_iterator(dictionary):
-    '''Add support for python2 or 3 dictionary iterators. '''
+    """Add support for python2 or 3 dictionary iterators."""
     try:
         v = dictionary.itervalues()  # python 2
     except:
@@ -48,7 +48,7 @@ def values_iterator(dictionary):
 
 
 def items_iterator(dictionary):
-    '''Add support for python2 or 3 dictionary iterators. '''
+    """Add support for python2 or 3 dictionary iterators."""
     try:
         gen = dictionary.iteritems()  # python 2
     except:
@@ -59,8 +59,8 @@ def items_iterator(dictionary):
 def modified_cartesian(*args, **kwargs):
     """Modified Cartesian product.
 
-    This function takes two (ore more) lists and returns their Cartesian product,
-    if one of the two list is empty this function returns the non-empty one.
+    This takes two (or more) lists and returns their Cartesian product.
+    If one of two list is empty this function returns the non-empty one.
 
     Parameters
     -----------
@@ -155,14 +155,17 @@ def timed(function):
     def timed_function(*args, **kwargs):
         t0 = time.time()
         result = function(*args, **kwargs)
-        print("\nAdenine {} - Elapsed time : {} s\n".format(function.__name__, sec_to_time(time.time() - t0)))
+        print("\nAdenine {} - Elapsed time : {} s\n"
+              .format(function.__name__, sec_to_time(time.time() - t0)))
         return result
     return timed_function
 
 
 def set_module_defaults(module, dictionary):
     """Set default variables of a module, given a dictionary.
-    Used after the loading of the configuration file to set some defaults."""
+
+    Used after the loading of the configuration file to set some defaults.
+    """
     for k, v in items_iterator(dictionary):
         try:
             getattr(module, k)
