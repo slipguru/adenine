@@ -247,7 +247,7 @@ class GridSearchCV(GridSearchCV):
 
 def silhouette_score(estimator, X, y=None):
     """Scorer wrapper for metrics.silhouette_score."""
-    if estimator.affinity == 'precomputed':
+    if hasattr(estimator, 'affinity') and estimator.affinity == 'precomputed':
         return np.nan
 
     _y = estimator.predict(X)
