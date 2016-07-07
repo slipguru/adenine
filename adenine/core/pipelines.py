@@ -13,7 +13,7 @@ import logging
 import multiprocessing
 import cPickle as pkl
 import numpy as np
-# from adenine.utils.extra import make_time_flag
+
 from adenine.utils.extra import get_time
 from adenine.utils.extra import timed
 
@@ -38,10 +38,7 @@ def create(pdef):
         with some data.
     """
     from sklearn.pipeline import Pipeline
-    pipes = []
-    for p in pdef:
-        pipes.append(Pipeline(p))
-    return pipes
+    return [Pipeline(p) for p in pdef]
 
 
 def which_level(label):
@@ -60,15 +57,16 @@ def which_level(label):
     level : {imputing, preproc, dimred, clustering, None}
         The appropriate level of the input step.
     """
-    if label in ('Impute_median', 'Impute_mean', 'Impute'):
+    label = label.lower()
+    if label.startswith('impute'):
         level = 'imputing'
-    elif label in ('Recenter', 'Standardize', 'Normalize', 'MinMax'):
+    elif label in ('recenter', 'standardize', 'normalize', 'minmax'):
         level = 'preproc'
-    elif label in ('PCA', 'IncrementalPCA', 'RandomizedPCA', 'KernelPCA',
-                   'Isomap', 'LLE', 'SE', 'MDS', 'tSNE'):
+    elif label in ('pca', 'incrementalpca', 'randomizedpca', 'kernelpca',
+                   'isomap', 'lle', 'se', 'mds', 'tsne'):
         level = 'dimred'
-    elif label in ('KMeans', 'KernelKMeans', 'AP', 'MS', 'Spectral',
-                   'Hierarchical'):
+    elif label in ('kmeans', 'kernelkmeans', 'ap', 'ms', 'spectral',
+                   'hierarchical'):
         level = 'clustering'
     else:
         level = 'None'
@@ -100,7 +98,7 @@ def evaluate(level, step, X):
         A matrix projection in case of dimred, a label vector in case of
         clustering, and so on.
     """
-    if level in ['imputing', 'preproc', 'dimred', 'None']:
+    if level in ('imputing', 'preproc', 'dimred', 'None'):
         if hasattr(step, 'embedding_'):
             res = step.embedding_
         else:
@@ -108,6 +106,10 @@ def evaluate(level, step, X):
     elif level == 'clustering':
         if hasattr(step, 'labels_'):
             res = step.labels_  # e.g. in case of spectral clustering
+        elif hasattr(step, 'affinity') and step.affinity == 'precomputed':
+            if not hasattr(step.estimator, 'labels_'):
+                step.estimator.fit(X)
+            res = step.estimator.labels_
         else:
             res = step.predict(X)
     return res
@@ -138,7 +140,7 @@ def pipe_worker(pipeID, pipe, pipes_dump, X):
     for j, step in enumerate(pipe):
         # step[0] -> step_label | step[1] -> model, sklearn (or sklearn-like)
         # object
-        stepID = 'step'+str(j)
+        stepID = 'step' + str(j)
         # 1. define which level of step is this (i.e.: imputing, preproc,
         # dimred, clustering, none)
         level = which_level(step[0])
@@ -161,7 +163,10 @@ def pipe_worker(pipeID, pipe, pipes_dump, X):
                     mdl_voronoi = copy.copy(step[1].best_estimator_)
                 else:
                     mdl_voronoi = copy.copy(step[1])
-                mdl_voronoi.fit(X_curr[:, :2])
+                if not hasattr(step[1], 'affinity') or step[1].affinity != 'precomputed':
+                    mdl_voronoi.fit(X_curr[:, :2])
+                else:
+                    mdl_voronoi.fit(X_curr)
 
             # 4. save the results in a dictionary of dictionaries of the form:
             # {'pipeID': {'stepID' : [alg_name, level, params, res, Xnext, Xcurr, stepObj, voronoi_suitable_model]}}
@@ -236,7 +241,7 @@ def run(pipes=(), X=(), exp_tag='def_tag', root='', y=None):
 
     # Submit jobs
     for i, pipe in enumerate(pipes):
-        pipeID = 'pipe'+str(i)
+        pipeID = 'pipe' + str(i)
         p = multiprocessing.Process(target=pipe_worker,
                                     args=(pipeID, pipe, pipes_dump, X))
         jobs.append(p)
@@ -263,10 +268,10 @@ def run(pipes=(), X=(), exp_tag='def_tag', root='', y=None):
     # pkl Dump
     import gzip
     with gzip.open(os.path.join(output_folder,
-                                output_filename+'.pkl.tz'), 'w+') as f:
+                                output_filename + '.pkl.tz'), 'w+') as f:
         pkl.dump(pipes_dump, f)
     logging.info("Dumped : {}".format(os.path.join(output_folder,
-                                                   output_filename+'.pkl.tz')))
+                                                   output_filename + '.pkl.tz')))
     with gzip.open(os.path.join(output_folder, '__data.pkl.tz'), 'w+') as f:
         pkl.dump({'X': X, 'y': y}, f)
     logging.info("Dumped : {}".format(os.path.join(output_folder,
