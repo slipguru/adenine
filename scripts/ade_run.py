@@ -40,12 +40,12 @@ def main(config_file):
 
     # Define the ade.log file (a new one for each run)
     filename = '_'.join(('ade', exp_tag, extra.get_time()))
-    logfile = os.path.join(root, filename+'.log')
+    logfile = os.path.join(root, filename + '.log')
     logging.basicConfig(filename=logfile, level=logging.INFO, filemode='w',
                         format='%(levelname)s (%(name)s): %(message)s')
     root_logger = logging.getLogger()
     ch = logging.StreamHandler()
-    ch.setLevel(logging.CRITICAL)
+    ch.setLevel(logging.ERROR)
     ch.setFormatter(logging.Formatter('%(levelname)s (%(name)s): %(message)s'))
     root_logger.addHandler(ch)
 
