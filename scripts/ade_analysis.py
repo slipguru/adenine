@@ -31,17 +31,17 @@ def main(dumpfile):
                                        'plotting_context': 'paper'})
 
     # Read the variables from the config file
-    feat_names, class_names = config.feat_names, config.class_names
+    feat_names, index = config.feat_names, config.index
     # Load the results used with ade_run.py
     try:
         with gzip.open(os.path.join(os.path.dirname(dumpfile),
                                     '__data.pkl.tz'), 'r') as f:
             data = pkl.load(f)
-            X, y = data['X'], data['y']
+            y = data['y']
     except:
         sys.stderr("Cannot load __data.pkl.tz. "
                    "Reloading data from config file ...")
-        X, y = config.X, config.y
+        y = config.y
 
     # Initialize the log file
     filename = 'results_'+os.path.basename(dumpfile)[0:-7]
@@ -64,8 +64,7 @@ def main(dumpfile):
 
     # Analyze the pipelines
     analyze_results.analyze(input_dict=res, root=os.path.dirname(dumpfile),
-                            y=y, feat_names=feat_names,
-                            class_names=class_names,
+                            y=y, feat_names=feat_names, index=index,
                             plotting_context=config.plotting_context,
                             file_format=config.file_format)
 

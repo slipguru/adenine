@@ -327,7 +327,7 @@ def voronoi(root, data_in, labels=None, true_labels=False, model=()):
     plt.close()
 
 
-def tree(root, data_in, labels=None, model=()):
+def tree(root, data_in, labels=None, index=None, model=None):
     """Generate the tree structure obtained from the clustering algorithm.
 
     This function generates the tree obtained from the clustering algorithm
@@ -346,6 +346,11 @@ def tree(root, data_in, labels=None, model=()):
     labels : array of int, shape : n_samples
         The result of the clustering step.
 
+    index : list of integers (or strings)
+        This is the samples identifier, if provided as first column (or row) of
+        of the input file. Otherwise it is just an incremental range of size
+        n_samples.
+
     model : sklearn or sklearn-like object
         An instance of the class that evaluates a step. In particular this must
         be a clustering model provided with the clusters_centers_ attribute
@@ -360,7 +365,7 @@ def tree(root, data_in, labels=None, model=()):
         if labels is None:
             labels = np.array([0])
             palette = Palette(n_colors=len(np.unique(labels)))
-            palette.palette[0] = (1.0,1.0,1.0)
+            palette.palette[0] = (1.0, 1.0, 1.0)
         else:
             palette = Palette(n_colors=len(np.unique(labels)))
 
@@ -388,8 +393,9 @@ def tree(root, data_in, labels=None, model=()):
     except Exception as e:
         logging.critical('Cannot create {}. tb: {}'.format(filename, e))
 
+
 @timed
-def dendrogram(root, data_in, labels, model=(), n_max=150):
+def dendrogram(root, data_in, labels=None, index=None, model=None, n_max=150):
     """Generate and save the dendrogram obtained from the clustering algorithm.
 
     This function generates the dendrogram obtained from the clustering
@@ -408,6 +414,11 @@ def dendrogram(root, data_in, labels, model=(), n_max=150):
 
     labels : array of int, shape : n_samples
         The result of the clustering step.
+
+    index : list of integers (or strings)
+        This is the samples identifier, if provided as first column (or row) of
+        of the input file. Otherwise it is just an incremental range of size
+        n_samples.
 
     model : sklearn or sklearn-like object
         An instance of the class that evaluates a step. In particular this must
