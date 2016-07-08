@@ -377,9 +377,9 @@ def tree(root, data_in, labels=None, index=None, model=None):
             fillcolor = (lambda _:
                          palette.palette.as_hex()[colors[labels[x[_]]]]
                          if x[_] < labels.shape[0] else 'white')
-            left_node = pydot.Node(str(x[0]), style="filled",
+            left_node = pydot.Node(str(index[x[0]] if x[0] < len(index) else x[0]), style="filled",
                                    fillcolor=fillcolor(0))
-            right_node = pydot.Node(str(x[1]), style="filled",
+            right_node = pydot.Node(str(index[x[1]] if x[1] < len(index) else x[1]), style="filled",
                                     fillcolor=fillcolor(1))
 
             graph.add_node(left_node)
@@ -436,7 +436,7 @@ def dendrogram(root, data_in, labels=None, index=None, model=None, n_max=150):
     """
     # define col names
     col = ["$x_{" + str(i) + "}$" for i in np.arange(0, data_in.shape[1], 1)]
-    df = pd.DataFrame(data=data_in, columns=col)
+    df = pd.DataFrame(data=data_in, columns=col, index=index)
 
     # -- Code for row colors adapted from:
     # https://stanford.edu/~mwaskom/software/seaborn/examples/structured_heatmap.html
