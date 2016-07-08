@@ -1,7 +1,7 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""This module is just a wrapper for some sklearn.datasets functions"""
+"""This module is just a wrapper for some sklearn.datasets functions."""
 
 ######################################################################
 # Copyright (C) 2016 Samuele Fiorini, Federico Tomasi, Annalisa Barla
@@ -11,6 +11,7 @@
 
 import numpy as np
 import pandas as pd
+import logging
 from sklearn import datasets
 from sklearn.preprocessing import Binarizer
 
@@ -21,7 +22,7 @@ except ImportError:
     from sklearn.cross_validation import StratifiedShuffleSplit
 
 
-def generate_gauss(mu=(), std=(), n_sample=()):
+def generate_gauss(mu=None, std=None, n_sample=None):
     """Create a Gaussian dataset.
 
     Generates a dataset with n_sample * n_class examples and n_dim dimensions.
@@ -52,7 +53,7 @@ def generate_gauss(mu=(), std=(), n_sample=()):
     return X, y
 
 
-def load_custom(x_filename, y_filename):
+def load_custom(x_filename, y_filename, samples_on='rows', data_sep=','):
     """Load a custom dataset.
 
     This function loads the data matrix and the label vector returning a
@@ -66,6 +67,14 @@ def load_custom(x_filename, y_filename):
     y_filename : string
         The label vector file name.
 
+    samples_on : string
+        This can be either in ['row', 'rows'] if the samples lie on the row of
+        the input data matrix, or viceversa in ['col', 'cols'] the other way
+        around.
+
+    data_sep : string
+        The data separator. For instance comma, tab, blank space, etc.
+
     Returns
     -----------
     data : sklearn.datasets.base.Bunch
@@ -74,32 +83,44 @@ def load_custom(x_filename, y_filename):
     """
     if x_filename is None:
         raise IOError("Filename for X must be specified with mode 'custom'.")
+
     if x_filename.endswith('.npy'):  # it an .npy file is provided
         try:  # labels are not mandatory
             y = np.load(y_filename)
         except IOError as e:
-            y = np.nan
+            y = None
             e.strerror = "No labels file provided"
-            print("I/O error({0}): {1}".format(e.errno, e.strerror))
-
-        return datasets.base.Bunch(data=np.load(x_filename), target=y)
-        # return dataSetObj(np.load(x_filename),y)
+            logging.error("I/O error({0}): {1}".format(e.errno, e.strerror))
+        X = np.load(x_filename)
+        if samples_on not in ['row', 'rows']:
+            # data matrix must be n_samples x n_features
+            X = X.T
+        return datasets.base.Bunch(data=X, target=y,
+                                   index=np.arange(X.shape[0]))
 
     elif x_filename.endswith('.csv') or x_filename.endswith('.txt'):
-        try:
-            dfx = pd.io.parsers.read_csv(x_filename, header=0, index_col=0)
-        except IOError as e:
-            e.strerror = "Can't open {}".format(x_filename)
-            print("I/O error({0}): {1}".format(e.errno, e.strerror))
         y = None
-        if y_filename is not None:
-            y = pd.io.parsers.read_csv(y_filename,
-                                       header=0,
-                                       index_col=0).as_matrix().ravel()
-        return datasets.base.Bunch(data=dfx.as_matrix(), target=y)
+        try:
+            dfx = pd.io.parsers.read_csv(x_filename, header=0, index_col=0,
+                                         sep=data_sep)
+            if samples_on not in ['row', 'rows']:
+                # data matrix must be n_samples x n_features
+                dfx = dfx.transpose()
+            if y_filename is not None:
+                y = pd.io.parsers.read_csv(y_filename,
+                                           header=0,
+                                           index_col=0,
+                                           sep=data_sep).as_matrix().ravel()
+        except IOError as e:
+            e.strerror = "Can't open {} or {}".format(x_filename, y_filename)
+            logging.error("I/O error({0}): {1}".format(e.errno, e.strerror))
+
+        return datasets.base.Bunch(data=dfx.as_matrix(),
+                                   target=y, index=dfx.index.tolist())
 
 
-def load(opt='custom', x_filename=None, y_filename=None, n_samples=0):
+def load(opt='custom', x_filename=None, y_filename=None, n_samples=0,
+         samples_on='rows', data_sep=','):
     """Load a specified dataset.
 
     This function can be used either to load one of the standard scikit-learn
@@ -118,6 +139,20 @@ def load(opt='custom', x_filename=None, y_filename=None, n_samples=0):
     y_filename : string, default : None
         The label vector file name.
 
+    n_samples : int
+        The number of samples to be loaded. This comes handy when dealing with
+        large datasets. When n_samples is less than the actual size of the
+        dataset this function performs a random subsampling that is stratified
+        w.r.t. the labels (if provided).
+
+    samples_on : string
+        This can be either in ['row', 'rows'] if the samples lie on the row of
+        the input data matrix, or viceversa in ['col', 'cols'] the other way
+        around.
+
+    data_sep : string
+        The data separator. For instance comma, tab, blank space, etc.
+
     Returns
     -----------
     X : array of float, shape : n_samples x n_features
@@ -128,6 +163,11 @@ def load(opt='custom', x_filename=None, y_filename=None, n_samples=0):
 
     feature_names : array of integers (or strings), shape : n_features
         The feature names; a range of number if missing.
+
+    index : list of integers (or strings)
+        This is the samples identifier, if provided as first column (or row) of
+        of the input file. Otherwise it is just an incremental range of size
+        n_samples.
     """
     data = None
     try:
@@ -146,42 +186,46 @@ def load(opt='custom', x_filename=None, y_filename=None, n_samples=0):
         elif opt.lower() == 'gauss':
             means = np.array([[-1, 1, 1, 1], [0, -1, 0, 0], [1, 1, -1, -1]])
             sigmas = np.array([0.33, 0.33, 0.33])
-            if n_samples <= 1: n_samples = 333
+            if n_samples <= 1:
+                n_samples = 333
             xx, yy = generate_gauss(mu=means, std=sigmas, n_sample=n_samples)
             data = datasets.base.Bunch(data=xx, target=yy)
         elif opt.lower() == 'circles':
-            if n_samples == 0: n_samples = 400
+            if n_samples == 0:
+                n_samples = 400
             xx, yy = datasets.make_circles(n_samples=n_samples, factor=.3,
                                            noise=.05)
             data = datasets.base.Bunch(data=xx, target=yy)
         elif opt.lower() == 'moons':
-            if n_samples == 0: n_samples = 400
+            if n_samples == 0:
+                n_samples = 400
             xx, yy = datasets.make_moons(n_samples=n_samples, noise=.01)
             data = datasets.base.Bunch(data=xx, target=yy)
         elif opt.lower() == 'custom':
-            data = load_custom(x_filename, y_filename)
+            data = load_custom(x_filename, y_filename, samples_on, data_sep)
     except IOError as e:
         print("I/O error({0}): {1}".format(e.errno, e.strerror))
 
     X, y = data.data, data.target
-    if y is not None and n_samples > 0 and X.shape[0] > n_samples:
-        try:  # Legacy for sklearn
-            sss = StratifiedShuffleSplit(y, test_size=n_samples, n_iter=1)
-            # idx = np.random.permutation(X.shape[0])[:n_samples]
-        except TypeError:
-            sss = StratifiedShuffleSplit(n_iter=1, test_size=n_samples) \
-                  .split(X, y)
+    if n_samples > 0 and X.shape[0] > n_samples:
+        if y is not None:
+            try:  # Legacy for sklearn
+                sss = StratifiedShuffleSplit(y, test_size=n_samples, n_iter=1)
+                # idx = np.random.permutation(X.shape[0])[:n_samples]
+            except TypeError:
+                sss = StratifiedShuffleSplit(n_iter=1, test_size=n_samples) \
+                      .split(X, y)
+            _, idx = list(sss)[0]
+        else:
+            idx = np.arange(X.shape[0])
+            np.random.shuffle(idx)
+            idx = idx[:n_samples]
 
-        _, idx = list(sss)[0]
         X, y = X[idx, :], y[idx]
 
-    try:
-        feat_names = data.features_names
-    except:
-        feat_names = range(0, X.shape[1])
-    try:
-        class_names = data.target_names
-    except:
-        class_names = 0
+    feat_names = data.features_names if hasattr(data, 'features_names') \
+        else np.arange(X.shape[1])
+    index = data.index if hasattr(data, 'index') \
+        else np.arange(X.shape[0])
 
-    return X, y, feat_names, class_names
+    return X, y, feat_names, index
