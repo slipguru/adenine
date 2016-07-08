@@ -380,7 +380,7 @@ def analysis_worker(elem, root, y, feat_names, class_names, lock):
                                      model=voronoi_mdl_obj)
             elif hasattr(mdl_obj, 'n_leaves_'):
                 plotting.tree(root=rootname, data_in=step_in,
-                              labels=step_out, model=mdl_obj)
+                              labels=y, model=mdl_obj)
                 plotting.dendrogram(root=rootname, data_in=step_in,
                                     labels=y, model=mdl_obj)
 
