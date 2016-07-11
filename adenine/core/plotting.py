@@ -81,7 +81,15 @@ def silhouette(root, data_in, labels, model=()):
     # This gives a perspective into the density and separation of the formed
     # clusters
     metric = model.affinity if hasattr(model, 'affinity') else 'euclidean'
-    sample_silhouette_values = metrics.silhouette_samples(data_in, labels, metric=metric)
+    # catch exceptions of Spectral Embedding affinity
+    if metric == 'rbf':
+        def metric(x, y):
+            return metrics.pairwise.rbf_kernel(x.reshape(1, -1),
+                                               y.reshape(1, -1))
+    if metric == 'nearest_neighbors':
+        metric = 'euclidean'
+    sample_silhouette_values = metrics.silhouette_samples(data_in, labels,
+                                                          metric=metric)
     sil = np.mean(sample_silhouette_values)
 
     y_lower = 10
