@@ -16,9 +16,9 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.preprocessing import Normalizer
 from sklearn.decomposition import PCA
+# from sklearn.decomposition import KernelPCA
 from sklearn.decomposition import RandomizedPCA
 from sklearn.decomposition import IncrementalPCA
-from sklearn.decomposition import KernelPCA
 from sklearn.manifold import Isomap
 from sklearn.manifold import LocallyLinearEmbedding
 from sklearn.manifold import SpectralEmbedding
@@ -33,6 +33,7 @@ from sklearn.cluster import AgglomerativeClustering
 from adenine.utils.extensions import DummyNone
 from adenine.utils.extensions import Imputer
 from adenine.utils.extensions import GridSearchCV
+from adenine.utils.extensions import KernelPCA
 from adenine.utils.extensions import silhouette_score
 
 

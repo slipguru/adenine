@@ -24,7 +24,6 @@ except ImportError:
 
 from adenine.utils.extra import (title_from_filename, items_iterator, Palette,
                                  timed)
-import time
 
 __all__ = ["silhouette", "scatter", "voronoi", "tree",
            "dendrogram", "pcmagnitude", "eigs"]
@@ -403,7 +402,6 @@ def tree(root, data_in, labels=None, index=None, model=None):
         logging.critical('Cannot create {}. tb: {}'.format(filename, e))
 
 
-@timed
 def dendrogram(root, data_in, labels=None, index=None, model=None, n_max=150):
     """Generate and save the dendrogram obtained from the clustering algorithm.
 
@@ -467,11 +465,9 @@ def dendrogram(root, data_in, labels=None, index=None, model=None, n_max=150):
     if model.affinity == 'precomputed':
         from scipy.cluster.hierarchy import linkage
         Z = linkage(data_in, method=model.linkage, metric='euclidean')
-        tic = time.time()
         g = sns.clustermap(df, method=model.linkage,
                            row_linkage=Z, col_linkage=Z,
                            linewidths=.5, cmap=cmap)
-        print("Clustermap done in {:.2f}s".format(time.time() - tic))
 
     else:
         # workaround to a different name used for manhattan/cityblock distance
@@ -484,9 +480,7 @@ def dendrogram(root, data_in, labels=None, index=None, model=None, n_max=150):
     plt.setp(g.ax_heatmap.yaxis.get_majorticklabels(), rotation=0, fontsize=5)
     filename = os.path.join(root, os.path.basename(root) +
                             '_dendrogram.' + GLOBAL_FF)
-    tic = time.time()
     g.savefig(filename)
-    print("savefig in {:.2f}s".format(time.time() - tic))
     logging.info('Figured saved {}'.format(filename))
     plt.close()
 

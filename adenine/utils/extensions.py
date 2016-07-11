@@ -12,6 +12,7 @@ import warnings
 
 import numpy as np
 
+from sklearn.decomposition import KernelPCA
 from sklearn.preprocessing import Imputer
 from sklearn.neighbors import NearestNeighbors
 from sklearn.metrics.pairwise import pairwise_distances
@@ -173,8 +174,14 @@ class GridSearchCV(GridSearchCV):
     Automatically detects the optimal number of clusters for centroid-based
     algorithms like KMeans and Affinity Propagation.
     """
-    def __init__(self, estimator, param_grid, scoring=None, fit_params=None, n_jobs=1, iid=True, refit=True, cv=None, verbose=0, pre_dispatch='2*n_jobs', error_score='raise', affinity='euclidean'):
-        super(GridSearchCV, self).__init__(estimator, param_grid, scoring, fit_params, n_jobs, iid, refit, cv, verbose, pre_dispatch, error_score)
+    def __init__(self, estimator, param_grid, scoring=None, fit_params=None,
+                 n_jobs=1, iid=True, refit=True, cv=None, verbose=0,
+                 pre_dispatch='2*n_jobs', error_score='raise',
+                 affinity='euclidean'):
+        super(GridSearchCV, self).__init__(estimator, param_grid, scoring,
+                                           fit_params, n_jobs, iid, refit,
+                                           cv, verbose, pre_dispatch,
+                                           error_score)
         self.affinity = affinity # add the attribute affinity
         self.cluster_centers_ = None
         self.inertia_ = None
@@ -260,3 +267,50 @@ def silhouette_score(estimator, X, y=None):
                      "to n_samples - 1 (inclusive) = {}"
                      .format(n_labels, X.shape[0]-1))
         return np.nan
+
+
+class KernelPCA(KernelPCA):
+    """Extension of sklearn's Kernel PCA.
+
+    This KernelPCA class uses a different heuristic (w.r.t. sklearn's one) for
+    the default value of gamma of rbf kernels.
+
+    The default value of gamma is not 1 / n_features (as in sklearn), but it
+    becomes 1 / (2 * sigma^2) where sigma is the output of
+    self._autosigma(data, n_nearest_neighbor).
+    """
+
+    def __init__(self, n_components=None, kernel="linear",
+                 gamma=None, degree=3, coef0=1, kernel_params=None,
+                 alpha=1.0, fit_inverse_transform=False, eigen_solver='auto',
+                 tol=0, max_iter=None, remove_zero_eig=False):
+        super(KernelPCA, self).__init__(n_components, kernel,
+                                        gamma, degree, coef0,
+                                        kernel_params, alpha,
+                                        fit_inverse_transform,
+                                        eigen_solver, tol,
+                                        max_iter, remove_zero_eig)
+
+    def _autosigma(self, data, n_neighbors=5):
+        """Compute the average n_neighbors distance of n p-dimensional points.
+
+        Parameters
+        -----------
+        data : (n, p) data matrix
+            The input data.
+
+        n_neighbors : int
+            The number of considered nearest neighbors (optional, default = 5).
+        """
+        # evaluate pairwise euclidean distances
+        from sklearn.metrics.pairwise import pairwise_distances
+        D = pairwise_distances(data, data)
+        D.sort(axis=0)
+        return np.mean(D[n_neighbors+1, :].ravel())
+
+    def fit(self, X, **kwargs):
+        # Apply the _autosigma heuristic
+        if self.kernel == 'rbf':
+            self.gamma = 1.0 / (2 * self._autosigma(data=X)**2)
+            # print("Gamma is: {}".format(self.gamma))
+        super(KernelPCA, self).fit(X, **kwargs)
