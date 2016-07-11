@@ -1,5 +1,6 @@
 #!/usr/bin/python -W ignore::DeprecationWarning
 # -*- coding: utf-8 -*-
+"""Adenine plotting module."""
 
 ######################################################################
 # Copyright (C) 2016 Samuele Fiorini, Federico Tomasi, Annalisa Barla
@@ -434,6 +435,8 @@ def dendrogram(root, data_in, labels=None, index=None, model=None, n_max=150):
         (or sklearn.cross_validation.StratifiedShuffleSplit for legacy
         reasons).
     """
+    # associate dummy values to the label vector
+    labels = np.arange(len(labels))
     # define col names
     col = ["$x_{" + str(i) + "}$" for i in np.arange(0, data_in.shape[1], 1)]
     df = pd.DataFrame(data=data_in, columns=col, index=index)
@@ -451,8 +454,7 @@ def dendrogram(root, data_in, labels=None, index=None, model=None, n_max=150):
     custom_colors = pd.Series(map(str, labels)).map(custom_lut)
 
     # Create a custom colormap for the heatmap values
-    cmap = sns.diverging_palette(200, 10, sep=1, n=15, center="dark",
-                                 as_cmap=True)
+    cmap = sns.diverging_palette(220, 20, n=7, as_cmap=True)
 
     if model.affinity == 'precomputed':
         from scipy.cluster.hierarchy import linkage
