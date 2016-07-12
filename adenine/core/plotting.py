@@ -12,6 +12,7 @@ import os
 import logging
 # import cPickle as pkl
 import numpy as np
+import scipy as sp
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns; sns.set(font="monospace")
@@ -309,7 +310,9 @@ def voronoi(root, data_in, labels=None, true_labels=False, model=()):
                     s=100, marker='h', c='w')
 
     # Make and add to the Plot the decision boundary.
-    npoints = 1000  # the number of points in that makes the background. Reducing this will decrease the quality of the voronoi background
+    # the number of points in that makes the background.
+    # Reducing this will decrease the quality of the voronoi background
+    npoints = 1000
     x_min, x_max = X[:, 0].min(), X[:, 0].max()
     y_min, y_max = X[:, 1].min(), X[:, 1].max()
     offset = (x_max - x_min) / 5. + (y_max - y_min) / 5.  # zoom out the plot
@@ -540,7 +543,12 @@ def eigs(root, affinity, n_clusters=0, title='', ylabel='', normalised=True):
     normalised : boolean, optional
         Choose whether to normalise the Laplacian matrix.
     """
-    W = affinity - np.diag(np.diag(affinity))
+    # Efficient way to extract the main diagonal from a sparse matrix
+    if isinstance(affinity, sp.sparse.csr.csr_matrix):
+        dd = affinity.diagonal()
+    else:  # or from a dense one
+        dd = np.diag(affinity)
+    W = affinity - np.diag(dd)
     D = np.diag([np.sum(x) for x in W])
     laplacian = D - W
 

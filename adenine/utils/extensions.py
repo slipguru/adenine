@@ -310,7 +310,7 @@ class KernelPCA(KernelPCA):
 
     def fit(self, X, **kwargs):
         # Apply the _autosigma heuristic
-        if self.kernel == 'rbf':
+        if self.kernel == 'rbf' and self.gamma is None:
             self.gamma = 1.0 / (2 * self._autosigma(data=X)**2)
             # print("Gamma is: {}".format(self.gamma))
         super(KernelPCA, self).fit(X, **kwargs)
