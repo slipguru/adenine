@@ -466,8 +466,13 @@ def dendrogram(root, data_in, labels=None, index=None, model=None, n_max=150):
     cmap = sns.diverging_palette(220, 20, n=7, as_cmap=True)
 
     if model.affinity == 'precomputed':
+        import scipy.spatial.distance as ssd
         from scipy.cluster.hierarchy import linkage
-        Z = linkage(data_in, method=model.linkage, metric='euclidean')
+        # convert the redundant square matrix into a condensed one.
+        # Even if the docs of scipy said so, linkage function does not
+        # understand that the matrix is precomputed, unless it is 1-dimensional
+        Z = linkage(ssd.squareform(data_in), method=model.linkage,
+                    metric='euclidean')
         g = sns.clustermap(df, method=model.linkage,
                            row_linkage=Z, col_linkage=Z,
                            linewidths=.5, cmap=cmap)
