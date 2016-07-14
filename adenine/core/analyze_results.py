@@ -282,6 +282,8 @@ def get_step_attributes(step, pos):
             name += '_nonmetric'
     elif name == 'Hierarchical':
         name += '_' + param['affinity'] + '_' + param['linkage']
+    elif name == 'SE':
+        name += '_' + param['affinity']
 
     try:
         n_clusters = param.get('n_clusters', 0) or  \

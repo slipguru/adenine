@@ -109,32 +109,6 @@ def parse_dimred(key, content):
     dr = drs.get(key.lower(), DummyNone)(**content)
     return (key, dr)
 
-    # if key.lower() == 'none':
-    #     dr = DummyNone(**content)
-    # elif key.lower() == 'pca':
-    #     dr = PCA(**content) # this by default takes all the components it can
-    # elif key.lower() == 'incrementalpca':
-    #     dr = IncrementalPCA(**content)
-    # elif key.lower() == 'randomizedpca':
-    #     dr = RandomizedPCA(**content)
-    # elif key.lower() == 'kernelpca':
-    #     dr = KernelPCA(**content)
-    # elif key.lower() == 'isomap':
-    #     dr = Isomap(**content)
-    # elif key.lower() == 'lle':
-    #     dr = LocallyLinearEmbedding(**content)
-    # elif key.lower() == 'ltsa':
-    #     dr = LocallyLinearEmbedding(**content)
-    # elif key.lower() == 'se':
-    #     dr = SpectralEmbedding(**content)
-    # elif key.lower() == 'mds':
-    #     dr = MDS(**content)
-    # elif key.lower() == 'tsne':
-    #     dr = TSNE(**content)
-    # else:
-    #     dr = DummyNone(**content)
-    # return (key, dr)
-
 
 def parse_clustering(key, content):
     """Parse the options of the clustering step.
