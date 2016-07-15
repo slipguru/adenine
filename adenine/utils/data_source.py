@@ -53,7 +53,7 @@ def generate_gauss(mu=None, std=None, n_sample=None):
     return X, y
 
 
-def load_custom(x_filename, y_filename, samples_on='rows', data_sep=','):
+def load_custom(x_filename, y_filename, samples_on='rows', **kwargs):
     """Load a custom dataset.
 
     This function loads the data matrix and the label vector returning a
@@ -101,26 +101,26 @@ def load_custom(x_filename, y_filename, samples_on='rows', data_sep=','):
     elif x_filename.endswith('.csv') or x_filename.endswith('.txt'):
         y = None
         try:
-            dfx = pd.io.parsers.read_csv(x_filename, header=0, index_col=0,
-                                         sep=data_sep)
+            dfx = pd.io.parsers.read_csv(x_filename, **kwargs)
             if samples_on not in ['row', 'rows']:
                 # data matrix must be n_samples x n_features
                 dfx = dfx.transpose()
             if y_filename is not None:
+                # Before loading labels, remove parameters that were likely
+                # specified for data only.
+                kwargs.pop('usecols', None)
                 y = pd.io.parsers.read_csv(y_filename,
-                                           header=0,
-                                           index_col=0,
-                                           sep=data_sep).as_matrix().ravel()
+                                           **kwargs).as_matrix().ravel()
         except IOError as e:
             e.strerror = "Can't open {} or {}".format(x_filename, y_filename)
             logging.error("I/O error({0}): {1}".format(e.errno, e.strerror))
 
-        return datasets.base.Bunch(data=dfx.as_matrix(),
+        return datasets.base.Bunch(data=dfx.as_matrix(), feature_names=dfx.columns.tolist(),
                                    target=y, index=dfx.index.tolist())
 
 
 def load(opt='custom', x_filename=None, y_filename=None, n_samples=0,
-         samples_on='rows', data_sep=','):
+         samples_on='rows', **kwargs):
     """Load a specified dataset.
 
     This function can be used either to load one of the standard scikit-learn
@@ -202,7 +202,7 @@ def load(opt='custom', x_filename=None, y_filename=None, n_samples=0,
             xx, yy = datasets.make_moons(n_samples=n_samples, noise=.01)
             data = datasets.base.Bunch(data=xx, target=yy)
         elif opt.lower() == 'custom':
-            data = load_custom(x_filename, y_filename, samples_on, data_sep)
+            data = load_custom(x_filename, y_filename, samples_on, **kwargs)
     except IOError as e:
         print("I/O error({0}): {1}".format(e.errno, e.strerror))
 
@@ -214,7 +214,7 @@ def load(opt='custom', x_filename=None, y_filename=None, n_samples=0,
                 # idx = np.random.permutation(X.shape[0])[:n_samples]
             except TypeError:
                 sss = StratifiedShuffleSplit(n_iter=1, test_size=n_samples) \
-                      .split(X, y)
+                    .split(X, y)
             _, idx = list(sss)[0]
         else:
             idx = np.arange(X.shape[0])
@@ -223,7 +223,7 @@ def load(opt='custom', x_filename=None, y_filename=None, n_samples=0,
 
         X, y = X[idx, :], y[idx]
 
-    feat_names = data.features_names if hasattr(data, 'features_names') \
+    feat_names = data.feature_names if hasattr(data, 'feature_names') \
         else np.arange(X.shape[1])
     index = data.index if hasattr(data, 'index') \
         else np.arange(X.shape[0])
