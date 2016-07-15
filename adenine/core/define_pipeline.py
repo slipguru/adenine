@@ -173,7 +173,7 @@ def parse_clustering(key, content):
     return (key, cl)
 
 
-def parse_steps(steps, max_n_pipes=100):
+def parse_steps(steps, max_n_pipes=200):
     """Parse the steps and create the pipelines.
 
     This function parses the steps coded as dictionaries in the ade_config
