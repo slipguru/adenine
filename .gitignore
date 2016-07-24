@@ -30,7 +30,6 @@ var/
 *.egg-info/
 .installed.cfg
 *.egg
-
 # Numpy files
 #*.npy
 
@@ -39,6 +38,9 @@ var/
 
 # Images
 *.png
+!*adenine_logo.png
+!icon.png
+
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
