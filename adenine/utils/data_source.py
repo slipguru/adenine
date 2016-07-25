@@ -72,8 +72,8 @@ def load_custom(x_filename, y_filename, samples_on='rows', **kwargs):
         the input data matrix, or viceversa in ['col', 'cols'] the other way
         around.
 
-    data_sep : string
-        The data separator. For instance comma, tab, blank space, etc.
+    kwargs : dict
+        Arguments of pandas.read_csv function.
 
     Returns
     -----------
@@ -100,8 +100,10 @@ def load_custom(x_filename, y_filename, samples_on='rows', **kwargs):
 
     elif x_filename.endswith('.csv') or x_filename.endswith('.txt'):
         y = None
+        kwargs.setdefault('header', 0)  # header on first row
+        kwargs.setdefault('index_col', 0)  # indexes on first
         try:
-            dfx = pd.io.parsers.read_csv(x_filename, **kwargs)
+            dfx = pd.read_csv(x_filename, **kwargs)
             if samples_on not in ['row', 'rows']:
                 # data matrix must be n_samples x n_features
                 dfx = dfx.transpose()
@@ -109,8 +111,8 @@ def load_custom(x_filename, y_filename, samples_on='rows', **kwargs):
                 # Before loading labels, remove parameters that were likely
                 # specified for data only.
                 kwargs.pop('usecols', None)
-                y = pd.io.parsers.read_csv(y_filename,
-                                           **kwargs).as_matrix().ravel()
+                y = pd.read_csv(y_filename, **kwargs).as_matrix().ravel()
+
         except IOError as e:
             e.strerror = "Can't open {} or {}".format(x_filename, y_filename)
             logging.error("I/O error({0}): {1}".format(e.errno, e.strerror))
