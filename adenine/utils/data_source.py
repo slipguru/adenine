@@ -8,7 +8,7 @@
 #
 # FreeBSD License
 ######################################################################
-
+import sys
 import numpy as np
 import pandas as pd
 import logging
@@ -116,6 +116,7 @@ def load_custom(x_filename, y_filename, samples_on='rows', **kwargs):
         except IOError as e:
             e.strerror = "Can't open {} or {}".format(x_filename, y_filename)
             logging.error("I/O error({0}): {1}".format(e.errno, e.strerror))
+            sys.exit(-1)
 
         return datasets.base.Bunch(data=dfx.as_matrix(), feature_names=dfx.columns.tolist(),
                                    target=y, index=dfx.index.tolist())
