@@ -69,6 +69,8 @@ def main(dumpfile):
                             plotting_context=config.plotting_context,
                             file_format=config.file_format)
 
+    root_logger.handlers[0].close()
+
 # ----------------------------  RUN MAIN ---------------------------- #
 if __name__ == '__main__':
     from adenine import __version__

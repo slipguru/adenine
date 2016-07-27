@@ -60,6 +60,9 @@ def main(config_file):
 
     # Copy the ade_config just used into the outFolder
     shutil.copy(config_path, os.path.join(out_folder, 'ade_config.py'))
+
+    root_logger.handlers[0].close()
+
     # Move the logging file into the outFolder
     shutil.move(logfile, out_folder)
 
