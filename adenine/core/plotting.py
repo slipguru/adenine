@@ -525,7 +525,8 @@ def pcmagnitude(root, points, title='', ylabel=''):
     plt.close()
 
 
-def eigs(root, affinity, n_clusters=0, title='', ylabel='', normalised=True):
+def eigs(root, affinity, n_clusters=0, title='', ylabel='', normalised=True,
+         n_components=20, filename=None):
     """Plot eigenvalues of the Laplacian associated to data affinity matrix.
 
     Parameters
@@ -547,6 +548,12 @@ def eigs(root, affinity, n_clusters=0, title='', ylabel='', normalised=True):
 
     normalised : boolean, optional
         Choose whether to normalise the Laplacian matrix.
+
+    n_components : int, optional, default 20
+        Number of components to show in the plot.
+
+    filename : str, optional, default None
+        If not None, overrides default filename for saving the plot.
     """
     # Efficient way to extract the main diagonal from a sparse matrix
     if isinstance(affinity, sp.sparse.csr.csr_matrix):
@@ -570,14 +577,15 @@ def eigs(root, affinity, n_clusters=0, title='', ylabel='', normalised=True):
         plt.title(title)
         plt.grid('on')
         plt.ylabel(ylabel)
-        plt.xlim([1, min(20, len(w) + 1)])  # Show maximum 20 components
+        plt.xlim([1, min(n_components, len(w) + 1)])  # Show max n_components
         if n_clusters > 0:
             plt.axvline(x=n_clusters + .5, linestyle='--', color='r',
                         label='selected clusters')
         plt.legend(loc='upper right', numpoints=1, ncol=10, fontsize=8)
         # , bbox_to_anchor=(1, 1))
-        filename = os.path.join(root, os.path.basename(root) +
-                                "_eigenvals." + GLOBAL_FF)
+        if filename is None:
+            filename = os.path.join(root, os.path.basename(root) +
+                                    "_eigenvals." + GLOBAL_FF)
         plt.savefig(filename)
     except np.linalg.LinAlgError:
         logging.critical("Error in plot_eigs: Affinity matrix contained "
