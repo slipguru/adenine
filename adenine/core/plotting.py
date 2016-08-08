@@ -573,7 +573,8 @@ def eigs(root, affinity, n_clusters=0, title='', ylabel='', normalised=True,
     try:
         w = np.linalg.eigvals(laplacian)
         w = np.array(sorted(np.abs(w)))
-        plt.plot(np.arange(1, len(w) + 1), w, '-o')
+        plt.plot(np.arange(1, len(w) + 1), w, '-o',
+                 label='eigenvalues (sorted)')
         plt.title(title)
         plt.grid('on')
         plt.ylabel(ylabel)
