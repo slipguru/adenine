@@ -526,7 +526,7 @@ def pcmagnitude(root, points, title='', ylabel=''):
 
 
 def eigs(root, affinity, n_clusters=0, title='', ylabel='', normalised=True,
-         n_components=20, filename=None):
+         n_components=20, filename=None, ylim='auto', rw=False):
     """Plot eigenvalues of the Laplacian associated to data affinity matrix.
 
     Parameters
@@ -546,14 +546,23 @@ def eigs(root, affinity, n_clusters=0, title='', ylabel='', normalised=True,
     ylabel : string, optional
         Y-axis label.
 
-    normalised : boolean, optional
+    normalised : boolean, optional, default True
         Choose whether to normalise the Laplacian matrix.
 
     n_components : int, optional, default 20
         Number of components to show in the plot.
 
-    filename : str, optional, default None
+    filename : None or str, optional, default None
         If not None, overrides default filename for saving the plot.
+
+    ylim : 'auto', None, tuple or list, optional, default 'auto'
+        If 'auto', choose the highest eigenvalue for the height of the plot.
+        If None, plt.ylim is not called (matplotlib default is used).
+        Otherwise, specify manually the desired ylim.
+
+    rw : boolean, optional, default False
+        Normalise the Laplacian matrix as the random walks point of view.
+        This should be better suited with unclear data distributions.
     """
     # Efficient way to extract the main diagonal from a sparse matrix
     if isinstance(affinity, sp.sparse.csr.csr_matrix):
@@ -564,25 +573,44 @@ def eigs(root, affinity, n_clusters=0, title='', ylabel='', normalised=True,
     D = np.diag([np.sum(x) for x in W])
     laplacian = D - W
 
-    if normalised:
+    if rw:
+        # compute normalised laplacian as random walks. Better with unclear
+        # distributions
+        aux = np.diag(1. / np.array([np.sum(x) for x in W]))
+        laplacian = np.eye(laplacian.shape[0]) - np.dot(aux, W)
+    elif normalised:
         # Compute the normalised Laplacian
         # aux = np.linalg.inv(np.diag([np.sqrt(np.sum(x)) for x in W]))
         aux = np.diag(1. / np.array([np.sqrt(np.sum(x)) for x in W]))
         laplacian = np.eye(laplacian.shape[0]) - (np.dot(np.dot(aux, W), aux))
 
+    # TODO: replace the previous manual laplacian creation with sklearn utils.
+    # Performance gain and np.allclose checks already performed with success.
+    # from sklearn.utils import graph
+    # laplacian = graph.graph_laplacian(affinity, normed=normalised)
+    # warn: RW is not implemented in sklearn
+
     try:
         w = np.linalg.eigvals(laplacian)
         w = np.array(sorted(np.abs(w)))
         plt.plot(np.arange(1, len(w) + 1), w, '-o',
-                 label='eigenvalues (sorted)')
+                 label='eigenvalues (sorted' +
+                       (' and normalised rw)' if rw else
+                        (' and normalised)' if normalised else ')')))
         plt.title(title)
         plt.grid('on')
         plt.ylabel(ylabel)
         plt.xlim([1, min(n_components, len(w) + 1)])  # Show max n_components
+        if ylim == 'auto':
+            plt.ylim((0, w[:min(n_components, len(w) + 1)][-1] +
+                     2*(w[:min(n_components, len(w) + 1)][-1] -
+                        w[:min(n_components, len(w) + 1)][-2])))
+        elif ylim is not None:
+            plt.ylim(ylim)
         if n_clusters > 0:
             plt.axvline(x=n_clusters + .5, linestyle='--', color='r',
                         label='selected clusters')
-        plt.legend(loc='upper right', numpoints=1, ncol=10, fontsize=8)
+        plt.legend(loc='upper left', numpoints=1, ncol=10, fontsize=8)
         # , bbox_to_anchor=(1, 1))
         if filename is None:
             filename = os.path.join(root, os.path.basename(root) +
