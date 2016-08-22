@@ -138,13 +138,12 @@ class Imputer(Imputer):
         [Troyanskaya, Olga, et al. "Missing value estimation methods for DNA microarrays." Bioinformatics 17.6 (2001): 520-525.]
         """
         # 1. Find missing values
-
         self.missing = self._get_mask(X, self.missing_values)
         # 2. Drop empty rows (I cannot deal with that)
         _mask = np.prod(self.missing, axis=1, dtype=np.bool)
         self._mask = np.array([not j for j in _mask])
         _X = X[self._mask,:].copy()
-        self.missing = self.missing[self._mask,:]
+        self.missing = self.missing[self._mask, :]
 
         # 3. Statistics init
         self.statistics_ = np.empty_like(_X)
