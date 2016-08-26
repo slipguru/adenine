@@ -8,6 +8,7 @@
 ######################################################################
 
 import os
+import shutil
 import logging
 import cPickle as pkl
 import numpy as np
@@ -15,6 +16,7 @@ import pandas as pd
 import matplotlib; matplotlib.use('AGG')
 import seaborn as sns
 import multiprocessing as mp
+import subprocess
 
 from sklearn import metrics
 
@@ -453,4 +455,23 @@ def analyze(input_dict, root, y=None, feat_names=None, index=None, **kwargs):
     for p in ps:
         p.join()
 
+    # Create summary_scores.{txt, tex}
     make_df_clst_perf(root)
+
+    # Compile tex
+    try:
+        # Someone may not have pdflatex installed
+        subprocess.call(["pdflatex", os.path.join(root, "summary_scores.tex")],
+                        stdout="/dev/null", stderr="/dev/null")
+        logging.info("PDF compilation done.")
+        shutil.move("summary_scores.pdf",
+                    os.path.join(root, "summary_scores.pdf"))
+        os.remove("summary_scores.aux")
+        os.remove("summary_scores.log")
+        logging.info(".aux and .log cleaned")
+    except:
+        from sys import platform
+        logging.warning("Suitable pdflatex installation not found.")
+        if platform not in ["linux", "linux2", "darwin"]:
+            logging.warning("Your operating system does not support"
+                            "summary_scores.tex automatic pdf compilation.")
