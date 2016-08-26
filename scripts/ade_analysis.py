@@ -31,18 +31,20 @@ def main(dumpfile):
                                        'plotting_context': 'paper',
                                        '__ade__debug__': False})
 
-    # Read the variables from the config file
-    feat_names, index = config.feat_names, config.index
+    # Read the feature names from the config file
+    feat_names = config.feat_names
     # Load the results used with ade_run.py
     try:
         with gzip.open(os.path.join(os.path.dirname(dumpfile),
                                     '__data.pkl.tz'), 'r') as f:
             data = pkl.load(f)
             y = data['y']
+            index = data['index']
     except:
         sys.stderr("Cannot load __data.pkl.tz. "
                    "Reloading data from config file ...")
         y = config.y
+        index = config.index
 
     # Initialize the log file
     filename = 'results_' + os.path.basename(dumpfile)[0:-7]

@@ -225,10 +225,13 @@ def load(opt='custom', x_filename=None, y_filename=None, n_samples=0,
             idx = idx[:n_samples]
 
         X, y = X[idx, :], y[idx]
+    else:
+        # The length of index must be consistent with the number of samples
+        idx = np.arange(X.shape[0])
 
     feat_names = data.feature_names if hasattr(data, 'feature_names') \
         else np.arange(X.shape[1])
-    index = data.index if hasattr(data, 'index') \
+    index = np.array(data.index)[idx] if hasattr(data, 'index') \
         else np.arange(X.shape[0])
 
     return X, y, feat_names, index

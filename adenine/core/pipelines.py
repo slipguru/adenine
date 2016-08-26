@@ -193,7 +193,7 @@ def pipe_worker(pipeID, pipe, pipes_dump, X):
 
 
 @timed
-def run(pipes=(), X=(), exp_tag='def_tag', root='', y=None):
+def run(pipes=(), X=(), exp_tag='def_tag', root='', y=None, index=None):
     """Fit and transform/predict some pipelines on some data.
 
     This function fits each pipeline in the input list on the provided data.
@@ -221,6 +221,9 @@ def run(pipes=(), X=(), exp_tag='def_tag', root='', y=None):
 
     y : array-like, optional
         If specified, it contains data labels.
+
+    index : array-like, optional
+        List of indexes (samples names).
 
     Returns
     -----------
@@ -273,7 +276,7 @@ def run(pipes=(), X=(), exp_tag='def_tag', root='', y=None):
     logging.info("Dumped : {}".format(os.path.join(output_folder,
                                                    output_filename + '.pkl.tz')))
     with gzip.open(os.path.join(output_folder, '__data.pkl.tz'), 'w+') as f:
-        pkl.dump({'X': X, 'y': y}, f)
+        pkl.dump({'X': X, 'y': y, 'index': index}, f)
     logging.info("Dumped : {}".format(os.path.join(output_folder,
                                                    '__data.pkl.tz')))
 

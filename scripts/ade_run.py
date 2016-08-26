@@ -56,7 +56,7 @@ def main(config_file):
 
     # Pipelines Evaluation
     out_folder = pipelines.run(pipes=pipes, X=X, exp_tag=filename,
-                               root=root, y=y)
+                               root=root, y=y, index=config.index)
 
     # Copy the ade_config just used into the outFolder
     shutil.copy(config_path, os.path.join(out_folder, 'ade_config.py'))
