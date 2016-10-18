@@ -181,7 +181,7 @@ class GridSearchCV(GridSearchCV):
                                            fit_params, n_jobs, iid, refit,
                                            cv, verbose, pre_dispatch,
                                            error_score)
-        self.affinity = affinity # add the attribute affinity
+        self.affinity = affinity  # add the attribute affinity
         self.cluster_centers_ = None
         self.inertia_ = None
         self.n_clusters = None
@@ -260,12 +260,12 @@ def silhouette_score(estimator, X, y=None):
     n_labels = len(np.unique(_y))
     if 1 < n_labels < X.shape[0]:
         return sil(X, _y)
-    else:
-        logging.warn("adenine.utils.extension.silhouette_score() returned NaN "
-                     "because the number of labels is {}. Valid values are 2 "
-                     "to n_samples - 1 (inclusive) = {}"
-                     .format(n_labels, X.shape[0]-1))
-        return np.nan
+
+    logging.warn("adenine.utils.extension.silhouette_score() returned NaN "
+                 "because the number of labels is {}. Valid values are 2 "
+                 "to n_samples - 1 (inclusive) = {}"
+                 .format(n_labels, X.shape[0]-1))
+    return np.nan
 
 
 class KernelPCA(KernelPCA):
