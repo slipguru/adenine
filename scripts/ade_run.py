@@ -46,7 +46,7 @@ def main(config_file):
                         format='%(levelname)s (%(name)s): %(message)s')
     root_logger = logging.getLogger()
     ch = logging.StreamHandler()
-    ch.setLevel(20) if config.__ade__debug__ else ch.setLevel(logging.ERROR)
+    ch.setLevel(logging.DEBUG) if config.__ade__debug__ else ch.setLevel(logging.ERROR)
     ch.setFormatter(logging.Formatter('%(levelname)s (%(name)s): %(message)s'))
     root_logger.addHandler(ch)
 
