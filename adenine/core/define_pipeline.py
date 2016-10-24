@@ -118,7 +118,7 @@ def parse_clustering(key, content):
 
     Parameters
     -----------
-    key : {'KMeans', 'KernelKMeans', 'AP', 'MS', 'Spectral', 'Hierarchical'}
+    key : {'KMeans', 'AP', 'MS', 'Spectral', 'Hierarchical'}
         The selected dimensionality reduction algorithm.
 
     content : dict
