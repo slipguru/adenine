@@ -65,6 +65,12 @@ def silhouette(root, data_in, labels, model=()):
         logging.info('Cannot make silhouette plot with no real labels.')
         return
 
+    if len(labels) < 2 or len(labels) > data_in.shape[0] - 1:
+        logging.info('Cannot make silhouette if number of labels is {}. Valid '
+                     'values are 2 to n_samples - 1 '
+                     '(inclusive).'.format(len(labels)))
+        return
+
     # Create a subplot with 1 row and 2 columns
     fig, (ax1) = plt.subplots(1, 1)
     fig.set_size_inches(20, 15)
@@ -445,7 +451,8 @@ def dendrogram(root, data_in, labels=None, index=None, model=None, n_max=150):
         reasons).
     """
     # associate dummy values to the label vector
-    labels = np.arange(len(labels))
+    if labels is not None:
+        labels = np.arange(len(labels))
     # define col names
     col = ["$x_{" + str(i) + "}$" for i in np.arange(0, data_in.shape[1], 1)]
     df = pd.DataFrame(data=data_in, columns=col, index=index)
