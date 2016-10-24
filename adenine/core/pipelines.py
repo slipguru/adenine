@@ -169,24 +169,38 @@ def pipe_worker(pipeID, pipe, pipes_dump, X):
                     mdl_voronoi.fit(X_curr)
 
             # 4. save the results in a dictionary of dictionaries of the form:
-            # {'pipeID': {'stepID' : [alg_name, level, params, res, Xnext, Xcurr, stepObj, voronoi_suitable_model]}}
-            if level in ('preproc', 'imputing'):  # save memory and do not dump data after preprocessing (not used in analysys)
-                step_dump[stepID] = [step[0], level, step[1].get_params(), np.array([]), np.array([]), step[1], mdl_voronoi]
+            # save memory and do not dump data after preprocessing (not used in analysys)
+            if level in ('preproc', 'imputing'):
+                step_dump[stepID] = [step[0],
+                                     level,
+                                     step[1].get_params(),
+                                     np.array([]),
+                                     np.array([]),
+                                     step[1],
+                                     mdl_voronoi]
                 X_curr = np.array(X_next)  # update the matrix
-            elif level == 'dimred':  # save memory dumping X_curr only in case of clusutering
-                step_dump[stepID] = [step[0], level, step[1].get_params(), X_next, np.array([]), step[1], mdl_voronoi]
+            # save memory dumping X_curr only in case of clusutering
+            elif level == 'dimred':
+                step_dump[stepID] = [step[0],
+                                     level,
+                                     step[1].get_params(),
+                                     X_next, np.array([]),
+                                     step[1],
+                                     mdl_voronoi]
                 X_curr = X_next  # update the matrix
-            elif level == 'clustering':  # clustering
-                step_dump[stepID] = [step[0], level, step[1].get_params(), X_next, X_curr, step[1], mdl_voronoi]
-
-            # if level != 'clustering':
-            #     X_curr = np.array(X_next) # update the matrix
+            # clustering
+            elif level == 'clustering':
+                step_dump[stepID] = [step[0],
+                                     level,
+                                     step[1].get_params(),
+                                     X_next,
+                                     X_curr,
+                                     step[1],
+                                     mdl_voronoi]
 
         except (AssertionError, ValueError) as e:
             logging.critical("Pipeline {} failed at step {}. "
                              "Traceback: {}".format(pipeID, step[0], e))
-            # step_dump[stepID] = [step[0], level, step[1].get_params(), (),
-            #                      (), (), ()]
 
     pipes_dump[pipeID] = step_dump
     logging.debug("DUMP: \n {} \n #########".format(pipes_dump))
