@@ -187,14 +187,24 @@ class GridSearchCV(GridSearchCV):
         self.n_clusters = None
         self.estimator_name = type(self.estimator).__name__
 
-    def _sqrtn_heuristic(self, n):
+    def _sqrtn_heuristic(self, _n):
         """Heuristic for KMeans.
 
         n_clusters grid for KMeans: logaritmic scale in
-        [2,...,log10(sqrt(n))] with max length = 30
+        [2,...,log10(sqrt(n))] with max length = 30.
+        For data-poor cases (i.e., when the log scale has fewer elements than
+        the number of samples in each split), a linear scale is returned.
         """
-        return np.unique(map(int, np.logspace(np.log10(2),
-                                              np.log10(np.sqrt(n)), 30)))
+        # The number of labelsmust be in 2 to n_samples - 1 (inclusive)
+        n = _n // self.cv
+        krange = np.unique(map(int, np.logspace(np.log10(2),
+                                                np.log10(np.sqrt(n)), 30)))
+        krange = krange[np.multiply(krange >= 2, krange <= n - 1)]
+
+        # Data poor
+        if len(krange) < n:
+            krange = np.arange(2, n)
+        return krange
 
     def _min_max_dist_heuristic(self, X, affinity):
         """Heuristic for AffinityPropagation.
@@ -211,6 +221,13 @@ class GridSearchCV(GridSearchCV):
         This new definition of the fit method sets the grid following a
         different heuristic according to the clustering algorithm
         """
+        # Correct the number of splits for data-poor cases
+        if X.shape[0] / np.float(self.cv) < 5:
+            logging.info("[GridSearchCV] Data Poor: the number of splits {} "
+                         "will be reduced to half the original "
+                         "value".format(self.cv))
+            self.cv //= 2
+
         # Pick the heuristic
         if type(self.estimator).__name__ == 'KMeans':
             # pick heuristic 1
@@ -227,7 +244,8 @@ class GridSearchCV(GridSearchCV):
             super(GridSearchCV, self).fit(X)
 
         # Propagate the cluster_centers_ attribute (needed for voronoi plot)
-        if hasattr(self.best_estimator_, 'cluster_centers_'):  # added for consistency only
+        if hasattr(self.best_estimator_, 'cluster_centers_'):
+            # added for consistency only
             self.cluster_centers_ = self.best_estimator_.cluster_centers_
 
         # Propagate the inertia_ attribute
