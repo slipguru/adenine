@@ -202,8 +202,14 @@ def pipe_worker(pipeID, pipe, pipes_dump, X):
             logging.critical("Pipeline {} failed at step {}. "
                              "Traceback: {}".format(pipeID, step[0], e))
 
+
+    # Monkey-patch, see: https://github.com/scikit-learn/scikit-learn/issues/7562
+    # and wait for the next numpy update
+    step_dump['step2'][-2] = None
+
     pipes_dump[pipeID] = step_dump
-    logging.debug("DUMP: \n {} \n #########".format(pipes_dump))
+    # pipes_dump.setdefault(pipeID, default=step_dump['step1'])
+    logging.info("DUMP: \n {} \n #########".format(pipes_dump))
 
 
 @timed
