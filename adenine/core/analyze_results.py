@@ -460,10 +460,12 @@ def analyze(input_dict, root, y=None, feat_names=None, index=None, **kwargs):
 
     # Compile tex
     try:
-        # Someone may not have pdflatex installed
-        subprocess.call(["pdflatex", os.path.join(root, "summary_scores.tex")],
-                        stdout="/dev/null", stderr="/dev/null")
-        logging.info("PDF compilation done.")
+        with open(os.devnull, 'w') as devnull:
+            # Someone may not have pdflatex installed
+            subprocess.call(["pdflatex",
+                             os.path.join(root, "summary_scores.tex")],
+                            stdout=devnull, stderr=devnull)
+            logging.info("PDF compilation done.")
         shutil.move("summary_scores.pdf",
                     os.path.join(root, "summary_scores.pdf"))
         os.remove("summary_scores.aux")
@@ -473,5 +475,5 @@ def analyze(input_dict, root, y=None, feat_names=None, index=None, **kwargs):
         from sys import platform
         logging.warning("Suitable pdflatex installation not found.")
         if platform not in ["linux", "linux2", "darwin"]:
-            logging.warning("Your operating system does not support"
+            logging.warning("Your operating system may not support"
                             "summary_scores.tex automatic pdf compilation.")
