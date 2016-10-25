@@ -9,7 +9,9 @@
 
 import logging
 # import numpy as np
-from adenine.utils.extra import modified_cartesian, ensure_list, values_iterator
+from adenine.utils.extra import modified_cartesian
+from adenine.utils.extra import ensure_list
+from adenine.utils.extra import values_iterator
 
 # from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler

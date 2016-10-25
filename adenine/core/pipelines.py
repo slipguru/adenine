@@ -65,7 +65,7 @@ def which_level(label):
     elif label in ('pca', 'incrementalpca', 'randomizedpca', 'kernelpca',
                    'isomap', 'lle', 'se', 'mds', 'tsne'):
         level = 'dimred'
-    elif label in ('kmeans', 'kernelkmeans', 'ap', 'ms', 'spectral',
+    elif label in ('kmeans', 'ap', 'ms', 'spectral',
                    'hierarchical'):
         level = 'clustering'
     else:
