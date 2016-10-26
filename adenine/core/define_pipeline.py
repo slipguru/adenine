@@ -160,9 +160,9 @@ def parse_clustering(key, content):
     elif 'auto' in (content.get('n_clusters', ''),
                     content.get('preference', '')) \
             and key.lower() == 'hierarchical':
-            # TODO implement this
-            from adenine.utils.extensions import AgglomerativeClustering
-            cl = AgglomerativeClustering(**content)
+        # TODO implement this
+        # from adenine.utils.extensions import AgglomerativeClustering
+        cl = AgglomerativeClustering(**content)
     else:
         if key.lower() == 'kmeans':
             content.setdefault('n_jobs', -1)

@@ -340,4 +340,5 @@ class AgglomerativeClustering(AgglomerativeClustering):
     This Agglomerative Clustering class, if required, can perform automatic
     discovery of the number of clusters.
     """
-    raise NotImplementedError()
+    def __run__():
+        raise NotImplementedError()
