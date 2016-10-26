@@ -26,8 +26,8 @@ except ImportError:
 from adenine.utils.extra import (title_from_filename, items_iterator, Palette,
                                  timed)
 
-__all__ = ["silhouette", "scatter", "voronoi", "tree",
-           "dendrogram", "pcmagnitude", "eigs"]
+__all__ = ("silhouette", "scatter", "voronoi", "tree",
+           "dendrogram", "pcmagnitude", "eigs")
 
 GLOBAL_FF = 'png'
 

@@ -9,9 +9,6 @@
 
 import logging
 # import numpy as np
-from adenine.utils.extra import modified_cartesian
-from adenine.utils.extra import ensure_list
-from adenine.utils.extra import values_iterator
 
 # from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
@@ -38,6 +35,9 @@ from adenine.utils.extensions import GridSearchCV
 from adenine.utils.extensions import KernelPCA
 from adenine.utils.extensions import silhouette_score
 
+from adenine.utils.extra import modified_cartesian
+from adenine.utils.extra import ensure_list
+from adenine.utils.extra import values_iterator
 
 def parse_preproc(key, content):
     """Parse the options of the preprocessing step.
@@ -199,7 +199,7 @@ def parse_steps(steps, max_n_pipes=200):
         A list of (usually 4) dictionaries that contains the details of the
         pipelines to implement.
 
-    max_n_pipes : int, optional, default: 100
+    max_n_pipes : int, optional, default: 200
         The maximum number of combinations allowed. This avoids a too expensive
         computation.
 
