@@ -2,6 +2,9 @@
 **/*.tar.gz
 # -------------------------- Python -------------------------- #
 
+# Jupyter Notebook checkpoints
+*-checkpoint.ipynb
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
