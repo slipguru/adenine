@@ -12,6 +12,7 @@ import warnings
 
 import numpy as np
 
+from sklearn.cluster import AgglomerativeClustering
 from sklearn.decomposition import KernelPCA
 from sklearn.preprocessing import Imputer
 from sklearn.neighbors import NearestNeighbors
@@ -287,7 +288,7 @@ def silhouette_score(estimator, X, y=None):
 
 
 class KernelPCA(KernelPCA):
-    """Extension of sklearn's Kernel PCA.
+    """Extension of sklearn Kernel PCA.
 
     This KernelPCA class uses a different heuristic (w.r.t. sklearn's one) for
     the default value of gamma of rbf kernels.
@@ -331,3 +332,12 @@ class KernelPCA(KernelPCA):
             self.gamma = 1.0 / (2 * self._autosigma(data=X)**2)
             # print("Gamma is: {}".format(self.gamma))
         super(KernelPCA, self).fit(X, **kwargs)
+
+
+class AgglomerativeClustering(AgglomerativeClustering):
+    """Extension of sklearn Agglomerative Clustering.
+
+    This Agglomerative Clustering class, if required, can perform automatic
+    discovery of the number of clusters.
+    """
+    raise NotImplementedError()

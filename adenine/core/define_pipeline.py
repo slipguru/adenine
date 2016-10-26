@@ -135,7 +135,8 @@ def parse_clustering(key, content):
         implements the .fit method.
     """
     if 'auto' in (content.get('n_clusters', ''),
-                  content.get('preference', '')):
+                  content.get('preference', '')) \
+            and key.lower() != 'hierarchical':
         # Wrapper class that automatically detects the best number of clusters
         # via 10-Fold CV
         content.pop('n_clusters', '')
@@ -156,7 +157,12 @@ def parse_clustering(key, content):
                           "ap. Trying to create GridSearchCV pipeline anyway "
                           " ...")
         cl = GridSearchCV(**kwargs)
-
+    elif 'auto' in (content.get('n_clusters', ''),
+                    content.get('preference', '')) \
+            and key.lower() == 'hierarchical':
+            # TODO implement this
+            from adenine.utils.extensions import AgglomerativeClustering
+            cl = AgglomerativeClustering(**content)
     else:
         if key.lower() == 'kmeans':
             content.setdefault('n_jobs', -1)
