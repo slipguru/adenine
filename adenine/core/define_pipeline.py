@@ -8,14 +8,11 @@
 ######################################################################
 
 import logging
-# import numpy as np
 
-# from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.preprocessing import Normalizer
 from sklearn.decomposition import PCA
-# from sklearn.decomposition import KernelPCA
 from sklearn.decomposition import RandomizedPCA
 from sklearn.decomposition import IncrementalPCA
 from sklearn.manifold import Isomap
