@@ -220,7 +220,7 @@ def parse_steps(steps, max_n_pipes=200):
             content_d = imputing['Impute'][1]
             content_values = values_iterator(content_d)
             for ll in modified_cartesian(*map(ensure_list, list(content_values))):
-                content = {__k: __v for __k, __v in zip(list(content_d), ll)}
+                content = dict(zip(list(content_d), ll))
                 i_lst_of_tpls.append(("Impute", Imputer(**content)))
         else:
             i_lst_of_tpls.append(("Impute", Imputer()))
@@ -233,7 +233,7 @@ def parse_steps(steps, max_n_pipes=200):
                 content_d = preproc[key][1]
                 content_values = values_iterator(content_d)
                 for ll in modified_cartesian(*map(ensure_list, list(content_values))):
-                    content = {__k: __v for __k, __v in zip(list(content_d), ll)}
+                    content = dict(zip(list(content_d), ll))
                     pp_lst_of_tpls.append(parse_preproc(key, content))
             else:
                 pp_lst_of_tpls.append(parse_preproc(key, {}))
@@ -247,7 +247,7 @@ def parse_steps(steps, max_n_pipes=200):
                 content_d = dimred[key][1]
                 content_values = values_iterator(content_d)
                 for ll in modified_cartesian(*map(ensure_list, list(content_values))):
-                    content = {__k: __v for __k, __v in zip(list(content_d), ll)}
+                    content = dict(zip(list(content_d), ll))
                     dr_lst_of_tpls.append(parse_dimred(key, content))
             else:
                 dr_lst_of_tpls.append(parse_dimred(key, {}))
@@ -260,25 +260,24 @@ def parse_steps(steps, max_n_pipes=200):
                 content_d = clustering[key][1]
                 content_values = values_iterator(content_d)
                 for ll in modified_cartesian(*map(ensure_list, list(content_values))):
-                    content = {_k: _v for _k, _v in zip(list(content_d), ll)}
+                    content = dict(zip(list(content_d), ll))
                     if not (content.get('affinity', '') in ['manhattan', 'precomputed'] and content.get('linkage', '') == 'ward'):
                         cl_lst_of_tpls.append(parse_clustering(key, content))
 
             else:  # just flag case
                 cl_lst_of_tpls.append(parse_clustering(key, {}))
 
-
-    #  Generate the list of list of tuples (i.e. the list of pipelines)
+    # Generate the list of list of tuples (i.e. the list of pipelines)
     pipes = modified_cartesian(i_lst_of_tpls, pp_lst_of_tpls, dr_lst_of_tpls,
                                cl_lst_of_tpls, pipes_mode=True)
     for pipe in pipes:
         logging.info("Generated pipeline: \n {} \n".format(pipe))
-    logging.info("*** {} pipeline(s) generated ***".format(len(pipes)))
+    logging.info("*** %d pipeline(s) generated ***", len(pipes))
 
     #  Get only the first max_n_pipes
     if len(pipes) > max_n_pipes:
         logging.warning("Maximum number of pipelines reached. "
-                        "I'm keeping the first {}".format(max_n_pipes))
+                        "I'm keeping the first %d", max_n_pipes)
         pipes = pipes[0:max_n_pipes]
 
     return pipes
