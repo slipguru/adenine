@@ -205,7 +205,7 @@ def pipe_worker(pipeID, pipe, pipes_dump, X):
 
     # Monkey-patch, see: https://github.com/scikit-learn/scikit-learn/issues/7562
     # and wait for the next numpy update
-    step_dump['step2'][-2] = None
+    # step_dump['step2'][-2] = None
 
     pipes_dump[pipeID] = step_dump
     # pipes_dump.setdefault(pipeID, default=step_dump['step1'])
