@@ -312,7 +312,8 @@ def voronoi(root, data_in, labels=None, true_labels=False, model=None):
     X = data_in[idx, :2]
     labels = labels[idx, np.newaxis]
     df = pd.DataFrame(
-        data=np.hstack((X, labels)), columns=["$x_1$", "$x_2$", hue])
+        data=np.hstack((X, labels)), columns=["$x_1$", "$x_2$", hue]).astype(
+            {"$x_1$": float, "$x_2$": float, hue: object})
     if df.dtypes[hue] != 'O':
         df[hue] = df[hue].astype('int64')
     # Generate seaborn plot
