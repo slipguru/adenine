@@ -28,7 +28,7 @@ from adenine.utils.extra import timed, items_iterator
 GLOBAL_INFO = 'matplotlib backend set to AGG'
 
 
-def est_clst_perf(root, data_in, labels=None, t_labels=None, model=(),
+def est_clst_perf(root, data_in, labels=None, t_labels=None, model=None,
                   metric='euclidean'):
     """Estimate the clustering performance.
 
@@ -439,11 +439,11 @@ def analyze(input_dict, root, y=None, feat_names=None, index=None, **kwargs):
 
     if ff not in file_formats:
         logging.warning("File format unknown. "
-                        "Please select one of {}".format(file_formats))
+                        "Please select one of %s", file_formats)
         plotting.set_file_ext(file_formats[0])
     else:
         plotting.set_file_ext(ff)
-    logging.info("File format set to {}".format(plotting.GLOBAL_FF))
+    logging.info("File format set to %s", plotting.GLOBAL_FF)
     lock = mp.Lock()
     ps = []
     for elem in items_iterator(input_dict):

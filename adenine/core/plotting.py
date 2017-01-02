@@ -39,7 +39,7 @@ def set_file_ext(ext):
     GLOBAL_FF = ext
 
 
-def silhouette(root, data_in, labels, model=()):
+def silhouette(root, data_in, labels, model=None):
     """Generate and save the silhouette plot of data_in w.r.t labels.
 
     This function generates the silhouette plot representing how data are
@@ -134,13 +134,14 @@ def silhouette(root, data_in, labels, model=()):
                  "{0} clusters for {2} samples, average score {1:.4f}"
                  .format(n_clusters, sil, data_in.shape[0]))
 
-    filename = os.path.join(root, os.path.basename(root)+"_silhouette."+GLOBAL_FF)
+    filename = os.path.join(
+        root, os.path.basename(root) + "_silhouette." + GLOBAL_FF)
     fig.savefig(filename)
-    logging.info('Figured saved {}'.format(filename))
+    logging.info('Figure saved %s', filename)
     plt.close()
 
 
-def scatter(root, data_in, labels=None, true_labels=False, model=()):
+def scatter(root, data_in, labels=None, true_labels=False, model=None):
     """Generate the scatter plot of the dimensionality reduced data set.
 
     This function generates the scatter plot representing the dimensionality
@@ -176,10 +177,10 @@ def scatter(root, data_in, labels=None, true_labels=False, model=()):
     # Define plot color
     if labels is None:
         y = np.zeros((n_samples))
-        _hue = ' '
+        hue = ' '
     else:
         y = labels
-        _hue = 'Classes' if true_labels else 'Estimated Labels'
+        hue = 'Classes' if true_labels else 'Estimated Labels'
 
     title = title_from_filename(root)
 
@@ -189,38 +190,44 @@ def scatter(root, data_in, labels=None, true_labels=False, model=()):
     idx = np.argsort(y)
 
     df = pd.DataFrame(data=np.hstack((X[idx, :2], y[idx][:, np.newaxis])),
-                      columns=["$x_1$", "$x_2$", _hue])
-    if df.dtypes[_hue] != 'O': df[_hue] = df[_hue].astype('int64')
+                      columns=["$x_1$", "$x_2$", hue])
+    if df.dtypes[hue] != 'O':
+        df[hue] = df[hue].astype('int64')
     # Generate seaborn plot
-    g = sns.FacetGrid(df, hue=_hue, palette="Set1", size=5, legend_out=False)
-    g.map(plt.scatter, "$x_1$", "$x_2$", s=100, linewidth=.5, edgecolor="white")
-    if _hue != ' ': g.add_legend()  # customize legend
+    g = sns.FacetGrid(df, hue=hue, palette="Set1", size=5, legend_out=False)
+    g.map(plt.scatter, "$x_1$", "$x_2$", s=100, lw=.5, edgecolor="white")
+    if hue != ' ':
+        g.add_legend()  # customize legend
     # g.set_xticklabels([])
     # g.set_yticklabels([])
     g.ax.autoscale_view(True, True, True)
     plt.title(title)
-    filename = os.path.join(root, os.path.basename(root)+"_scatter2D."+GLOBAL_FF)
+    filename = os.path.join(
+        root, os.path.basename(root) + "_scatter2D." + GLOBAL_FF)
     plt.savefig(filename)
-    logging.info('Figured saved {}'.format(filename))
+    logging.info('Figure saved %s', filename)
     plt.close()
 
     # 3D plot
-    filename = os.path.join(root, os.path.basename(root)+"_scatter3D."+GLOBAL_FF)
-    X = data_in[:, :3]
-    if X.shape[1] < 3:
-        logging.warning('{} not generated (data have less than 3 dimensions)'
-                        .format(filename))
+    filename = os.path.join(
+        root, os.path.basename(root) + "_scatter3D." + GLOBAL_FF)
+    if n_dim < 3:
+        logging.warning(
+            '%s not generated (data have less than 3 dimensions)', filename)
     else:
         try:
             from mpl_toolkits.mplot3d import Axes3D
             ax = plt.figure().gca(projection='3d')
-            # ax.scatter(X[:,0], X[:,1], X[:,2], y, c=y, cmap='hot', s=100, linewidth=.5, edgecolor="white")
+            # ax.scatter(X[:,0], X[:,1], X[:,2], y, c=y, cmap='hot', s=100,
+            #            linewidth=.5, edgecolor="white")
             y = np.array(y)
             palette = Palette(n_colors=len(np.unique(y)))
             for _, label in enumerate(np.unique(y)):
                 idx = np.where(y == label)[0]
-                ax.plot(X[:, 0][idx], X[:, 1][idx], X[:, 2][idx], 'o',
-                        c=palette.next(), label=str(label), mew=.5, mec="white")
+                ax.plot(
+                    data_in[:, 0][idx], data_in[:, 1][idx], data_in[:, 2][idx],
+                    'o', c=palette.next(), label=str(label), mew=.5,
+                    mec="white")
 
             ax.set_xlabel(r'$x_1$')
             ax.set_ylabel(r'$x_2$')
@@ -230,33 +237,38 @@ def scatter(root, data_in, labels=None, true_labels=False, model=()):
             ax.legend(loc='upper left', numpoints=1, ncol=10, fontsize=8,
                       bbox_to_anchor=(0, 0))
             plt.savefig(filename)
-            logging.info('Figured saved {}'.format(filename))
+            logging.info('Figure saved %s', filename)
             plt.close()
-        except Exception as e:
-            logging.info('Error in 3D plot: ' + str(e))
+        except StandardError as e:
+            logging.error('Error in 3D plot: %s', e)
 
     # seaborn pairplot
-    n_cols = min(data_in.shape[1], 3)
-    cols = ["$x_{}$".format(i+1) for i in range(n_cols)]
+    n_cols = min(n_dim, 3)
+    cols = ["$x_{}$".format(i + 1) for i in range(n_cols)]
     X = data_in[:, :3]
     idx = np.argsort(y)
     df = pd.DataFrame(data=np.hstack((X[idx, :], y[idx, np.newaxis])),
-                      columns=cols+[_hue])
-    if df.dtypes[_hue] != 'O': df[_hue] = df[_hue].astype('int64')
-    g = sns.PairGrid(df, hue=_hue, palette="Set1", vars=cols)
+                      columns=cols + [hue])
+    if df.dtypes[hue] != 'O':
+        df[hue] = df[hue].astype('int64')
+    g = sns.PairGrid(df, hue=hue, palette="Set1", vars=cols)
     g = g.map_diag(plt.hist)  # , palette="Set1")
     g = g.map_offdiag(plt.scatter, s=100, linewidth=.5, edgecolor="white")
 
-    # g = sns.pairplot(df, hue=_hue, palette="Set1", vars=["$x_1$","$x_2$","$x_3$"]), size=5)
-    if _hue != ' ': plt.legend(title=_hue,bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0., fontsize="large")
+    # g = sns.pairplot(df, hue=hue, palette="Set1",
+    #    vars=["$x_1$","$x_2$","$x_3$"]), size=5)
+    if hue != ' ':
+        plt.legend(title=hue, bbox_to_anchor=(1.05, 1), loc=2,
+                   borderaxespad=0., fontsize="large")
     plt.suptitle(title, x=0.6, y=1.01, fontsize="large")
-    filename = os.path.join(root, os.path.basename(root)+"_pairgrid."+GLOBAL_FF)
+    filename = os.path.join(
+        root, os.path.basename(root) + "_pairgrid." + GLOBAL_FF)
     g.savefig(filename)
-    logging.info('Figured saved {}'.format(filename))
+    logging.info('Figure saved %s', filename)
     plt.close()
 
 
-def voronoi(root, data_in, labels=None, true_labels=False, model=()):
+def voronoi(root, data_in, labels=None, true_labels=False, model=None):
     """Generate the Voronoi tessellation obtained from the clustering algorithm.
 
     This function generates the Voronoi tessellation obtained from the
@@ -284,29 +296,30 @@ def voronoi(root, data_in, labels=None, true_labels=False, model=()):
         be a clustering model provided with the clusters_centers_ attribute
         (e.g. KMeans).
     """
-    n_samples, n_dim = data_in.shape
+    n_samples, _ = data_in.shape
 
     # Define plot color
     if labels is None:
-        y = np.zeros((n_samples))
-        _hue = ' '
+        labels = np.zeros((n_samples))
+        hue = ' '
     else:
-        y = labels  # use the labels if provided
-        _hue = 'Classes'
+        hue = 'Classes'
 
     title = title_from_filename(root)
 
     # Seaborn scatter Plot
-    X = data_in[:, :2]
-    idx = np.argsort(y)
-    X = X[idx,:]
-    y = y[idx, np.newaxis]
-    df = pd.DataFrame(data=np.hstack((X, y)), columns=["$x_1$", "$x_2$", _hue])
-    if df.dtypes[_hue] != 'O': df[_hue] = df[_hue].astype('int64')
+    idx = np.argsort(labels)
+    X = data_in[idx, :2]
+    labels = labels[idx, np.newaxis]
+    df = pd.DataFrame(
+        data=np.hstack((X, labels)), columns=["$x_1$", "$x_2$", hue])
+    if df.dtypes[hue] != 'O':
+        df[hue] = df[hue].astype('int64')
     # Generate seaborn plot
-    g = sns.FacetGrid(df, hue=_hue, palette="Set1", size=5, legend_out=False)
-    g.map(plt.scatter, "$x_1$", "$x_2$", s=100, linewidth=.5, edgecolor="white")
-    if _hue != ' ': g.add_legend() #!! customize legend
+    g = sns.FacetGrid(df, hue=hue, palette="Set1", size=5, legend_out=False)
+    g.map(plt.scatter, "$x_1$", "$x_2$", s=100, lw=.5, edgecolor="white")
+    if hue != ' ':
+        g.add_legend()  # customize legend
     g.ax.autoscale_view(True, True, True)
     plt.title(title)
 
@@ -322,11 +335,10 @@ def voronoi(root, data_in, labels=None, true_labels=False, model=()):
     x_min, x_max = X[:, 0].min(), X[:, 0].max()
     y_min, y_max = X[:, 1].min(), X[:, 1].max()
     offset = (x_max - x_min) / 5. + (y_max - y_min) / 5.  # zoom out the plot
-    xx, yy = np.meshgrid(np.linspace(x_min-offset, x_max+offset, npoints),
-                         np.linspace(y_min-offset, y_max+offset, npoints))
+    xx, yy = np.meshgrid(np.linspace(x_min - offset, x_max + offset, npoints),
+                         np.linspace(y_min - offset, y_max + offset, npoints))
 
     # Obtain labels for each point in mesh. Use last trained model.
-
     Z = model.predict(np.c_[xx.ravel(), yy.ravel()])
     # Put the result into a color plot
     Z = Z.reshape(xx.shape)
@@ -338,9 +350,9 @@ def voronoi(root, data_in, labels=None, true_labels=False, model=()):
     plt.xlim([xx.min(), xx.max()])
     plt.ylim([yy.min(), yy.max()])
 
-    filename = os.path.join(root, os.path.basename(root)+"."+GLOBAL_FF)
+    filename = os.path.join(root, os.path.basename(root) + "." + GLOBAL_FF)
     plt.savefig(filename)
-    logging.info('Figured saved {}'.format(filename))
+    logging.info('Figure saved %s', filename)
     plt.close()
 
 
@@ -394,10 +406,12 @@ def tree(root, data_in, labels=None, index=None, model=None):
             fillcolor = (lambda _:
                          palette.palette.as_hex()[colors[labels[x[_]]]]
                          if x[_] < labels.shape[0] else 'white')
-            left_node = pydot.Node(str(index[x[0]] if x[0] < len(index) else x[0]), style="filled",
-                                   fillcolor=fillcolor(0))
-            right_node = pydot.Node(str(index[x[1]] if x[1] < len(index) else x[1]), style="filled",
-                                    fillcolor=fillcolor(1))
+            left_node = pydot.Node(
+                str(index[x[0]] if x[0] < len(index) else x[0]),
+                style="filled", fillcolor=fillcolor(0))
+            right_node = pydot.Node(
+                str(index[x[1]] if x[1] < len(index) else x[1]),
+                style="filled", fillcolor=fillcolor(1))
 
             graph.add_node(left_node)
             graph.add_node(right_node)
@@ -406,9 +420,9 @@ def tree(root, data_in, labels=None, index=None, model=None):
 
         # graph.write_png(filename[:-2]+"ng")
         graph.write_pdf(filename)
-        logging.info('Figured saved {}'.format(filename))
-    except Exception as e:
-        logging.critical('Cannot create {}. tb: {}'.format(filename, e))
+        logging.info('Figure saved %s', filename)
+    except StandardError as e:
+        logging.critical('Cannot create %s. tb: %s', filename, e)
 
 
 def dendrogram(root, data_in, labels=None, index=None, model=None, n_max=150):
@@ -496,7 +510,7 @@ def dendrogram(root, data_in, labels=None, index=None, model=None, n_max=150):
     filename = os.path.join(root, os.path.basename(root) +
                             '_dendrogram.' + GLOBAL_FF)
     g.savefig(filename)
-    logging.info('Figured saved {}'.format(filename))
+    logging.info('Figure saved %s', filename)
     plt.close()
 
 

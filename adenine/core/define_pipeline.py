@@ -36,6 +36,7 @@ from adenine.utils.extra import modified_cartesian
 from adenine.utils.extra import ensure_list
 from adenine.utils.extra import values_iterator
 
+
 def parse_preproc(key, content):
     """Parse the options of the preprocessing step.
 
