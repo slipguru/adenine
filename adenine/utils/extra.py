@@ -98,7 +98,7 @@ def make_time_flag():
     h = str(time.localtime().tm_hour)
     mi = str(time.localtime().tm_min)
     s = str(time.localtime().tm_sec)
-    return h+':'+mi+':'+s+'_'+d+'-'+mo+'-'+y
+    return h + ':' + mi + ':' + s + '_' + d + '-' + mo + '-' + y
 
 
 def sec_to_time(seconds):
@@ -120,6 +120,7 @@ def sec_to_time(seconds):
 
 
 def get_time():
+    """Get time of now, in string."""
     return datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H.%M.%S')
 
 

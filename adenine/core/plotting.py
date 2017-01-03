@@ -23,20 +23,12 @@ try:
 except ImportError:
     from sklearn.cross_validation import StratifiedShuffleSplit
 
-from adenine.utils.extra import (title_from_filename, items_iterator, Palette,
-                                 timed)
+from adenine.utils.extra import title_from_filename, Palette
 
 __all__ = ("silhouette", "scatter", "voronoi", "tree",
            "dendrogram", "pcmagnitude", "eigs")
 
-GLOBAL_FF = 'png'
-
-global_palette = Palette()
-
-
-def set_file_ext(ext):
-    global GLOBAL_FF
-    GLOBAL_FF = ext
+DEFAULT_EXT = 'png'
 
 
 def silhouette(root, data_in, labels, model=None):
@@ -62,13 +54,13 @@ def silhouette(root, data_in, labels, model=None):
         An instance of the class that evaluates a step.
     """
     if labels is None:
-        logging.info('Cannot make silhouette plot with no real labels.')
+        logging.warning('Cannot make silhouette plot with no real labels.')
         return
 
     if len(labels) < 2 or len(labels) > data_in.shape[0] - 1:
-        logging.info('Cannot make silhouette if number of labels is {}. Valid '
-                     'values are 2 to n_samples - 1 '
-                     '(inclusive).'.format(len(labels)))
+        logging.warning('Cannot make silhouette if number of labels is %d. '
+                        'Valid values are 2 to n_samples - 1 '
+                        '(inclusive).', len(labels))
         return
 
     # Create a subplot with 1 row and 2 columns
@@ -100,7 +92,7 @@ def silhouette(root, data_in, labels, model=None):
 
     y_lower = 10
     palette = Palette()
-    for i, label in enumerate(np.unique(labels)):
+    for _, label in enumerate(np.unique(labels)):
         # Aggregate the silhouette scores for samples belonging to
         # cluster i, and sort them
         ith_cluster_silhouette_values = sample_silhouette_values[labels == label]
@@ -135,7 +127,7 @@ def silhouette(root, data_in, labels, model=None):
                  .format(n_clusters, sil, data_in.shape[0]))
 
     filename = os.path.join(
-        root, os.path.basename(root) + "_silhouette." + GLOBAL_FF)
+        root, os.path.basename(root) + "_silhouette." + DEFAULT_EXT)
     fig.savefig(filename)
     logging.info('Figure saved %s', filename)
     plt.close()
@@ -176,10 +168,10 @@ def scatter(root, data_in, labels=None, true_labels=False, model=None):
 
     # Define plot color
     if labels is None:
-        y = np.zeros((n_samples))
+        labels = np.zeros(n_samples, dtype=np.short)
         hue = ' '
     else:
-        y = labels
+        labels = np.asarray(labels)
         hue = 'Classes' if true_labels else 'Estimated Labels'
 
     title = title_from_filename(root)
@@ -187,10 +179,12 @@ def scatter(root, data_in, labels=None, true_labels=False, model=None):
     # Seaborn scatter plot
     # 2D plot
     X = data_in[:, :2]
-    idx = np.argsort(y)
+    idx = np.argsort(labels)
 
-    df = pd.DataFrame(data=np.hstack((X[idx, :2], y[idx][:, np.newaxis])),
-                      columns=["$x_1$", "$x_2$", hue])
+    df = pd.DataFrame(
+        data=np.hstack((X[idx, :2], labels[idx][:, np.newaxis])),
+        columns=["$x_1$", "$x_2$", hue]).astype(
+            {"$x_1$": float, "$x_2$": float})
     if df.dtypes[hue] != 'O':
         df[hue] = df[hue].astype('int64')
     # Generate seaborn plot
@@ -203,14 +197,14 @@ def scatter(root, data_in, labels=None, true_labels=False, model=None):
     g.ax.autoscale_view(True, True, True)
     plt.title(title)
     filename = os.path.join(
-        root, os.path.basename(root) + "_scatter2D." + GLOBAL_FF)
+        root, os.path.basename(root) + "_scatter2D." + DEFAULT_EXT)
     plt.savefig(filename)
     logging.info('Figure saved %s', filename)
     plt.close()
 
     # 3D plot
     filename = os.path.join(
-        root, os.path.basename(root) + "_scatter3D." + GLOBAL_FF)
+        root, os.path.basename(root) + "_scatter3D." + DEFAULT_EXT)
     if n_dim < 3:
         logging.warning(
             '%s not generated (data have less than 3 dimensions)', filename)
@@ -220,10 +214,9 @@ def scatter(root, data_in, labels=None, true_labels=False, model=None):
             ax = plt.figure().gca(projection='3d')
             # ax.scatter(X[:,0], X[:,1], X[:,2], y, c=y, cmap='hot', s=100,
             #            linewidth=.5, edgecolor="white")
-            y = np.array(y)
-            palette = Palette(n_colors=len(np.unique(y)))
-            for _, label in enumerate(np.unique(y)):
-                idx = np.where(y == label)[0]
+            palette = Palette(n_colors=len(np.unique(labels)))
+            for _, label in enumerate(np.unique(labels)):
+                idx = np.where(labels == label)[0]
                 ax.plot(
                     data_in[:, 0][idx], data_in[:, 1][idx], data_in[:, 2][idx],
                     'o', c=palette.next(), label=str(label), mew=.5,
@@ -246,9 +239,10 @@ def scatter(root, data_in, labels=None, true_labels=False, model=None):
     n_cols = min(n_dim, 3)
     cols = ["$x_{}$".format(i + 1) for i in range(n_cols)]
     X = data_in[:, :3]
-    idx = np.argsort(y)
-    df = pd.DataFrame(data=np.hstack((X[idx, :], y[idx, np.newaxis])),
-                      columns=cols + [hue])
+    idx = np.argsort(labels)
+    df = pd.DataFrame(data=np.hstack((X[idx, :], labels[idx, np.newaxis])),
+                      columns=cols + [hue]).astype(
+                          dict(zip(cols, [float] * n_cols)))
     if df.dtypes[hue] != 'O':
         df[hue] = df[hue].astype('int64')
     g = sns.PairGrid(df, hue=hue, palette="Set1", vars=cols)
@@ -262,7 +256,7 @@ def scatter(root, data_in, labels=None, true_labels=False, model=None):
                    borderaxespad=0., fontsize="large")
     plt.suptitle(title, x=0.6, y=1.01, fontsize="large")
     filename = os.path.join(
-        root, os.path.basename(root) + "_pairgrid." + GLOBAL_FF)
+        root, os.path.basename(root) + "_pairgrid." + DEFAULT_EXT)
     g.savefig(filename)
     logging.info('Figure saved %s', filename)
     plt.close()
@@ -300,9 +294,10 @@ def voronoi(root, data_in, labels=None, true_labels=False, model=None):
 
     # Define plot color
     if labels is None:
-        labels = np.zeros((n_samples))
+        labels = np.zeros(n_samples, dtype=np.short)
         hue = ' '
     else:
+        labels = np.asarray(labels)
         hue = 'Classes'
 
     title = title_from_filename(root)
@@ -313,7 +308,7 @@ def voronoi(root, data_in, labels=None, true_labels=False, model=None):
     labels = labels[idx, np.newaxis]
     df = pd.DataFrame(
         data=np.hstack((X, labels)), columns=["$x_1$", "$x_2$", hue]).astype(
-            {"$x_1$": float, "$x_2$": float, hue: object})
+            {"$x_1$": float, "$x_2$": float})
     if df.dtypes[hue] != 'O':
         df[hue] = df[hue].astype('int64')
     # Generate seaborn plot
@@ -351,7 +346,7 @@ def voronoi(root, data_in, labels=None, true_labels=False, model=None):
     plt.xlim([xx.min(), xx.max()])
     plt.ylim([yy.min(), yy.max()])
 
-    filename = os.path.join(root, os.path.basename(root) + "." + GLOBAL_FF)
+    filename = os.path.join(root, os.path.basename(root) + "." + DEFAULT_EXT)
     plt.savefig(filename)
     logging.info('Figure saved %s', filename)
     plt.close()
@@ -393,16 +388,16 @@ def tree(root, data_in, labels=None, index=None, model=None):
         graph = pydot.Dot(graph_type='graph')
 
         if labels is None:
-            labels = np.array([0])
-            palette = Palette(n_colors=len(np.unique(labels)))
+            labels = np.zeros(1, dtype=np.short)
+            palette = Palette('hls', n_colors=np.unique(labels).shape[0])
             palette.palette[0] = (1.0, 1.0, 1.0)
         else:
-            palette = Palette(n_colors=len(np.unique(labels)))
+            palette = Palette('hls', n_colors=np.unique(labels).shape[0])
 
-        colors = {v: k for k, v in
-                  items_iterator(dict(enumerate(np.unique(labels))))}
+        colors = dict(
+            zip(np.unique(labels), np.arange(np.unique(labels).shape[0])))
         ii = itertools.count(data_in.shape[0])
-        for k, x in enumerate(model.children_):
+        for _, x in enumerate(model.children_):
             root_node = next(ii)
             fillcolor = (lambda _:
                          palette.palette.as_hex()[colors[labels[x[_]]]]
@@ -465,9 +460,6 @@ def dendrogram(root, data_in, labels=None, index=None, model=None, n_max=150):
         (or sklearn.cross_validation.StratifiedShuffleSplit for legacy
         reasons).
     """
-    # associate dummy values to the label vector
-    if labels is not None:
-        labels = np.arange(len(labels))
     # define col names
     col = ["$x_{" + str(i) + "}$" for i in np.arange(0, data_in.shape[1], 1)]
     df = pd.DataFrame(data=data_in, columns=col, index=index)
@@ -476,8 +468,13 @@ def dendrogram(root, data_in, labels=None, index=None, model=None, n_max=150):
     # https://stanford.edu/~mwaskom/software/seaborn/examples/structured_heatmap.html
     # Create a custom palette to identify the classes
     if labels is None:
-        labels = [0]*df.shape[0]
-    n_colors = len(set(labels))
+        labels = np.zeros(df.shape[0], dtype=np.short)
+    else:
+        mapping = dict(
+            zip(np.unique(labels), np.arange(np.unique(labels).shape[0])))
+        labels = np.vectorize(mapping.get)(labels)
+
+    n_colors = np.unique(labels).shape[0]
     custom_pal = sns.color_palette("hls", n_colors)
     custom_lut = dict(zip(map(str, range(n_colors)), custom_pal))
 
@@ -509,15 +506,14 @@ def dendrogram(root, data_in, labels=None, index=None, model=None, n_max=150):
 
     plt.setp(g.ax_heatmap.yaxis.get_majorticklabels(), rotation=0, fontsize=5)
     filename = os.path.join(root, os.path.basename(root) +
-                            '_dendrogram.' + GLOBAL_FF)
+                            '_dendrogram.' + DEFAULT_EXT)
     g.savefig(filename)
     logging.info('Figure saved %s', filename)
     plt.close()
 
 
 def pcmagnitude(root, points, title='', ylabel=''):
-    """Generate the plot representing the trend of principal components
-    magnitude.
+    """Plot the trend of principal components magnitude.
 
     Parameters
     -----------
@@ -542,7 +538,7 @@ def pcmagnitude(root, points, title='', ylabel=''):
     plt.xlim([1, min(20, len(points) + 1)])  # Show maximum 20 components
     plt.ylim([0, 1])
     filename = os.path.join(root, os.path.basename(root) +
-                            "_magnitude." + GLOBAL_FF)
+                            "_magnitude." + DEFAULT_EXT)
     plt.savefig(filename)
     plt.close()
 
@@ -625,8 +621,8 @@ def eigs(root, affinity, n_clusters=0, title='', ylabel='', normalised=True,
         plt.xlim([1, min(n_components, len(w) + 1)])  # Show max n_components
         if ylim == 'auto':
             plt.ylim((0, w[:min(n_components, len(w) + 1)][-1] +
-                     2*(w[:min(n_components, len(w) + 1)][-1] -
-                        w[:min(n_components, len(w) + 1)][-2])))
+                     2 * (w[:min(n_components, len(w) + 1)][-1] -
+                          w[:min(n_components, len(w) + 1)][-2])))
         elif ylim is not None:
             plt.ylim(ylim)
         if n_clusters > 0:
@@ -636,7 +632,7 @@ def eigs(root, affinity, n_clusters=0, title='', ylabel='', normalised=True,
         # , bbox_to_anchor=(1, 1))
         if filename is None:
             filename = os.path.join(root, os.path.basename(root) +
-                                    "_eigenvals." + GLOBAL_FF)
+                                    "_eigenvals." + DEFAULT_EXT)
         plt.savefig(filename)
     except np.linalg.LinAlgError:
         logging.critical("Error in plot_eigs: Affinity matrix contained "

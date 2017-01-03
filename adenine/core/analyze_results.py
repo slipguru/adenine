@@ -11,11 +11,11 @@ import os
 import shutil
 import logging
 import cPickle as pkl
+import matplotlib; matplotlib.use('AGG')
+import multiprocessing as mp
 import numpy as np
 import pandas as pd
-import matplotlib; matplotlib.use('AGG')
 import seaborn as sns
-import multiprocessing as mp
 import subprocess
 
 from sklearn import metrics
@@ -74,8 +74,8 @@ def est_clst_perf(root, data_in, labels=None, t_labels=None, model=None,
             perf_out['v_measure'] = metrics.v_measure_score(t_labels, labels)
 
     except ValueError as e:
-        logging.info("Clustering performance evaluation failed for {}. "
-                     "Error: {}".format(model, e))
+        logging.warning("Clustering performance evaluation failed for {}. "
+                        "Error: {}".format(model, e))
         # perf_out = {'empty': 0.0}
         perf_out['###'] = 0.
 
@@ -98,7 +98,7 @@ def est_clst_perf(root, data_in, labels=None, t_labels=None, model=None,
     filename += '_scores.pkl'
     with open(filename, 'w+') as f:
         pkl.dump(perf_out, f)
-    logging.info("Dumped : {}".format(filename))
+    logging.info("Dumped : %s", filename)
 
 
 def make_df_clst_perf(root):
@@ -116,12 +116,12 @@ def make_df_clst_perf(root):
     measures = ('ami', 'ari', 'completeness', 'homogeneity', 'v_measure',
                 'inertia', 'silhouette')
     df = pd.DataFrame(columns=['pipeline'] + list(measures))
-    for _root, directories, filenames in os.walk(root):
+    for root_, _, filenames in os.walk(root):
         for fn in filenames:
             if fn.endswith('_scores.pkl'):
-                with open(os.path.join(_root, fn), 'r') as f:
+                with open(os.path.join(root_, fn), 'r') as f:
                     perf_out = pkl.load(f)
-                perf_out['pipeline'] = title_from_filename(_root,
+                perf_out['pipeline'] = title_from_filename(root_,
                                                            step_sep=" --> ")
                 df = df.append(perf_out, ignore_index=True)
     df = df.fillna('')
@@ -131,13 +131,13 @@ def make_df_clst_perf(root):
     (size_ami, size_ari, size_com, size_hom,
         size_vme, size_ine, size_sil) = \
         [2 + max([len('{: .3}'.format(p)) if p != '' else 3
-                  for p in df[__]] + [len(__)]) for __ in measures]
+                  for p in df[mm]] + [len(mm)]) for mm in measures]
 
     # find the best value for each score
-    best_scores = {__: max([p for p in df[__] if p != ''] or [np.nan]) for __ in measures}
+    best_scores = {mm: max([p for p in df[mm] if p != ''] or [np.nan]) for mm in measures}
 
     with open(os.path.join(root, 'summary_scores.txt'), 'w') as f, \
-         open(os.path.join(root, 'summary_scores.tex'), 'w') as g:
+            open(os.path.join(root, 'summary_scores.tex'), 'w') as g:
         header = "{}{}|{}ami  |{}ari  |{}completeness  |{}homogeneity  " \
                  "|{}v_measure  |{}inertia  |{}silhouette  \n" \
                  .format(pipe_header,
@@ -174,10 +174,10 @@ def make_df_clst_perf(root):
         for _ in df.iterrows():
             row = _[1]
             (ami, ari, com, hom,
-                vme, ine, sil) = ['{: .3}'.format(row[__]) if row[__] != ''
-                                  else '---' for __ in measures]
+                vme, ine, sil) = ['{: .3}'.format(row[mm]) if row[mm] != ''
+                                  else '---' for mm in measures]
 
-            star = {__: ' *' if row[__] == best_scores[__] else '  ' for __ in measures}
+            star = {mm: ' *' if row[mm] == best_scores[mm] else '  ' for mm in measures}
             f.write("{}{}|{}{}{}|{}{}{}|{}{}{}|{}{}{}|{}{}{}|{}{}{}|{}{}{}\n"
                     .format(
                         row['pipeline'],
@@ -440,10 +440,10 @@ def analyze(input_dict, root, y=None, feat_names=None, index=None, **kwargs):
     if ff not in file_formats:
         logging.warning("File format unknown. "
                         "Please select one of %s", file_formats)
-        plotting.set_file_ext(file_formats[0])
+        plotting.DEFAULT_EXT = file_formats[0]
     else:
-        plotting.set_file_ext(ff)
-    logging.info("File format set to %s", plotting.GLOBAL_FF)
+        plotting.DEFAULT_EXT = ff
+    logging.info("File format set to %s", plotting.DEFAULT_EXT)
     lock = mp.Lock()
     ps = []
     for elem in items_iterator(input_dict):
@@ -471,7 +471,7 @@ def analyze(input_dict, root, y=None, feat_names=None, index=None, **kwargs):
         os.remove("summary_scores.aux")
         os.remove("summary_scores.log")
         logging.info(".aux and .log cleaned")
-    except:
+    except StandardError:
         from sys import platform
         logging.warning("Suitable pdflatex installation not found.")
         if platform not in ["linux", "linux2", "darwin"]:
