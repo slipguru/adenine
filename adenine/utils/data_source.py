@@ -216,7 +216,7 @@ def load(opt='custom', x_filename=None, y_filename=None, n_samples=0,
                 sss = StratifiedShuffleSplit(y, test_size=n_samples, n_iter=1)
                 # idx = np.random.permutation(X.shape[0])[:n_samples]
             except TypeError:
-                sss = StratifiedShuffleSplit(n_iter=1, test_size=n_samples) \
+                sss = StratifiedShuffleSplit(test_size=n_samples) \
                     .split(X, y)
             _, idx = list(sss)[0]
         else:

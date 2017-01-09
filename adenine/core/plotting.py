@@ -492,9 +492,9 @@ def dendrogram(root, data_in, labels=None, index=None, model=None, n_max=150):
         # understand that the matrix is precomputed, unless it is 1-dimensional
         Z = linkage(ssd.squareform(data_in), method=model.linkage,
                     metric='euclidean')
-        g = sns.clustermap(df, method=model.linkage,
-                           row_linkage=Z, col_linkage=Z,
-                           linewidths=.5, cmap=cmap)
+        g = sns.clustermap(
+            df, method=model.linkage, row_linkage=Z, col_linkage=Z,
+            linewidths=.5, cmap=cmap)
 
     else:
         # workaround to a different name used for manhattan/cityblock distance

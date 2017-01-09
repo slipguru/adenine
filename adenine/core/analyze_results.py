@@ -21,6 +21,7 @@ import subprocess
 from sklearn import metrics
 
 from adenine.core import plotting
+from adenine.utils import scores
 from adenine.utils.extra import title_from_filename
 from adenine.utils.extra import timed, items_iterator
 
@@ -73,25 +74,29 @@ def est_clst_perf(root, data_in, labels=None, t_labels=None, model=None,
             perf_out['completeness'] = metrics.completeness_score(t_labels, labels)
             perf_out['v_measure'] = metrics.v_measure_score(t_labels, labels)
 
+            perf_out['fscore'] = scores.precision_recall_fscore(
+                scores.confusion_matrix(t_labels, labels)[0])[2]
+
     except ValueError as e:
-        logging.warning("Clustering performance evaluation failed for {}. "
-                        "Error: {}".format(model, e))
+        logging.warning("Clustering performance evaluation failed for %s. "
+                        "Error: %s", model, str(e))
         # perf_out = {'empty': 0.0}
         perf_out['###'] = 0.
 
     # Define the filename
     filename = os.path.join(root, os.path.basename(root))
     with open(filename + '_scores.txt', 'w') as f:
-        f.write("------------------------------------\n")
-        f.write("Adenine: Clustering Performance for \n")
-        f.write("\n")
-        f.write(title_from_filename(root, " --> ") + "\n")
-        f.write("------------------------------------\n")
+        f.write("------------------------------------\n"
+                "Adenine: Clustering Performance for \n"
+                "\n"
+                + title_from_filename(root, " --> ") + "\n"
+                "------------------------------------\n")
         f.write("Index Name{}|{}Index Score\n".format(' ' * 10, ' ' * 4))
         f.write("------------------------------------\n")
         for elem in sorted(perf_out.keys()):
             f.write("{}{}|{}{:.4}\n"
-                    .format(elem, ' ' * (20-len(elem)), ' ' * 4, perf_out[elem]))
+                    .format(elem, ' ' * (20 - len(elem)), ' ' * 4,
+                            perf_out[elem]))
             f.write("------------------------------------\n")
 
     # pkl Dump
@@ -114,7 +119,7 @@ def make_df_clst_perf(root):
         The root path for the output creation.
     """
     measures = ('ami', 'ari', 'completeness', 'homogeneity', 'v_measure',
-                'inertia', 'silhouette')
+                'inertia', 'silhouette', 'fscore')
     df = pd.DataFrame(columns=['pipeline'] + list(measures))
     for root_, _, filenames in os.walk(root):
         for fn in filenames:
@@ -125,30 +130,25 @@ def make_df_clst_perf(root):
                                                            step_sep=" --> ")
                 df = df.append(perf_out, ignore_index=True)
     df = df.fillna('')
+    nan_val = '---'
 
     pipe_header = 'preprocess --> dim red --> clustering'
     size_pipe = max([len(p) for p in df['pipeline']] + [len(pipe_header)])
-    (size_ami, size_ari, size_com, size_hom,
-        size_vme, size_ine, size_sil) = \
-        [2 + max([len('{: .3}'.format(p)) if p != '' else 3
-                  for p in df[mm]] + [len(mm)]) for mm in measures]
+    sizes = [3 + max([len('{: .3}'.format(p)) if p != '' else len(nan_val)
+                     for p in df[mm]] + [len(mm)]) for mm in measures]
 
     # find the best value for each score
-    best_scores = {mm: max([p for p in df[mm] if p != ''] or [np.nan]) for mm in measures}
+    best_scores = {
+        mm: max([p for p in df[mm] if p != ''] or [np.nan]) for mm in measures}
 
     with open(os.path.join(root, 'summary_scores.txt'), 'w') as f, \
             open(os.path.join(root, 'summary_scores.tex'), 'w') as g:
-        header = "{}{}|{}ami  |{}ari  |{}completeness  |{}homogeneity  " \
-                 "|{}v_measure  |{}inertia  |{}silhouette  \n" \
+        measures_header = [' ' * max(size - len(x) - 2, 1) + x + '  '
+                           for size, x in zip(sizes, measures)]
+        header = "{}{}|{}\n" \
                  .format(pipe_header,
                          ' ' * (size_pipe - len(pipe_header)),
-                         ' ' * (size_ami - 5),
-                         ' ' * (size_ari - 5),
-                         ' ' * (size_com - len("completeness  ")),
-                         ' ' * (size_hom - len("homogeneity  ")),
-                         ' ' * (size_vme - len("v_measure  ")),
-                         ' ' * (size_ine - len("inertia  ")),
-                         ' ' * (size_sil - len("silhouette  ")))
+                         '|'.join(measures_header))
         f.write("-" * len(header) + "\n")
         f.write("Adenine: Clustering Performance for each pipeline\n")
         f.write("-" * len(header) + "\n")
@@ -165,42 +165,32 @@ def make_df_clst_perf(root):
                 r"\caption{Adenine: Clustering Performance for each pipeline}" "\n"
                 r"\label{clust-perf}" "\n"
                 r"\begin{adjustbox}{max width=\textwidth}" "\n"
-                r"\begin{tabular}{l|rc|rc|rc|rc|rc|rc|rc}" "\n"
+                r"\begin{tabular}{l|rc|rc|rc|rc|rc|rc|rc|rc}" "\n"
                 r"\textbf{preprocess $\to$ dim red $\to$ clustering} & \textbf{ami} "
                 r"&& \textbf{ari} && \textbf{completeness} && \textbf{homogeneity} "
-                r"&& \textbf{v\_measure} && \textbf{inertia} && \textbf{silhouette}"
-                r" & \\ \hline" "\n")
+                r"&& \textbf{v\_measure} && \textbf{inertia} && \textbf{silhouette} "
+                r"&& \textbf{fscore}"
+                r" & \\ \hline " "\n")
 
         for _ in df.iterrows():
             row = _[1]
-            (ami, ari, com, hom,
-                vme, ine, sil) = ['{: .3}'.format(row[mm]) if row[mm] != ''
-                                  else '---' for mm in measures]
+            all_measures = ['{: .3}'.format(row[mm]) if row[mm] != ''
+                            else nan_val for mm in measures]
 
-            star = {mm: ' *' if row[mm] == best_scores[mm] else '  ' for mm in measures}
-            f.write("{}{}|{}{}{}|{}{}{}|{}{}{}|{}{}{}|{}{}{}|{}{}{}|{}{}{}\n"
+            stars = [' *' if row[mm] == best_scores[mm] else '  ' for mm in measures]
+            row_measure = [' ' * max(size - len(x) - 2, 1) + x + ss
+                           for size, x, ss in zip(sizes, all_measures, stars)]
+            f.write("{}{}|{}\n"
                     .format(
                         row['pipeline'],
                         ' ' * (size_pipe - len(row['pipeline'])),
-                        ' ' * (abs(size_ami - len(str(ami)) - 2)), ami, star['ami'],
-                        ' ' * (abs(size_ari - len(str(ari)) - 2)), ari, star['ari'],
-                        ' ' * (abs(size_com - len(str(com)) - 2)), com, star['completeness'],
-                        ' ' * (abs(size_hom - len(str(hom)) - 2)), hom, star['homogeneity'],
-                        ' ' * (abs(size_vme - len(str(vme)) - 2)), vme, star['v_measure'],
-                        ' ' * (abs(size_ine - len(str(ine)) - 2)), ine, star['inertia'],
-                        ' ' * (abs(size_sil - len(str(sil)) - 2)), sil, star['silhouette']
+                        '|'.join(row_measure)
                     ))
-
-            g.write(r"{} & {}&{} & {}&{} & {}&{} & {}&{} & {}&{} & {}&{} & {}&{} \\" "\n"
+            row_tex = [x + r'&' + ss for x, ss in zip(all_measures, stars)]
+            g.write(r"{} & {} \\" "\n"
                     .format(
                         row['pipeline'].replace('-->', r'$\to$'),
-                        ami, star['ami'],
-                        ari, star['ari'],
-                        com, star['completeness'],
-                        hom, star['homogeneity'],
-                        vme, star['v_measure'],
-                        ine, star['inertia'],
-                        sil, star['silhouette'],
+                        r'&'.join(row_tex)
                     ))
 
         f.write("-" * len(header) + "\n")
@@ -209,7 +199,6 @@ def make_df_clst_perf(root):
                 r"\end{adjustbox}" "\n"
                 r"\end{table}" "\n"
                 r"\end{document}")
-    # df.to_csv(os.path.join(rootFolder,'all_scores.csv'), na_rep='-', index_label=False, index=False)
 
 
 def get_step_attributes(step, pos):
@@ -294,7 +283,7 @@ def get_step_attributes(step, pos):
             param.get('cluster_centers_', np.empty(0)).shape[0] or \
             mdl_obj.__dict__.get('n_clusters', 0) or \
             mdl_obj.__dict__.get('cluster_centers_', np.empty(0)).shape[0]
-    except:
+    except StandardError:
         n_clusters = 0
     if n_clusters > 0:
         name += '_' + str(n_clusters) + '-clusts'
