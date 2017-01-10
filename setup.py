@@ -33,7 +33,7 @@ setup(
     ],
     license='FreeBSD',
 
-    packages=['adenine', 'adenine.core', 'adenine.utils'],
+    packages=['adenine', 'adenine.core', 'adenine.utils', 'adenine.externals'],
     requires=['numpy (>=1.10.1)',
               'scipy (>=0.16.1)',
               'sklearn (>=0.17)',
