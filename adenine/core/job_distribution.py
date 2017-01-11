@@ -1,13 +1,17 @@
 """Master slave."""
+from __future__ import print_function
 import os
 import imp
 import logging
 import shutil
+import cPickle as pkl
+import gzip
 
 from collections import deque
 
 from adenine.core import define_pipeline
 from adenine.core.pipelines import pipe_worker
+from adenine.utils import extra
 
 try:
     from mpi4py import MPI
@@ -18,7 +22,7 @@ try:
 
     IS_MPI_JOB = COMM.Get_size() > 1
 
-except ImportError as e:
+except ImportError:
     print("mpi4py module not found. Adenine cannot run on multiple machines.")
     COMM = None
     RANK = 0
@@ -67,10 +71,10 @@ def master_single_machine(pipes, X):
     # Submit jobs
     for i, pipe in enumerate(pipes):
         pipe_id = 'pipe' + str(i)
-        p = mp.Process(target=pipe_worker,
-                       args=(pipe_id, pipe, pipes_dump, X))
-        jobs.append(p)
-        p.start()
+        proc = mp.Process(target=pipe_worker,
+                          args=(pipe_id, pipe, pipes_dump, X))
+        jobs.append(proc)
+        proc.start()
         logging.info("Job: %s submitted", pipe_id)
 
     # Collect results
@@ -139,7 +143,13 @@ def master(config):
 
 
 def slave(X):
-    # Pipelines Evaluatio
+    """Pipeline evaluation.
+
+    Parameters
+    ----------
+    X : array of float, shape : n_samples x n_features, default : ()
+        The input data matrix.
+    """
     try:
         while True:
             status_ = MPI.Status()
@@ -156,8 +166,8 @@ def slave(X):
                 pipe_id, pipe, None, X)
             COMM.send((pipe_id, step_dump), dest=0, tag=0)
 
-    except Exception as e:
-        print("Quitting ... TB:", str(e))
+    except Exception as exc:
+        print("Quitting ... TB:", str(exc))
 
 
 def main(config_file):
@@ -170,7 +180,6 @@ def main(config_file):
     config = imp.load_source('ade_config', config_path)
     imp.release_lock()
 
-    from adenine.utils import extra
     extra.set_module_defaults(
         config, {
             'step0': {'Impute': [False]},
@@ -182,7 +191,7 @@ def main(config_file):
             'verbose': False})
 
     # Read the variables from the config file
-    X, y = config.X, config.y
+    X = config.X
 
     if RANK == 0:
         # Get the experiment tag and the output root folder
@@ -195,10 +204,11 @@ def main(config_file):
         logging.basicConfig(filename=logfile, level=logging.INFO, filemode='w',
                             format='%(levelname)s (%(name)s): %(message)s')
         root_logger = logging.getLogger()
-        ch = logging.StreamHandler()
-        ch.setLevel(logging.DEBUG if config.verbose else logging.ERROR)
-        ch.setFormatter(logging.Formatter('%(levelname)s (%(name)s): %(message)s'))
-        root_logger.addHandler(ch)
+        lsh = logging.StreamHandler()
+        lsh.setLevel(logging.DEBUG if config.verbose else logging.ERROR)
+        lsh.setFormatter(
+            logging.Formatter('%(levelname)s (%(name)s): %(message)s'))
+        root_logger.addHandler(lsh)
         pipes_dump = master(config)
     else:
         slave(X)
@@ -209,24 +219,21 @@ def main(config_file):
 
     if RANK == 0:
         # Output Name
-        output_filename = filename
-        outfolder = os.path.join(root, output_filename)
+        outfile = filename
+        outfolder = os.path.join(root, outfile)
 
         # Create exp folder into the root folder
         os.makedirs(outfolder)
 
         # pkl Dump
-        import cPickle as pkl
-        import gzip
-        with gzip.open(os.path.join(outfolder,
-                                    output_filename + '.pkl.tz'), 'w+') as f:
-            pkl.dump(pipes_dump, f)
-        logging.info("Dumped : {}".format(os.path.join(outfolder,
-                                                       output_filename + '.pkl.tz')))
-        with gzip.open(os.path.join(outfolder, '__data.pkl.tz'), 'w+') as f:
-            pkl.dump({'X': X, 'y': y, 'index': config.index}, f)
-        logging.info("Dumped : {}".format(os.path.join(outfolder,
-                                                       '__data.pkl.tz')))
+        with gzip.open(os.path.join(outfolder, outfile + '.pkl.tz'),
+                       'w+') as out:
+            pkl.dump(pipes_dump, out)
+        logging.info("Dump : %s", os.path.join(outfolder, outfile + '.pkl.tz'))
+
+        with gzip.open(os.path.join(outfolder, '__data.pkl.tz'), 'w+') as out:
+            pkl.dump({'X': X, 'y': config.y, 'index': config.index}, out)
+        logging.info("Dump : %s", os.path.join(outfolder, '__data.pkl.tz'))
 
         # Copy the ade_config just used into the outFolder
         shutil.copy(config_path, os.path.join(outfolder, 'ade_config.py'))

@@ -16,11 +16,32 @@ import logging
 import argparse
 import cPickle as pkl
 import gzip
-import matplotlib; matplotlib.use('Agg')
-print("Changed to agg")
 
 from adenine.core import analyze_results
 from adenine.utils import extra
+
+
+def init_main():
+    from adenine import __version__
+    parser = argparse.ArgumentParser(description='Adenine script for '
+                                                 'analysing pipelines.')
+    parser.add_argument('--version', action='version',
+                        version='%(prog)s v' + __version__)
+    parser.add_argument("result_folder", help="specify results directory")
+    args = parser.parse_args()
+
+    root_folder = args.result_folder
+    filename = [f for f in os.listdir(root_folder)
+                if os.path.isfile(os.path.join(root_folder, f)) and
+                f.endswith('.pkl.tz') and f != "__data.pkl.tz"]
+    if not filename:
+        sys.stderr.write("No .pkl file found in {}. Aborting...\n"
+                         .format(root_folder))
+        sys.exit(-1)
+
+    # Run analysis
+    # print("Starting the analysis of {}".format(filename))
+    main(os.path.join(os.path.abspath(root_folder), filename[0]))
 
 
 def main(dumpfile):
@@ -75,24 +96,6 @@ def main(dumpfile):
 
     root_logger.handlers[0].close()
 
-# ----------------------------  RUN MAIN ---------------------------- #
-if __name__ == '__main__':
-    from adenine import __version__
-    parser = argparse.ArgumentParser(description='Adenine script for '
-                                                 'analysing pipelines.')
-    parser.add_argument('--version', action='version',
-                        version='%(prog)s v' + __version__)
-    parser.add_argument("result_folder", help="specify results directory")
-    args = parser.parse_args()
-    root_folder = args.result_folder
-    filename = [f for f in os.listdir(root_folder)
-                if os.path.isfile(os.path.join(root_folder, f)) and
-                f.endswith('.pkl.tz') and f != "__data.pkl.tz"]
-    if not filename:
-        sys.stderr.write("No .pkl file found in {}. Aborting...\n"
-                         .format(root_folder))
-        sys.exit(-1)
 
-    # Run analysis
-    # print("Starting the analysis of {}".format(filename))
-    main(os.path.join(os.path.abspath(root_folder), filename[0]))
+if __name__ == '__main__':
+    init_main()
