@@ -63,7 +63,7 @@ def which_level(label):
     elif label in ('recenter', 'standardize', 'normalize', 'minmax'):
         level = 'preproc'
     elif label in ('pca', 'incrementalpca', 'randomizedpca', 'kernelpca',
-                   'isomap', 'lle', 'se', 'mds', 'tsne'):
+                   'isomap', 'lle', 'se', 'mds', 'tsne', 'rbm'):
         level = 'dimred'
     elif label in ('kmeans', 'ap', 'ms', 'spectral',
                    'hierarchical'):

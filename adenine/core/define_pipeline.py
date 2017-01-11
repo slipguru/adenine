@@ -20,6 +20,7 @@ from sklearn.manifold import LocallyLinearEmbedding
 from sklearn.manifold import SpectralEmbedding
 from sklearn.manifold import MDS
 from sklearn.manifold import TSNE
+from sklearn.neural_network import BernoulliRBM
 from sklearn.cluster import KMeans
 from sklearn.cluster import AffinityPropagation
 from sklearn.cluster import MeanShift
@@ -86,7 +87,7 @@ def parse_dimred(key, content):
 
     Parameters
     -----------
-    key : {'None', 'PCA', 'KernelPCA', 'Isomap', 'LLE', 'SE', 'MDS', 'tSNE'}
+    key : {'None', 'PCA', 'KernelPCA', 'Isomap', 'LLE', 'SE', 'MDS', 'tSNE', 'RBM'}
         The selected dimensionality reduction algorithm.
 
     content : dict
@@ -103,7 +104,8 @@ def parse_dimred(key, content):
     drs = {'none': DummyNone, 'pca': PCA, 'incrementalpca': IncrementalPCA,
            'randomizedpca': RandomizedPCA, 'kernelpca': KernelPCA,
            'isomap': Isomap, 'lle': LocallyLinearEmbedding,
-           'se': SpectralEmbedding, 'mds': MDS, 'tsne': TSNE}
+           'se': SpectralEmbedding, 'mds': MDS, 'tsne': TSNE,
+           'rbm': BernoulliRBM}
 
     content.setdefault('n_components', 3)  # use three cluster as default
     dr = drs.get(key.lower(), DummyNone)(**content)

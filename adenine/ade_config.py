@@ -45,6 +45,7 @@ step2 = {'PCA': [False, {'n_components': 3}],
          'SE': [False, {'affinity': ['nearest_neighbors', 'rbf']}],
          'MDS': [False, {'metric': True}],
          'tSNE': [False],
+         'RBM': [False, {'n_components': 256}],
          'None': [False]
          }
 

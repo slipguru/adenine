@@ -17,9 +17,9 @@ file_format = 'png' # or 'png'
 plotting_context = 'paper' # one of {paper, notebook, talk, poster}
 
 # ----------------------------  INPUT DATA ---------------------------- #
-#X, y, feat_names, class_names = data_source.load('iris')
+X, y, feat_names, class_names = data_source.load('iris')
 #X, y, feat_names, class_names = data_source.load('gauss', n_samples=300)
-X, y, feat_names, class_names = data_source.load('circles')
+# X, y, feat_names, class_names = data_source.load('circles')
 # X, y, feat_names, class_names = data_source.load('digits')
 # X, y, feat_names, class_names = data_source.load('diabetes')
 # X, y, feat_names, class_names = data_source.load('boston')
@@ -37,15 +37,15 @@ X, y, feat_names, class_names = data_source.load('circles')
                             # 'strategy': ['median','mean','nearest_neighbors']}]}
 
 # --- Data Preprocessing --- #
-step1 = {'None': [True], 'Recenter': [False], 'Standardize': [False],
-         'Normalize': [False, {'norm': ['l2']}],
+step1 = {'None': [False], 'Recenter': [False], 'Standardize': [False],
+         'Normalize': [True, {'norm': ['l2']}],
          'MinMax': [False, {'feature_range': [(0,1), (-1,1)]}]}
 
 # --- Dimensionality Reduction & Manifold Learning --- #
 step2 = {'PCA': [True, {'n_components': 2}],
          'IncrementalPCA': [False, {'n_components': 3}],
          'RandomizedPCA':  [False, {'n_components': 3}],
-         'KernelPCA':      [True, {'n_components': 2,
+         'KernelPCA':      [False, {'n_components': 2,
                                     'kernel': ['linear','rbf','poly'], 'gamma': 2}],
          'Isomap': [False, {'n_components': 3, 'n_neighbors': 5}],
          'LLE':    [False, {'n_components': 3, 'n_neighbors': 5, # xxx
@@ -53,15 +53,16 @@ step2 = {'PCA': [True, {'n_components': 2}],
          'SE':   [False, {'n_components': 3, 'affinity': ['nearest_neighbors','rbf']}], # can be 'precomputed'
          'MDS':  [False, {'n_components': 3, 'metric': [True, False]}],
          'tSNE': [False, {'n_components': 3}],
+         'RMB': [True, {'n_components': 256}],
          'None': [False, {}]
          }
 
 # --- Clustering --- #
-step3 = {'KMeans': [True, {'n_clusters': [2]}], # cannot be 'precomputed'
+step3 = {'KMeans': [False, {'n_clusters': [2]}], # cannot be 'precomputed'
          'AP': [False, {'preference': ['auto']}], # can be 'precomputed'
          'MS': [False], # cannot be 'precomputed'
          'Spectral': [False, {'n_clusters': [2]}], # can be 'precomputed'
-         'Hierarchical': [True, {'n_clusters': [3],
+         'Hierarchical': [False, {'n_clusters': [3],
                                   #'affinity': ['manhattan','euclidean'],
                                   'affinity': ['euclidean'],
                                   #'linkage':  ['ward','complete','average']}]
