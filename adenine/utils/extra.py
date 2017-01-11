@@ -9,6 +9,7 @@
 
 import os
 import time
+import matplotlib; matplotlib.use('Agg')
 import seaborn as sns
 
 from datetime import datetime
