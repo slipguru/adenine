@@ -43,11 +43,11 @@ def master(config):
         [config.step0, config.step1,
          config.step2, config.step3])
 
-    print("master - end parse_steps")
-    print(pipes)
+    print(NAME + ": master - end parse_steps")
+
     # RUN PIPELINES
     procs_ = COMM.Get_size()
-    print("start running slaves", procs_)
+    print(NAME + ": start running slaves", procs_, NAME)
     queue = deque(list(enumerate(pipes)))
 
     pipe_dump = dict()
@@ -58,7 +58,7 @@ def master(config):
     for rankk in range(1, min(procs_, n_pipes)):
         pipe_tuple = queue.popleft()
         COMM.send(pipe_tuple, dest=rankk, tag=DO_WORK)
-        print("send to rank", rankk)
+        print(NAME + ": send to rank", rankk)
 
     # loop until there's no more work to do. If queue is empty skips the loop.
     while queue:
@@ -74,7 +74,7 @@ def master(config):
 
     # there's no more work to do, so receive all the results from the slaves
     for rankk in range(1, min(procs_, n_pipes)):
-        print("master - waiting from", rankk)
+        print(NAME + ": master - waiting from", rankk)
         status = MPI.Status()
         pipe_id, step_dump = COMM.recv(
             source=MPI.ANY_SOURCE, tag=MPI.ANY_TAG, status=status)
@@ -83,10 +83,10 @@ def master(config):
 
     # tell all the slaves to exit by sending an empty message with the EXIT_TAG
     for rankk in range(1, procs_):
-        print("master - killing", rankk)
+        print(NAME + ": master - killing", rankk)
         COMM.send(0, dest=rankk, tag=EXIT)
 
-    print("terminating master")
+    print(NAME + ": terminating master")
     return pipe_dump
 
 
@@ -95,17 +95,17 @@ def slave(X):
     try:
         while True:
             status_ = MPI.Status()
-            print("slave waiting", RANK)
+            print(NAME + ": slave waiting", RANK)
             received = COMM.recv(source=0, tag=MPI.ANY_TAG, status=status_)
             # check the tag of the received message
             if status_.tag == EXIT:
                 return
             # do the work
             i, pipe = received
-            print("slave received", RANK, i)
+            print(NAME + ": slave received", RANK, i)
             pipe_id = 'pipe' + str(i)
             step_dump = pipe_worker(
-                pipe_id, pipe, None, X)
+                pipe_id, pipe, X)
             COMM.send((pipe_id, step_dump), dest=0, tag=0)
 
     except Exception as e:
