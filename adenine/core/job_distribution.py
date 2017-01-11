@@ -166,7 +166,7 @@ def slave(X):
                 pipe_id, pipe, None, X)
             COMM.send((pipe_id, step_dump), dest=0, tag=0)
 
-    except Exception as exc:
+    except StandardError as exc:
         print("Quitting ... TB:", str(exc))
 
 

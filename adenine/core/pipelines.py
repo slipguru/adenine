@@ -148,7 +148,8 @@ def pipe_worker(pipe_id, pipe, pipes_dump, X):
         if step[1].get_params().get('method') == 'hessian':
             # check hessian lle constraints
             n_components = step[1].get_params().get('n_components')
-            step[1].set_params(n_neighbors=1+(n_components*(n_components+3)/2))
+            n_neighbors = 1 + (n_components * (n_components + 3) / 2)
+            step[1].set_params(n_neighbors=n_neighbors)
         try:
             step[1].fit(X_curr)
 

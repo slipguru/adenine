@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+"""Adenine analysis script."""
 ######################################################################
 # Copyright (C) 2016 Samuele Fiorini, Federico Tomasi, Annalisa Barla
 #
@@ -22,6 +22,7 @@ from adenine.utils import extra
 
 
 def init_main():
+    """Init analysis main."""
     from adenine import __version__
     parser = argparse.ArgumentParser(description='Adenine script for '
                                                  'analysing pipelines.')
@@ -59,14 +60,14 @@ def main(dumpfile):
     # Load the results used with ade_run.py
     try:
         with gzip.open(os.path.join(os.path.dirname(dumpfile),
-                                    '__data.pkl.tz'), 'r') as f:
-            data = pkl.load(f)
-            y = data['y']
+                                    '__data.pkl.tz'), 'r') as fdata:
+            data = pkl.load(fdata)
+            labels = data['y']
             index = data['index']
-    except:
+    except IOError:
         sys.stderr.write("Cannot load __data.pkl.tz. "
                          "Reloading data from config file ...")
-        y = config.y
+        labels = config.y
         index = config.index
 
     # Initialize the log file
@@ -75,22 +76,23 @@ def main(dumpfile):
     logging.basicConfig(filename=logfile, level=logging.INFO, filemode='w',
                         format='%(levelname)s (%(name)s): %(message)s')
     root_logger = logging.getLogger()
-    ch = logging.StreamHandler()
-    ch.setLevel(20 if config.verbose else logging.ERROR)
-    ch.setFormatter(logging.Formatter('%(levelname)s (%(name)s): %(message)s'))
-    root_logger.addHandler(ch)
+    lsh = logging.StreamHandler()
+    lsh.setLevel(20 if config.verbose else logging.ERROR)
+    lsh.setFormatter(
+        logging.Formatter('%(levelname)s (%(name)s): %(message)s'))
+    root_logger.addHandler(lsh)
 
     tic = time.time()
     print("\nUnpickling output ...", end=' ')
     # Load the results
-    with gzip.open(dumpfile, 'r') as f:
-        res = pkl.load(f)
+    with gzip.open(dumpfile, 'r') as fres:
+        res = pkl.load(fres)
 
     print("done: {} s".format(extra.sec_to_time(time.time() - tic)))
 
     # Analyze the pipelines
     analyze_results.analyze(input_dict=res, root=os.path.dirname(dumpfile),
-                            y=y, feat_names=feat_names, index=index,
+                            y=labels, feat_names=feat_names, index=index,
                             plotting_context=config.plotting_context,
                             file_format=config.file_format)
 
