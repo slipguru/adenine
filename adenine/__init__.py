@@ -8,3 +8,4 @@ __version__ = "0.1.3b"
 
 from adenine import utils
 from adenine import core
+from adenine.core import main

@@ -3,3 +3,5 @@
 #
 # FreeBSD License
 ######################################################################
+
+from job_distribution import main

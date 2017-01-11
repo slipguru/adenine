@@ -115,12 +115,12 @@ def evaluate(level, step, X):
     return res
 
 
-def pipe_worker(pipeID, pipe, pipes_dump, X):
+def pipe_worker(pipe_id, pipe, X):
     """Parallel pipelines execution.
 
     Parameters
     -----------
-    pipeID : string
+    pipe_id : string
         Pipeline identifier.
 
     pipe : list of tuples
@@ -140,7 +140,7 @@ def pipe_worker(pipeID, pipe, pipes_dump, X):
     for j, step in enumerate(pipe):
         # step[0] -> step_label | step[1] -> model, sklearn (or sklearn-like)
         # object
-        stepID = 'step' + str(j)
+        step_id = 'step' + str(j)
         # 1. define which level of step is this (i.e.: imputing, preproc,
         # dimred, clustering, none)
         level = which_level(step[0])
@@ -159,145 +159,40 @@ def pipe_worker(pipeID, pipe, pipes_dump, X):
             # on 2D
             mdl_voronoi = None
             if hasattr(step[1], 'cluster_centers_'):
-                if hasattr(step[1], 'best_estimator_'):
-                    mdl_voronoi = copy.copy(step[1].best_estimator_)
-                else:
-                    mdl_voronoi = copy.copy(step[1])
+                mdl_voronoi = copy.copy(step[1].best_estimator_ if hasattr(
+                    step[1], 'best_estimator_') else step[1])
                 if not hasattr(step[1], 'affinity') or step[1].affinity != 'precomputed':
                     mdl_voronoi.fit(X_curr[:, :2])
                 else:
                     mdl_voronoi.fit(X_curr)
 
             # 4. save the results in a dictionary of dictionaries of the form:
-            # save memory and do not dump data after preprocessing (not used in analysys)
+            # save memory and do not dump data after preprocessing (unused in
+            # analysys)
             if level in ('preproc', 'imputing'):
-                step_dump[stepID] = [step[0],
-                                     level,
-                                     step[1].get_params(),
-                                     np.array([]),
-                                     np.array([]),
-                                     step[1],
-                                     mdl_voronoi]
+                result = [step[0], level, step[1].get_params(),
+                          np.empty(0), np.empty(0), step[1], mdl_voronoi]
                 X_curr = np.array(X_next)  # update the matrix
-            # save memory dumping X_curr only in case of clusutering
+
+            # save memory dumping X_curr only in case of clustering
             elif level == 'dimred':
-                step_dump[stepID] = [step[0],
-                                     level,
-                                     step[1].get_params(),
-                                     X_next, np.array([]),
-                                     step[1],
-                                     mdl_voronoi]
+                result = [step[0], level, step[1].get_params(),
+                          X_next, np.empty(0), step[1], mdl_voronoi]
                 X_curr = X_next  # update the matrix
+
             # clustering
             elif level == 'clustering':
-                step_dump[stepID] = [step[0],
-                                     level,
-                                     step[1].get_params(),
-                                     X_next,
-                                     X_curr,
-                                     step[1],
-                                     mdl_voronoi]
+                result = [step[0], level, step[1].get_params(),
+                          X_next, X_curr, step[1], mdl_voronoi]
+            step_dump[step_id] = result
 
         except (AssertionError, ValueError) as e:
-            logging.critical("Pipeline {} failed at step {}. "
-                             "Traceback: {}".format(pipeID, step[0], e))
+            logging.critical("Pipeline %s failed at step %s. "
+                             "Traceback: %s", pipe_id, step[0], e)
 
 
     # Monkey-patch, see: https://github.com/scikit-learn/scikit-learn/issues/7562
     # and wait for the next numpy update
     # step_dump['step2'][-2] = None
 
-    pipes_dump[pipeID] = step_dump
-    # pipes_dump.setdefault(pipeID, default=step_dump['step1'])
-    logging.info("DUMP: \n {} \n #########".format(pipes_dump))
-
-
-@timed
-def run(pipes=(), X=(), exp_tag='def_tag', root='', y=None, index=None):
-    """Fit and transform/predict some pipelines on some data.
-
-    This function fits each pipeline in the input list on the provided data.
-    The results are dumped into a pkl file as a dictionary of dictionaries of
-    the form {'pipeID': {'stepID' : [alg_name, level, params, data_out,
-    data_in, model_obj, voronoi_suitable_object], ...}, ...}. The model_obj is
-    the sklearn model which has been fit on the dataset, the
-    voronoi_suitable_object is the very same model but fitted on just the first
-    two dimensions of the dataset. If a pipeline fails for some reasons the
-    content of the stepID key is a list of np.nan.
-
-    Parameters
-    -----------
-    pipes : list of list of tuples
-        Each tuple contains a label and a sklearn Pipeline object.
-
-    X : array of float, shape : n_samples x n_features, default : ()
-        The input data matrix.
-
-    exp_tag : string
-        An intuitive tag for the current experiment.
-
-    root : string
-        The root folder to save the results.
-
-    y : array-like, optional
-        If specified, it contains data labels.
-
-    index : array-like, optional
-        List of indexes (samples names).
-
-    Returns
-    -----------
-    output_folder : string
-        The path of the output folder.
-    """
-    # Check root folder
-    if not os.path.exists(root):  # if it does not exist
-        if not len(root):         # (and the name has not been even specified)
-            root = 'results_'+exp_tag+get_time()  # create a standard name
-        os.makedirs(root)         # and make the folder
-        logging.warn("No root folder supplied, "
-                     "folder {} created".format(os.path.abspath(root)))
-
-    jobs = []
-    manager = multiprocessing.Manager()
-    pipes_dump = manager.dict()
-
-    # Submit jobs
-    for i, pipe in enumerate(pipes):
-        pipeID = 'pipe' + str(i)
-        p = multiprocessing.Process(target=pipe_worker,
-                                    args=(pipeID, pipe, pipes_dump, X))
-        jobs.append(p)
-        p.start()
-        logging.info("Job: {} submitted".format(pipeID))
-
-    # Collect results
-    ret_count = 0
-    for proc in jobs:
-        proc.join()
-        ret_count += 1
-    logging.info("{} jobs collected".format(ret_count))
-
-    # Convert the DictProxy to standard dict
-    pipes_dump = dict(pipes_dump)
-
-    # Output Name
-    output_filename = exp_tag
-    output_folder = os.path.join(root, output_filename)
-
-    # Create exp folder into the root folder
-    os.makedirs(output_folder)
-
-    # pkl Dump
-    import gzip
-    with gzip.open(os.path.join(output_folder,
-                                output_filename + '.pkl.tz'), 'w+') as f:
-        pkl.dump(pipes_dump, f)
-    logging.info("Dumped : {}".format(os.path.join(output_folder,
-                                                   output_filename + '.pkl.tz')))
-    with gzip.open(os.path.join(output_folder, '__data.pkl.tz'), 'w+') as f:
-        pkl.dump({'X': X, 'y': y, 'index': index}, f)
-    logging.info("Dumped : {}".format(os.path.join(output_folder,
-                                                   '__data.pkl.tz')))
-
-    return output_folder
+    return step_dump
