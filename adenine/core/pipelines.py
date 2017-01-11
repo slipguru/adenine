@@ -115,7 +115,7 @@ def evaluate(level, step, X):
     return res
 
 
-def pipe_worker(pipe_id, pipe, X):
+def pipe_worker(pipe_id, pipe, pipes_dump, X):
     """Parallel pipelines execution.
 
     Parameters
@@ -195,4 +195,7 @@ def pipe_worker(pipe_id, pipe, X):
     # and wait for the next numpy update
     # step_dump['step2'][-2] = None
 
-    return step_dump
+    if pipes_dump is None:
+        return step_dump
+
+    pipes_dump[pipe_id] = step_dump

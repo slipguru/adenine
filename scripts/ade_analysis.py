@@ -16,6 +16,8 @@ import logging
 import argparse
 import cPickle as pkl
 import gzip
+import matplotlib; matplotlib.use('Agg')
+print("Changed to agg")
 
 from adenine.core import analyze_results
 from adenine.utils import extra
@@ -29,7 +31,7 @@ def main(dumpfile):
     config = imp.load_source('ade_config', config_path)
     extra.set_module_defaults(config, {'file_format': 'pdf',
                                        'plotting_context': 'paper',
-                                       '__ade__debug__': False})
+                                       'verbose': False})
 
     # Read the feature names from the config file
     feat_names = config.feat_names
@@ -41,8 +43,8 @@ def main(dumpfile):
             y = data['y']
             index = data['index']
     except:
-        sys.stderr("Cannot load __data.pkl.tz. "
-                   "Reloading data from config file ...")
+        sys.stderr.write("Cannot load __data.pkl.tz. "
+                         "Reloading data from config file ...")
         y = config.y
         index = config.index
 
@@ -53,7 +55,7 @@ def main(dumpfile):
                         format='%(levelname)s (%(name)s): %(message)s')
     root_logger = logging.getLogger()
     ch = logging.StreamHandler()
-    ch.setLevel(20) if config.__ade__debug__ else ch.setLevel(logging.ERROR)
+    ch.setLevel(20 if config.verbose else logging.ERROR)
     ch.setFormatter(logging.Formatter('%(levelname)s (%(name)s): %(message)s'))
     root_logger.addHandler(ch)
 
