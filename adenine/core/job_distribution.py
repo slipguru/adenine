@@ -39,7 +39,6 @@ EXIT = 200
 # VERBOSITY = 1
 
 
-@extra.timed
 def master_single_machine(pipes, X):
     """Fit and transform/predict some pipelines on some data (single machine).
 
@@ -88,6 +87,7 @@ def master_single_machine(pipes, X):
     return dict(pipes_dump)
 
 
+@extra.timed
 def master(config):
     """Distribute pipelines with mpi4py or multiprocessing."""
     # Pipeline definition
