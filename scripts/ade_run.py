@@ -7,19 +7,15 @@
 # FreeBSD License
 ######################################################################
 
-import imp
 import os
 import shutil
-import logging
 import argparse
 
 from adenine import main
-from adenine.core import define_pipeline
-from adenine.core import pipelines
-from adenine.utils import extra
 
 
 def init_main():
+    """Initialize main for ade_run.py."""
     from adenine import __version__
     parser = argparse.ArgumentParser(description='Adenine script for '
                                                  'pipeline generation.')

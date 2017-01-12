@@ -7,15 +7,9 @@
 # FreeBSD License
 ######################################################################
 
-import os
 import copy
 import logging
-import multiprocessing
-import cPickle as pkl
 import numpy as np
-
-from adenine.utils.extra import get_time
-from adenine.utils.extra import timed
 
 
 def create(pdef):
@@ -42,7 +36,7 @@ def create(pdef):
 
 
 def which_level(label):
-    """Define the step level according to the input step label.
+    """Define the step level according to the input step label [DEPRECATED].
 
     This function return the level (i.e.: imputing, preproc, dimred, clustring,
     None) according to the step label provided as input.
@@ -57,6 +51,9 @@ def which_level(label):
     level : {imputing, preproc, dimred, clustering, None}
         The appropriate level of the input step.
     """
+    if not isinstance(label, basestring):
+        raise ValueError("String expected")
+
     label = label.lower()
     if label.startswith('impute'):
         level = 'imputing'
@@ -143,7 +140,7 @@ def pipe_worker(pipe_id, pipe, pipes_dump, X):
         step_id = 'step' + str(j)
         # 1. define which level of step is this (i.e.: imputing, preproc,
         # dimred, clustering, none)
-        level = which_level(step[0])
+        level = step[-1]
         # 2. fit the model (whatever it is)
         if step[1].get_params().get('method') == 'hessian':
             # check hessian lle constraints
@@ -185,7 +182,8 @@ def pipe_worker(pipe_id, pipe, pipes_dump, X):
             elif level == 'clustering':
                 result = [step[0], level, step[1].get_params(),
                           X_next, X_curr, step[1], mdl_voronoi]
-            step_dump[step_id] = result
+            if level != 'None':
+                step_dump[step_id] = result
 
         except (AssertionError, ValueError) as e:
             logging.critical("Pipeline %s failed at step %s. "

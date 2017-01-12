@@ -39,6 +39,7 @@ EXIT = 200
 # VERBOSITY = 1
 
 
+@extra.timed
 def master_single_machine(pipes, X):
     """Fit and transform/predict some pipelines on some data (single machine).
 
@@ -99,7 +100,7 @@ def master(config):
 
     # RUN PIPELINES
     nprocs = COMM.Get_size()
-    print(NAME + ": start running slaves", nprocs, NAME)
+    # print(NAME + ": start running slaves", nprocs, NAME)
     queue = deque(list(enumerate(pipes)))
 
     pipe_dump = dict()
@@ -110,7 +111,7 @@ def master(config):
     for rankk in range(1, min(nprocs, n_pipes)):
         pipe_tuple = queue.popleft()
         COMM.send(pipe_tuple, dest=rankk, tag=DO_WORK)
-        print(NAME + ": send to rank", rankk)
+        # print(NAME + ": send to rank", rankk)
 
     # loop until there's no more work to do. If queue is empty skips the loop.
     while queue:
@@ -126,7 +127,7 @@ def master(config):
 
     # there's no more work to do, so receive all the results from the slaves
     for rankk in range(1, min(nprocs, n_pipes)):
-        print(NAME + ": master - waiting from", rankk)
+        # print(NAME + ": master - waiting from", rankk)
         status = MPI.Status()
         pipe_id, step_dump = COMM.recv(
             source=MPI.ANY_SOURCE, tag=MPI.ANY_TAG, status=status)
@@ -135,10 +136,10 @@ def master(config):
 
     # tell all the slaves to exit by sending an empty message with the EXIT_TAG
     for rankk in range(1, nprocs):
-        print(NAME + ": master - killing", rankk)
+        # print(NAME + ": master - killing", rankk)
         COMM.send(0, dest=rankk, tag=EXIT)
 
-    print(NAME + ": terminating master")
+    # print(NAME + ": terminating master")
     return pipe_dump
 
 
@@ -153,14 +154,13 @@ def slave(X):
     try:
         while True:
             status_ = MPI.Status()
-            print(NAME + ": slave waiting", RANK)
             received = COMM.recv(source=0, tag=MPI.ANY_TAG, status=status_)
             # check the tag of the received message
             if status_.tag == EXIT:
                 return
             # do the work
             i, pipe = received
-            print(NAME + ": slave received", RANK, i)
+            # print(NAME + ": slave received", RANK, i)
             pipe_id = 'pipe' + str(i)
             step_dump = pipe_worker(
                 pipe_id, pipe, None, X)
