@@ -4,4 +4,4 @@
 # FreeBSD License
 ######################################################################
 
-from job_distribution import main
+from adenine.core.job_distribution import main
