@@ -88,14 +88,13 @@ class Imputer(Imputer):
                 for i, row in enumerate(missing):
                     if row.any():  # i.e. if True in row:
                         self._filling_worker(X_copy, row, i)
-                _cond = np.isnan(self.statistics_).any()
                 X_copy[missing] = self.statistics_[missing]
+                _cond = np.isnan(X_copy).any()
                 count += 1
 
             # Log the failure
             if _cond:
                 logging.info("Data imputing partially failed.")
-                print("Data imputing partially failed.")
 
             # X_copy[missing] = self.statistics_[missing]
             return X_copy
@@ -142,7 +141,8 @@ class Imputer(Imputer):
         # get the full matrix of possible neighbors
         Xtr = self.X_[r_idx[:, np.newaxis], c_idx]
 
-        neigh = NearestNeighbors(n_neighbors=min(6, Xtr.shape[0]), n_jobs=1)
+        # Increasing the dimension of the neighborhood
+        neigh = NearestNeighbors(n_neighbors=min(6+i, Xtr.shape[0]), n_jobs=1)
 
         # Get the nearest Neighbors
         neigh.fit(Xtr)
