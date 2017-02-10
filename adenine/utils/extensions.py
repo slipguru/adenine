@@ -61,7 +61,7 @@ class Imputer(Imputer):
         if self.strategy.lower() in ['nearest_neighbors', 'nn']:
             self._nn_fit(X)
         else:
-            if y:
+            if y is not None:
                 super(Imputer, self).fit(X, y)
             else:
                 super(Imputer, self).fit(X)
