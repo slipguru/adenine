@@ -46,6 +46,10 @@ def test(missing_rate):
 
     imp = Imputer(strategy=strategies[3])
     Ximp = imp.fit_transform(X)
+    # Xtr = X[:50, :]
+    # Xts = X[50:, :]
+    # imp.fit(Xtr)
+    # Ximp = imp.transform(Xts)
 
     if len(np.where(np.isnan(Ximp))[0]) == 0:
         print("All values were imputed according to: {}-strategy".format(imp.strategy))
@@ -56,11 +60,6 @@ def test(missing_rate):
     dist = np.sqrt(np.sum((Xreal[imp.X_mask,:].ravel() - Ximp.ravel())**2))
     print("dist(Xreal - Ximp) = {}".format(dist))
 
-    # print(Xreal)
-    # print('-------------------')
-    # print(X)
-    # print('-------------------')
-    # print(Ximp)
 
 
 def main():

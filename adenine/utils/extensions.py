@@ -69,9 +69,6 @@ class Imputer(Imputer):
 
     def transform(self, X):
         if self.strategy.lower() in ['nearest_neighbors', 'nn']:
-            # _X = X[self._mask, :].copy()
-            # _X[self.missing] = self.statistics_[self.missing]
-
             # 1. Find missing values
             missing = self._get_mask(X, self.missing_values)
             # 2. Drop empty rows (I cannot deal with that)
@@ -80,11 +77,8 @@ class Imputer(Imputer):
             missing = missing[mask, :]
 
             # 3. Statistics init
-            # self.statistics_ = np.empty_like(X_copy)
-            self.statistics_ = np.zeros_like(X_copy)
-            # print(X)
-            # print(self.statistics_)
-            # self.statistics_ = np.empty_like(self.X_)
+            self.statistics_ = np.empty_like(X_copy)
+            # self.statistics_ = np.zeros_like(X_copy)
 
             # 4. For each row that presents a True value in missing:
             #    drop the True column and get the first K Nearest Neighbors
@@ -94,13 +88,8 @@ class Imputer(Imputer):
                 for i, row in enumerate(missing):
                     if row.any():  # i.e. if True in row:
                         self._filling_worker(X_copy, row, i)
-                        # print("** iter {}".format(i))
-                        # print(self.statistics_)
                 _cond = np.isnan(self.statistics_).any()
-                # self.X_[self.missing] = self.statistics_[self.missing]
                 X_copy[missing] = self.statistics_[missing]
-                # print("X_copy update:")
-                # print(X_copy)
                 count += 1
 
             # Log the failure
@@ -152,7 +141,6 @@ class Imputer(Imputer):
         r_idx = self._get_row_indexes(c_idx)
         # get the full matrix of possible neighbors
         Xtr = self.X_[r_idx[:, np.newaxis], c_idx]
-        # Xtr = X[r_idx[:, np.newaxis], c_idx]
 
         neigh = NearestNeighbors(n_neighbors=min(6, Xtr.shape[0]), n_jobs=1)
 
@@ -165,9 +153,7 @@ class Imputer(Imputer):
 
         # Evaluate the average of the nearest Neighbors
         # build nearest neighbor matrix, skip the first one which is the same
-        # neighbors = self.X_[r_idx[_nn_idx[1:]], :]
         neighbors = self.X_[r_idx[_nn_idx], :]
-        # neighbors = X[r_idx[_nn_idx[1:]], :]
 
         with warnings.catch_warnings():  # shut-up deprecation warnings
             warnings.simplefilter("ignore")
@@ -189,13 +175,10 @@ class Imputer(Imputer):
         # 2. Drop empty rows (I cannot deal with that)
         self.X_mask = ~np.prod(self.X_missing, axis=1, dtype=np.bool)
         # ~ operator is doing this:
-        # self._mask = np.array([not j for j in _mask])
         self.X_ = X[self.X_mask, :].copy()
 
         # Preserve dimension of training input data in terms of empty rows
         self.X_missing = self.X_missing[self.X_mask, :]
-
-        # self.missing = self.missing[self._mask, :]
 
         # 3. Statistics init
         self.statistics_ = np.empty_like(self.X_)
