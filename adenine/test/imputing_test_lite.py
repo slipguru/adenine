@@ -19,8 +19,9 @@ def test(missing_rate):
     """
     Testing the KNN data imputing.
     """
+    np.random.seed(42)
     Xreal, y, feat_names, class_names = data_source.load('iris')
-    # Xreal, y, feat_names, class_names = data_source.load('gauss', n_samples=100)
+    # Xreal, y, feat_names, class_names = data_source.load('gauss', n_samples=80)
     n, p = Xreal.shape
     print("{} x {} matrix loaded".format(n, p))
 
@@ -29,11 +30,11 @@ def test(missing_rate):
     n_missing = int(missing_rate * (n*p))
 
     # Create holes in the matrix
-    np.random.seed(42)
     idx = np.random.permutation(n*p)
     xx = Xreal.ravel().copy()
     xx[idx[:n_missing]] = np.nan
     X = np.reshape(xx, (n, p))
+    # X[0,:] = np.nan
     print("{} values deleted".format(n_missing))
 
     # Save data
@@ -55,13 +56,18 @@ def test(missing_rate):
     dist = np.sqrt(np.sum((Xreal[imp.X_mask,:].ravel() - Ximp.ravel())**2))
     print("dist(Xreal - Ximp) = {}".format(dist))
 
+    # print(Xreal)
+    # print('-------------------')
+    # print(X)
+    # print('-------------------')
     # print(Ximp)
 
 
 def main():
-    for missing_rate in np.linspace(0.01, 0.3, 2):
-        print("\nmissing rate: {}".format(missing_rate))
-        test(missing_rate)
+    # for missing_rate in np.linspace(0.01, 0.3, 2):
+    missing_rate = 0.3
+    print("\nmissing rate: {}".format(missing_rate))
+    test(missing_rate)
 
 
 if __name__ == '__main__':
