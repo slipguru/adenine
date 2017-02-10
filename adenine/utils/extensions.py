@@ -138,15 +138,17 @@ class Imputer(Imputer):
         """Impute the input data matrix using the Nearest Neighbors approach.
 
         This implementation follows, approximately, the strategy proposed in:
-        [Hastie, Trevor, et al. "Imputing missing data for gene expression arrays." (1999): 1-7.]
-        [Troyanskaya, Olga, et al. "Missing value estimation methods for DNA microarrays." Bioinformatics 17.6 (2001): 520-525.]
+        [Hastie, Trevor, et al. "Imputing missing data for gene expression
+        arrays." (1999): 1-7.]
+        [Troyanskaya, Olga, et al. "Missing value estimation methods for DNA
+        microarrays." Bioinformatics 17.6 (2001): 520-525.]
         """
         # 1. Find missing values
         self.missing = self._get_mask(X, self.missing_values)
         # 2. Drop empty rows (I cannot deal with that)
         _mask = np.prod(self.missing, axis=1, dtype=np.bool)
         self._mask = np.array([not j for j in _mask])
-        _X = X[self._mask,:].copy()
+        _X = X[self._mask, :].copy()
         self.missing = self.missing[self._mask, :]
 
         # 3. Statistics init
@@ -158,7 +160,7 @@ class Imputer(Imputer):
         count = 0
         while _cond and count < 100:
             for i, row in enumerate(self.missing):
-                if row.any(): # i.e. if True in row:
+                if row.any():  # i.e. if True in row:
                     self._filling_worker(_X, row, i)
             _cond = np.isnan(self.statistics_).any()
             _X[self.missing] = self.statistics_[self.missing]
