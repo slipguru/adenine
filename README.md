@@ -3,7 +3,7 @@
 </p>
 -----------------
 
-# ADENINE: A data exploration pipeline
+# Adenine: A data exploration pipeline
 
 **adenine** is a machine learning and data mining Python library for exploratory data analysis.
 
@@ -35,7 +35,7 @@ $ cd adenine
 $ python setup.py install
 ```
 
-## Try ADENINE
+## Try Adenine
 
 ### 1. Create your configuration file
 Start from the provided template and edit your configuration file with your favourite text editor
