@@ -31,7 +31,7 @@ The final output of **adenine** is a compact, textual and graphical representati
 ### Installing from sources
 ```bash
 $ git clone https://github.com/slipguru/adenine
-$ cd l1l2py
+$ cd adenine
 $ python setup.py install
 ```
 
