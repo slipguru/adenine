@@ -48,7 +48,7 @@ $ vim my-config-file.py
 from adenine.utils import data_source
 
 # --------------------------  EXPERMIENT INFO ------------------------- #
-exp_tag = 'cool_experiment'
+exp_tag = '_experiment'
 output_root_folder = 'results'
 plotting_context = 'notebook'  # one of {paper, notebook, talk, poster}
 file_format = 'pdf'  # or 'png'
