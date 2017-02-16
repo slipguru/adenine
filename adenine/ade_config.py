@@ -5,12 +5,13 @@
 from adenine.utils import data_source
 
 # --------------------------  EXPERMIENT INFO ------------------------- #
-exp_tag = 'cool_experiment'
+exp_tag = '_experiment'
 output_root_folder = 'results'
 plotting_context = 'notebook'  # one of {paper, notebook, talk, poster}
 file_format = 'pdf'  # or 'png'
 
 # ----------------------------  INPUT DATA ---------------------------- #
+# Load an example dataset or specify your input data in tabular format
 data_file = 'data.csv'
 labels_file = 'labels.csv'  # OPTIONAL
 samples_on = 'rows'  # if samples lie on columns use 'cols' or 'col'
@@ -20,19 +21,19 @@ X, y, feat_names, index = data_source.load('custom',
                                            samples_on=samples_on,
                                            sep=data_sep)
 
-# -----------------------  PIPELINE DEFINITION ------------------------ #
-# --- Missing Values Imputing --- #
+# -----------------------  PIPELINES DEFINITION ------------------------ #
+# --- Missing values imputing --- #
 step0 = {'Impute': [False, {'missing_values': 'NaN',
                             'strategy': ['median',
                                          'mean',
                                          'nearest_neighbors']}]}
 
-# --- Data Preprocessing --- #
+# --- Data preprocessing --- #
 step1 = {'None': [False], 'Recenter': [False], 'Standardize': [False],
          'Normalize': [False, {'norm': ['l1', 'l2']}],
          'MinMax': [False, {'feature_range': [(0, 1), (-1, 1)]}]}
 
-# --- Dimensionality Reduction & Manifold Learning --- #
+# --- Unsupervised features learning --- #
 # affinity ca be precumputed for SE
 step2 = {'PCA': [False, {'n_components': 3}],
          'IncrementalPCA': [False],

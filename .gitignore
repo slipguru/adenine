@@ -1,3 +1,6 @@
+# OSX stuff
+*.DS_Store
+
 # Archivers
 **/*.tar.gz
 # -------------------------- Python -------------------------- #
