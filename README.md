@@ -1,5 +1,10 @@
+<p align="center">
+  <img src="http://www.slipguru.unige.it/Software/adenine/_static/ade_logo_bitmap.png"><br><br>
+</p>
+-----------------
+
 =====================================
-ADENINE (A Data ExploratioN pIpeliNE)
+ADENINE: A data exploration pipeline
 =====================================
 
 **ADENINE** is a machine learning and data mining Python pipeline that helps you to answer this tedious question: are my data relevant with the problem I'm dealing with?
@@ -15,3 +20,29 @@ The main structure of adenine can be summarized in the following 4 steps.
 4. **Clustering:** This step aims at grouping data into clusters in an unsupervised manner. Several techniques such as k-means, spectral or hierarchical clustering are offered.
 
 The final output of adenine is a compact and textual representation of the results obtained from the pipelines made with each possible combination of the algorithms implemented at each step.
+
+## Installation
+
+**ADENINE** supports Python 2.7
+
+### Pip installation
+`$ pip install adenine`
+
+### Installing from sources
+```bash
+$ git clone https://github.com/slipguru/adenine
+$ cd l1l2py
+$ python setup.py install
+```
+
+## Try Adenine
+
+```bash
+$ ade_run.py -c my-config-file.py
+$ ade_run.py my-config-file.py
+```
+Edit the configuration file with your favourite text editor.
+
+```bash
+$ ade_analysis.py results/my_adenine_experiments_<TODAY>
+```
