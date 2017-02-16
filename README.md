@@ -3,7 +3,7 @@
 </p>
 -----------------
 
-ADENINE: A data exploration pipeline
+# ADENINE: A data exploration pipeline
 
 **ADENINE** is a machine learning and data mining Python pipeline that helps you to answer this tedious question: are my data relevant with the problem I'm dealing with?
 
@@ -33,7 +33,7 @@ $ cd l1l2py
 $ python setup.py install
 ```
 
-## Try Adenine
+## Try ADENINE
 
 ```bash
 $ ade_run.py -c my-config-file.py
