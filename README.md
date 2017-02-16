@@ -43,10 +43,6 @@ $ vim my-config-file.py
 ...
 ```
 ```python
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-"""Configuration file for adenine."""
-
 from adenine.utils import data_source
 
 # --------------------------  EXPERMIENT INFO ------------------------- #
