@@ -19,7 +19,7 @@ The main structure of **adenine** can be summarized in the following 4 steps.
 
 The final output of **adenine** is a compact, textual and graphical representation of the results obtained from the pipelines made with each possible combination of the algorithms selected at each step.
 
-**adenine** is fully `scikit-learn` compliant.
+**adenine** can run on multiple cores/machines* and it is fully `scikit-learn` compliant.
 
 ## Installation
 
@@ -36,7 +36,9 @@ $ python setup.py install
 ```
 
 ## Try ADENINE
-Create an empty configuration file starting from the provided template and edit it with your favourite text editor
+
+### 1. Create your configuration file
+Start from the provided template and edit your configuration file with your favourite text editor
 ```bash
 $ ade_run.py -c my-config-file.py
 $ vim my-config-file.py
@@ -80,11 +82,20 @@ step3 = {'KMeans': [True, {'n_clusters': [3, 'auto']}],
                                   'linkage':  ['ward', 'average']}]
          }
 ```
-Run the pipelines
+
+### 2. Run the pipelines
 ```bash
 $ ade_run.py my-config-file.py
 ```
-Automatically generate beautiful publication-ready plots and textual results
+
+### 3. Automatically generate beautiful publication-ready plots and textual results
 ```bash
-$ ade_analysis.py results/my_adenine_experiments_<TODAY>
+$ ade_analysis.py results/ade_experiment_<TODAY>
+```
+
+## *Got Big Data?
+
+**adenine** takes advantage of `mpi4py` to distribute the execution of the pipelines on HPC architectures
+```bash
+$ mpirun -np <MPI-TASKS> --hosts <HOSTS-LIST> ade_run.py my-config-file.py
 ```
