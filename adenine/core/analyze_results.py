@@ -10,13 +10,17 @@
 import os
 import shutil
 import logging
-import cPickle as pkl
 import matplotlib; matplotlib.use('AGG')
 import multiprocessing as mp
 import numpy as np
 import pandas as pd
 import seaborn as sns
 import subprocess
+
+try:
+    import cPickle as pkl
+except:
+    import pickle as pkl
 
 from sklearn import metrics
 
@@ -88,8 +92,7 @@ def est_clst_perf(root, data_in, labels=None, t_labels=None, model=None,
     with open(filename + '_scores.txt', 'w') as f:
         f.write("------------------------------------\n"
                 "Adenine: Clustering Performance for \n"
-                "\n"
-                + title_from_filename(root, " --> ") + "\n"
+                "\n" + title_from_filename(root, " --> ") + "\n"
                 "------------------------------------\n")
         f.write("Index Name{}|{}Index Score\n".format(' ' * 10, ' ' * 4))
         f.write("------------------------------------\n")
@@ -101,7 +104,7 @@ def est_clst_perf(root, data_in, labels=None, t_labels=None, model=None,
 
     # pkl Dump
     filename += '_scores.pkl'
-    with open(filename, 'w+') as f:
+    with open(filename, 'wb') as f:
         pkl.dump(perf_out, f)
     logging.info("Dumped : %s", filename)
 
@@ -124,7 +127,7 @@ def make_df_clst_perf(root):
     for root_, _, filenames in os.walk(root):
         for fn in filenames:
             if fn.endswith('_scores.pkl'):
-                with open(os.path.join(root_, fn), 'r') as f:
+                with open(os.path.join(root_, fn), 'rb') as f:
                     perf_out = pkl.load(f)
                 perf_out['pipeline'] = title_from_filename(root_,
                                                            step_sep=" --> ")

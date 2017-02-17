@@ -4,8 +4,13 @@ import os
 import imp
 import logging
 import shutil
-import cPickle as pkl
 import gzip
+import numpy as np
+
+try:
+    import cPickle as pkl
+except:
+    import pickle as pkl
 
 from collections import deque
 
@@ -231,8 +236,10 @@ def main(config_file):
             pkl.dump(pipes_dump, out)
         logging.info("Dump : %s", os.path.join(outfolder, outfile + '.pkl.tz'))
 
+        index = config.index if hasattr(config, 'index') \
+            else np.arange(X.shape[0])
         with gzip.open(os.path.join(outfolder, '__data.pkl.tz'), 'w+') as out:
-            pkl.dump({'X': X, 'y': config.y, 'index': config.index}, out)
+            pkl.dump({'X': X, 'y': config.y, 'index': index}, out)
         logging.info("Dump : %s", os.path.join(outfolder, '__data.pkl.tz'))
 
         # Copy the ade_config just used into the outFolder

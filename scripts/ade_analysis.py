@@ -14,8 +14,12 @@ import os
 import time
 import logging
 import argparse
-import cPickle as pkl
 import gzip
+import numpy as np
+try:
+    import cPickle as pkl
+except:
+    import pickle as pkl
 
 from adenine.core import analyze_results
 from adenine.utils import extra
@@ -55,21 +59,25 @@ def main(dumpfile):
                                        'plotting_context': 'paper',
                                        'verbose': False})
 
-    # Read the feature names from the config file
-    feat_names = config.feat_names
     # Load the results used with ade_run.py
     try:
         with gzip.open(os.path.join(os.path.dirname(dumpfile),
                                     '__data.pkl.tz'), 'r') as fdata:
-            data = pkl.load(fdata)
-            labels = data['y']
-            index = data['index']
+            data_X_y_index = pkl.load(fdata)
+            data = data_X_y_index['X']
+            labels = data_X_y_index['y']
+            index = data_X_y_index['index']
     except IOError:
         sys.stderr.write("Cannot load __data.pkl.tz. "
                          "Reloading data from config file ...")
+        data = config.X
         labels = config.y
-        index = config.index
+        index = config.index if hasattr(config, 'index') \
+            else np.arange(data.shape[0])
 
+    # Read the feature names from the config file
+    feat_names = config.feat_names if hasattr(config, 'feat_names') \
+        else np.arange(data.shape[1])
     # Initialize the log file
     filename = 'results_' + os.path.basename(dumpfile)[0:-7]
     logfile = os.path.join(os.path.dirname(dumpfile), filename + '.log')

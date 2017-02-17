@@ -7,6 +7,7 @@
 # FreeBSD License
 ######################################################################
 
+import sys
 import logging
 import warnings
 
@@ -28,6 +29,10 @@ try:
 except ImportError:
     from sklearn.grid_search import GridSearchCV
 
+if sys.version_info >= (3, 0):
+    imap = map
+    def map(*args, **kwargs):
+        return list(imap(*args, **kwargs))
 
 class DummyNone:
     """Dummy class that does nothing.
