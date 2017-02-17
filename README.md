@@ -93,7 +93,7 @@ $ ade_run.py my-config-file.py
 $ ade_analysis.py results/ade_experiment_<TODAY>
 ```
 
-## *Got Big Data?
+## *Got large datasets?
 
 **adenine** takes advantage of `mpi4py` to distribute the execution of the pipelines on HPC architectures
 ```bash
