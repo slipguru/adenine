@@ -13,7 +13,7 @@ The main structure of **adenine** can be summarized in the following 4 steps.
 
 2. **Preprocessing:** Have you ever wondered what would have changed if only your data have been preprocessed in a different way? Or is it data preprocessing a good idea after all? **adenine** includes several preprocessing procedures, such as: data recentering, Min-Max scaling, standardization and normalization. **adenine** also allows you to compare the results of the analysis made with different preprocessing strategies.
 
-3. **Dimensionality Reduction:** In the context of data exploration, this phase becomes particularly helpful for high dimensional data. This step includes manifold learning (such as isomap, multidimensional scaling, etc) and unsupervised feature learning (principal component analysis, kernel PCA, etc) techniques.
+3. **Dimensionality Reduction:** In the context of data exploration, this phase becomes particularly helpful for high dimensional data. This step includes manifold learning (such as isomap, multidimensional scaling, etc) and unsupervised feature learning (principal component analysis, kernel PCA, Bernoulli RBM, etc) techniques.
 
 4. **Clustering:** This step aims at grouping data into clusters in an unsupervised manner. Several techniques such as k-means, spectral or hierarchical clustering are offered.
 
@@ -23,7 +23,7 @@ The final output of **adenine** is a compact, textual and graphical representati
 
 ## Installation
 
-**adenine** supports Python 2.7.
+**adenine** supports Python 2.7
 
 ### Pip installation
 `$ pip install adenine`
