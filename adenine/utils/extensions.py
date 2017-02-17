@@ -31,10 +31,13 @@ except ImportError:
 
 if sys.version_info >= (3, 0):
     imap = map
+
     def map(*args, **kwargs):
+        """Forward compatibility with python3."""
         return list(imap(*args, **kwargs))
 
-class DummyNone:
+
+class DummyNone(object):
     """Dummy class that does nothing.
 
     It is a sklearn 'transforms', it implements both a fit and a transform
@@ -213,6 +216,7 @@ class GridSearchCV(GridSearchCV):
     Automatically detects the optimal number of clusters for centroid-based
     algorithms like KMeans and Affinity Propagation.
     """
+
     def __init__(self, estimator, param_grid, scoring=None, fit_params=None,
                  n_jobs=1, iid=True, refit=True, cv=None, verbose=0,
                  pre_dispatch='2*n_jobs', error_score='raise',
