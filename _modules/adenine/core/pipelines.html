@@ -1,0 +1,335 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>adenine.core.pipelines &#8212; ADENINE 0.1.4 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/slipGuru.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.1.4',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="ADENINE 0.1.4 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" />
+<meta name="keywords"
+      content="SlipGuru, 'University of Genoa', statistical learning,
+      computational biology, Python, distributed, computing, parallel" />
+<map id="logosmap" name="logosmap">
+    <area shape="rect" alt="SlipGURU" title="SlipGURU" coords="0,0,89,112"
+          href="http://slipguru.disi.unige.it/" />
+    <area shape="rect" alt="Dipartimento di Informatica e Scienze dell'Informazione"
+          title="Dipartimento di Informatica e Scienze dell'Informazione"
+          coords="95,4,200,34" href="http://www.disi.unige.it/" />
+    <area shape="rect" alt="Università Degli Studi di Genova"
+          title="Università Degli Studi di Genova" coords="124,48,171,107"
+          href="http://www.unige.it/" />
+</map>
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">ADENINE 0.1.4 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for adenine.core.pipelines</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="c1">######################################################################</span>
+<span class="c1"># Copyright (C) 2016 Samuele Fiorini, Federico Tomasi, Annalisa Barla</span>
+<span class="c1">#</span>
+<span class="c1"># FreeBSD License</span>
+<span class="c1">######################################################################</span>
+
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+
+<div class="viewcode-block" id="create"><a class="viewcode-back" href="../../../index.html#adenine.core.pipelines.create">[docs]</a><span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="n">pdef</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Scikit-learn Pipelines objects creation (deprecated).</span>
+
+<span class="sd">    This function creates a list of sklearn Pipeline objects starting from the</span>
+<span class="sd">    list of list of tuples given in input that could be created using the</span>
+<span class="sd">    adenine.core.define_pipeline module.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    -----------</span>
+<span class="sd">    pdef : list of list of tuples</span>
+<span class="sd">        This arguments contains the specification needed by sklearn in order</span>
+<span class="sd">        to create a working Pipeline object.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -----------</span>
+<span class="sd">    pipes : list of sklearn.pipeline.Pipeline objects</span>
+<span class="sd">        The list of Piplines, each of them can be fitted and trasformed</span>
+<span class="sd">        with some data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">sklearn.pipeline</span> <span class="k">import</span> <span class="n">Pipeline</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">Pipeline</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pdef</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="which_level"><a class="viewcode-back" href="../../../index.html#adenine.core.pipelines.which_level">[docs]</a><span class="k">def</span> <span class="nf">which_level</span><span class="p">(</span><span class="n">label</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Define the step level according to the input step label [DEPRECATED].</span>
+
+<span class="sd">    This function return the level (i.e.: imputing, preproc, dimred, clustring,</span>
+<span class="sd">    None) according to the step label provided as input.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    -----------</span>
+<span class="sd">    label : string</span>
+<span class="sd">        This is the step level as it is reported in the ade_config file.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -----------</span>
+<span class="sd">    level : {imputing, preproc, dimred, clustering, None}</span>
+<span class="sd">        The appropriate level of the input step.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">basestring</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;String expected&quot;</span><span class="p">)</span>
+
+    <span class="n">label</span> <span class="o">=</span> <span class="n">label</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">label</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;impute&#39;</span><span class="p">):</span>
+        <span class="n">level</span> <span class="o">=</span> <span class="s1">&#39;imputing&#39;</span>
+    <span class="k">elif</span> <span class="n">label</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;recenter&#39;</span><span class="p">,</span> <span class="s1">&#39;standardize&#39;</span><span class="p">,</span> <span class="s1">&#39;normalize&#39;</span><span class="p">,</span> <span class="s1">&#39;minmax&#39;</span><span class="p">):</span>
+        <span class="n">level</span> <span class="o">=</span> <span class="s1">&#39;preproc&#39;</span>
+    <span class="k">elif</span> <span class="n">label</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;pca&#39;</span><span class="p">,</span> <span class="s1">&#39;incrementalpca&#39;</span><span class="p">,</span> <span class="s1">&#39;randomizedpca&#39;</span><span class="p">,</span> <span class="s1">&#39;kernelpca&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;isomap&#39;</span><span class="p">,</span> <span class="s1">&#39;lle&#39;</span><span class="p">,</span> <span class="s1">&#39;se&#39;</span><span class="p">,</span> <span class="s1">&#39;mds&#39;</span><span class="p">,</span> <span class="s1">&#39;tsne&#39;</span><span class="p">,</span> <span class="s1">&#39;rbm&#39;</span><span class="p">):</span>
+        <span class="n">level</span> <span class="o">=</span> <span class="s1">&#39;dimred&#39;</span>
+    <span class="k">elif</span> <span class="n">label</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;kmeans&#39;</span><span class="p">,</span> <span class="s1">&#39;ap&#39;</span><span class="p">,</span> <span class="s1">&#39;ms&#39;</span><span class="p">,</span> <span class="s1">&#39;spectral&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;hierarchical&#39;</span><span class="p">):</span>
+        <span class="n">level</span> <span class="o">=</span> <span class="s1">&#39;clustering&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">level</span> <span class="o">=</span> <span class="s1">&#39;None&#39;</span>
+    <span class="k">return</span> <span class="n">level</span></div>
+
+
+<div class="viewcode-block" id="evaluate"><a class="viewcode-back" href="../../../index.html#adenine.core.pipelines.evaluate">[docs]</a><span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="n">level</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Transform or predict according to the input level.</span>
+
+<span class="sd">    This function uses the transform or the predict method on the input</span>
+<span class="sd">    sklearn-like step according to its level (i.e. imputing, preproc, dimred,</span>
+<span class="sd">    clustering, none).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    -----------</span>
+<span class="sd">    level : {&#39;imputing&#39;, &#39;preproc&#39;, &#39;dimred&#39;, &#39;clustering&#39;, &#39;None&#39;}</span>
+<span class="sd">        The step level.</span>
+
+<span class="sd">    step : sklearn-like object</span>
+<span class="sd">        This might be an Imputer, or a PCA, or a KMeans (and so on...)</span>
+<span class="sd">        sklearn-like object.</span>
+
+<span class="sd">    X : array of float, shape : n_samples x n_features</span>
+<span class="sd">        The input data matrix.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -----------</span>
+<span class="sd">    res : array of float</span>
+<span class="sd">        A matrix projection in case of dimred, a label vector in case of</span>
+<span class="sd">        clustering, and so on.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">level</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;imputing&#39;</span><span class="p">,</span> <span class="s1">&#39;preproc&#39;</span><span class="p">,</span> <span class="s1">&#39;dimred&#39;</span><span class="p">,</span> <span class="s1">&#39;None&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="s1">&#39;embedding_&#39;</span><span class="p">):</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">embedding_</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">level</span> <span class="o">==</span> <span class="s1">&#39;clustering&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="s1">&#39;labels_&#39;</span><span class="p">):</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">labels_</span>  <span class="c1"># e.g. in case of spectral clustering</span>
+        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="s1">&#39;affinity&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">step</span><span class="o">.</span><span class="n">affinity</span> <span class="o">==</span> <span class="s1">&#39;precomputed&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">estimator</span><span class="p">,</span> <span class="s1">&#39;labels_&#39;</span><span class="p">):</span>
+                <span class="n">step</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">labels_</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">res</span></div>
+
+
+<div class="viewcode-block" id="pipe_worker"><a class="viewcode-back" href="../../../index.html#adenine.core.pipelines.pipe_worker">[docs]</a><span class="k">def</span> <span class="nf">pipe_worker</span><span class="p">(</span><span class="n">pipe_id</span><span class="p">,</span> <span class="n">pipe</span><span class="p">,</span> <span class="n">pipes_dump</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Parallel pipelines execution.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    -----------</span>
+<span class="sd">    pipe_id : string</span>
+<span class="sd">        Pipeline identifier.</span>
+
+<span class="sd">    pipe : list of tuples</span>
+<span class="sd">        Tuple containing a label and a sklearn Pipeline object.</span>
+
+<span class="sd">    pipes_dump : multiprocessing.Manager.dict</span>
+<span class="sd">        Dictionary containing the results of the parallel execution.</span>
+
+<span class="sd">    X : array of float, shape : n_samples x n_features, default : ()</span>
+<span class="sd">        The input data matrix.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">step_dump</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+    <span class="c1"># COPY X as X_curr (to avoid that the next pipeline</span>
+    <span class="c1"># works on the results of the previuos one)</span>
+    <span class="n">X_curr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">step</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">pipe</span><span class="p">):</span>
+        <span class="c1"># step[0] -&gt; step_label | step[1] -&gt; model, sklearn (or sklearn-like)</span>
+        <span class="c1"># object</span>
+        <span class="n">step_id</span> <span class="o">=</span> <span class="s1">&#39;step&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">j</span><span class="p">)</span>
+        <span class="c1"># 1. define which level of step is this (i.e.: imputing, preproc,</span>
+        <span class="c1"># dimred, clustering, none)</span>
+        <span class="n">level</span> <span class="o">=</span> <span class="n">step</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="c1"># 2. fit the model (whatever it is)</span>
+        <span class="k">if</span> <span class="n">step</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">get_params</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;method&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;hessian&#39;</span><span class="p">:</span>
+            <span class="c1"># check hessian lle constraints</span>
+            <span class="n">n_components</span> <span class="o">=</span> <span class="n">step</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">get_params</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;n_components&#39;</span><span class="p">)</span>
+            <span class="n">n_neighbors</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="p">(</span><span class="n">n_components</span> <span class="o">*</span> <span class="p">(</span><span class="n">n_components</span> <span class="o">+</span> <span class="mi">3</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="n">step</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="n">n_neighbors</span><span class="o">=</span><span class="n">n_neighbors</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">step</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_curr</span><span class="p">)</span>
+
+            <span class="c1"># 3. evaluate (i.e. transform or predict according to the level)</span>
+            <span class="c1"># X_curr = evaluate(level, step[1], X_curr)</span>
+            <span class="n">X_next</span> <span class="o">=</span> <span class="n">evaluate</span><span class="p">(</span><span class="n">level</span><span class="p">,</span> <span class="n">step</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">X_curr</span><span class="p">)</span>
+            <span class="c1"># 3.1 if the model is suitable for voronoi tessellation: fit also</span>
+            <span class="c1"># on 2D</span>
+            <span class="n">mdl_voronoi</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">step</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="s1">&#39;cluster_centers_&#39;</span><span class="p">):</span>
+                <span class="n">mdl_voronoi</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">step</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">best_estimator_</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span>
+                    <span class="n">step</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="s1">&#39;best_estimator_&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="n">step</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">step</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="s1">&#39;affinity&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">step</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">affinity</span> <span class="o">!=</span> <span class="s1">&#39;precomputed&#39;</span><span class="p">:</span>
+                    <span class="n">mdl_voronoi</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_curr</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">2</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">mdl_voronoi</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_curr</span><span class="p">)</span>
+
+            <span class="c1"># 4. save the results in a dictionary of dictionaries of the form:</span>
+            <span class="c1"># save memory and do not dump data after preprocessing (unused in</span>
+            <span class="c1"># analysys)</span>
+            <span class="k">if</span> <span class="n">level</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;preproc&#39;</span><span class="p">,</span> <span class="s1">&#39;imputing&#39;</span><span class="p">):</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="p">[</span><span class="n">step</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">level</span><span class="p">,</span> <span class="n">step</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">get_params</span><span class="p">(),</span>
+                          <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">step</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">mdl_voronoi</span><span class="p">]</span>
+                <span class="n">X_curr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">X_next</span><span class="p">)</span>  <span class="c1"># update the matrix</span>
+
+            <span class="c1"># save memory dumping X_curr only in case of clustering</span>
+            <span class="k">elif</span> <span class="n">level</span> <span class="o">==</span> <span class="s1">&#39;dimred&#39;</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="p">[</span><span class="n">step</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">level</span><span class="p">,</span> <span class="n">step</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">get_params</span><span class="p">(),</span>
+                          <span class="n">X_next</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">step</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">mdl_voronoi</span><span class="p">]</span>
+                <span class="n">X_curr</span> <span class="o">=</span> <span class="n">X_next</span>  <span class="c1"># update the matrix</span>
+
+            <span class="c1"># clustering</span>
+            <span class="k">elif</span> <span class="n">level</span> <span class="o">==</span> <span class="s1">&#39;clustering&#39;</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="p">[</span><span class="n">step</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">level</span><span class="p">,</span> <span class="n">step</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">get_params</span><span class="p">(),</span>
+                          <span class="n">X_next</span><span class="p">,</span> <span class="n">X_curr</span><span class="p">,</span> <span class="n">step</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">mdl_voronoi</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">level</span> <span class="o">!=</span> <span class="s1">&#39;None&#39;</span><span class="p">:</span>
+                <span class="n">step_dump</span><span class="p">[</span><span class="n">step_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span>
+
+        <span class="k">except</span> <span class="p">(</span><span class="ne">AssertionError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;Pipeline </span><span class="si">%s</span><span class="s2"> failed at step </span><span class="si">%s</span><span class="s2">. &quot;</span>
+                             <span class="s2">&quot;Traceback: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pipe_id</span><span class="p">,</span> <span class="n">step</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">e</span><span class="p">)</span>
+
+
+    <span class="c1"># Monkey-patch, see: https://github.com/scikit-learn/scikit-learn/issues/7562</span>
+    <span class="c1"># and wait for the next numpy update</span>
+    <span class="c1"># step_dump[&#39;step2&#39;][-2] = None</span>
+
+    <span class="k">if</span> <span class="n">pipes_dump</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">step_dump</span>
+
+    <span class="n">pipes_dump</span><span class="p">[</span><span class="n">pipe_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">step_dump</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../index.html">
+              <img class="logo" src="../../../_static/adenine_logo.png" alt="Logo"/>
+            </a></p>
+   
+      <h3>Download</h3>
+      <p>Current version: <b>0.1.4</b></p>
+      <p>Get ADENINE from the
+         <a href="http://pypi.python.org/pypi/ADENINE">Python Package Index</a>,
+         or install it with:
+      </p>
+      <pre>pip install --upgrade ADENINE</pre>
+      <p> or clone it from our <a href="https://github.com/slipguru/ADENINE">GitHub</a> repository: </p>
+      <pre>git clone https://github.com/slipguru/ADENINE</pre>
+      <!--or:-->
+      <!--<pre>easy_install -U ADENINE</pre>-->
+<!--      <p>Latest
+         <a href="https://bitbucket.org/slipguru/adenine/downloads/ADENINE.pdf">
+            documentation in pdf
+         </a>
+         is also available. -->
+      </p>
+   
+
+   
+   
+
+    
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+    <p class="logo">
+       <img class="logo" src="../../../_static/logos.png" alt="Logos" usemap="#logosmap" />
+    </p>
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">ADENINE 0.1.4 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2016, Samuele Fiorini - Federico Tomasi - Annalisa Barla.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.6.
+    </div>
+  </body>
+</html>

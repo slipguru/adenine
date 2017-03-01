@@ -1,0 +1,441 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>adenine.core.define_pipeline &#8212; ADENINE 0.1.4 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/slipGuru.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.1.4',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="ADENINE 0.1.4 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" />
+<meta name="keywords"
+      content="SlipGuru, 'University of Genoa', statistical learning,
+      computational biology, Python, distributed, computing, parallel" />
+<map id="logosmap" name="logosmap">
+    <area shape="rect" alt="SlipGURU" title="SlipGURU" coords="0,0,89,112"
+          href="http://slipguru.disi.unige.it/" />
+    <area shape="rect" alt="Dipartimento di Informatica e Scienze dell'Informazione"
+          title="Dipartimento di Informatica e Scienze dell'Informazione"
+          coords="95,4,200,34" href="http://www.disi.unige.it/" />
+    <area shape="rect" alt="Università Degli Studi di Genova"
+          title="Università Degli Studi di Genova" coords="124,48,171,107"
+          href="http://www.unige.it/" />
+</map>
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">ADENINE 0.1.4 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for adenine.core.define_pipeline</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="c1">######################################################################</span>
+<span class="c1"># Copyright (C) 2016 Samuele Fiorini, Federico Tomasi, Annalisa Barla</span>
+<span class="c1">#</span>
+<span class="c1"># FreeBSD License</span>
+<span class="c1">######################################################################</span>
+
+<span class="kn">import</span> <span class="nn">inspect</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="k">import</span> <span class="n">StandardScaler</span>
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="k">import</span> <span class="n">MinMaxScaler</span>
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="k">import</span> <span class="n">Normalizer</span>
+<span class="kn">from</span> <span class="nn">sklearn.decomposition</span> <span class="k">import</span> <span class="n">PCA</span>
+<span class="kn">from</span> <span class="nn">sklearn.decomposition</span> <span class="k">import</span> <span class="n">RandomizedPCA</span>
+<span class="kn">from</span> <span class="nn">sklearn.decomposition</span> <span class="k">import</span> <span class="n">IncrementalPCA</span>
+<span class="kn">from</span> <span class="nn">sklearn.manifold</span> <span class="k">import</span> <span class="n">Isomap</span>
+<span class="kn">from</span> <span class="nn">sklearn.manifold</span> <span class="k">import</span> <span class="n">LocallyLinearEmbedding</span>
+<span class="kn">from</span> <span class="nn">sklearn.manifold</span> <span class="k">import</span> <span class="n">SpectralEmbedding</span>
+<span class="kn">from</span> <span class="nn">sklearn.manifold</span> <span class="k">import</span> <span class="n">MDS</span>
+<span class="kn">from</span> <span class="nn">sklearn.manifold</span> <span class="k">import</span> <span class="n">TSNE</span>
+<span class="kn">from</span> <span class="nn">sklearn.neural_network</span> <span class="k">import</span> <span class="n">BernoulliRBM</span>
+<span class="kn">from</span> <span class="nn">sklearn.cluster</span> <span class="k">import</span> <span class="n">KMeans</span>
+<span class="kn">from</span> <span class="nn">sklearn.cluster</span> <span class="k">import</span> <span class="n">AffinityPropagation</span>
+<span class="kn">from</span> <span class="nn">sklearn.cluster</span> <span class="k">import</span> <span class="n">MeanShift</span>
+<span class="kn">from</span> <span class="nn">sklearn.cluster</span> <span class="k">import</span> <span class="n">SpectralClustering</span>
+<span class="kn">from</span> <span class="nn">sklearn.cluster</span> <span class="k">import</span> <span class="n">AgglomerativeClustering</span>
+
+<span class="kn">from</span> <span class="nn">adenine.utils.extensions</span> <span class="k">import</span> <span class="n">DummyNone</span>
+<span class="kn">from</span> <span class="nn">adenine.utils.extensions</span> <span class="k">import</span> <span class="n">Imputer</span>
+<span class="kn">from</span> <span class="nn">adenine.utils.extensions</span> <span class="k">import</span> <span class="n">GridSearchCV</span>
+<span class="kn">from</span> <span class="nn">adenine.utils.extensions</span> <span class="k">import</span> <span class="n">KernelPCA</span>
+<span class="kn">from</span> <span class="nn">adenine.utils.extensions</span> <span class="k">import</span> <span class="n">silhouette_score</span>
+
+<span class="kn">from</span> <span class="nn">adenine.utils.extra</span> <span class="k">import</span> <span class="n">modified_cartesian</span>
+<span class="kn">from</span> <span class="nn">adenine.utils.extra</span> <span class="k">import</span> <span class="n">ensure_list</span>
+<span class="kn">from</span> <span class="nn">adenine.utils.extra</span> <span class="k">import</span> <span class="n">values_iterator</span>
+
+
+<div class="viewcode-block" id="parse_imputing"><a class="viewcode-back" href="../../../index.html#adenine.core.define_pipeline.parse_imputing">[docs]</a><span class="k">def</span> <span class="nf">parse_imputing</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">content</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Parse the options of the imputing step.</span>
+
+<span class="sd">    This function parses the imputing step coded as dictionary in the</span>
+<span class="sd">    ade_config file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    -----------</span>
+<span class="sd">    key : class or str, like {&#39;Impute&#39;, &#39;None&#39;}</span>
+<span class="sd">        The type of selected imputing step. In case in which key</span>
+<span class="sd">        is a `class`, it must contain both a `fit` and `transform` method.</span>
+
+<span class="sd">    content : dict</span>
+<span class="sd">        A dictionary containing parameters for each imputing</span>
+<span class="sd">        class. Each parameter can be a list; in this case for each combination</span>
+<span class="sd">        of parameters a different pipeline will be created.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -----------</span>
+<span class="sd">    tpl : tuple</span>
+<span class="sd">        A tuple made like (&#39;imputing_name&#39;, imputing_obj, &#39;imputing&#39;),</span>
+<span class="sd">        where imputing_obj is an sklearn &#39;transforms&#39; (i.e. it has bot a fit</span>
+<span class="sd">        and transform method).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isclass</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+        <span class="n">pi</span> <span class="o">=</span> <span class="n">key</span><span class="p">(</span><span class="o">**</span><span class="n">content</span><span class="p">)</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">pi</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">imputing_methods</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;none&#39;</span><span class="p">:</span> <span class="n">DummyNone</span><span class="p">,</span> <span class="s1">&#39;impute&#39;</span><span class="p">:</span> <span class="n">Imputer</span><span class="p">}</span>
+        <span class="n">pi</span> <span class="o">=</span> <span class="n">imputing_methods</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="n">DummyNone</span><span class="p">)(</span><span class="o">**</span><span class="n">content</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">pi</span><span class="p">,</span> <span class="s1">&#39;imputing&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="parse_preproc"><a class="viewcode-back" href="../../../index.html#adenine.core.define_pipeline.parse_preproc">[docs]</a><span class="k">def</span> <span class="nf">parse_preproc</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">content</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Parse the options of the preprocessing step.</span>
+
+<span class="sd">    This function parses the preprocessing step coded as dictionary in the</span>
+<span class="sd">    ade_config file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    -----------</span>
+<span class="sd">    key : class or str, like {&#39;None&#39;, &#39;Recenter&#39;, &#39;Standardize&#39;, &#39;Normalize&#39;,</span>
+<span class="sd">                              &#39;MinMax&#39;}</span>
+<span class="sd">        The selected preprocessing algorithm. In case in which key</span>
+<span class="sd">        is a `class`, it must contain both a `fit` and `transform` method.</span>
+
+<span class="sd">    content : dict</span>
+<span class="sd">        A dictionary containing parameters for each preprocessing</span>
+<span class="sd">        class. Each parameter can be a list; in this case for each combination</span>
+<span class="sd">        of parameters a different pipeline will be created.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -----------</span>
+<span class="sd">    tpl : tuple</span>
+<span class="sd">        A tuple made like (&#39;preproc_name&#39;, preproc_obj, &#39;preproc&#39;), where</span>
+<span class="sd">        preproc_obj is an sklearn &#39;transforms&#39; (i.e. it has bot a fit and</span>
+<span class="sd">        transform method).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isclass</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+        <span class="n">pp</span> <span class="o">=</span> <span class="n">key</span><span class="p">(</span><span class="o">**</span><span class="n">content</span><span class="p">)</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;none&#39;</span><span class="p">:</span>
+        <span class="n">pp</span> <span class="o">=</span> <span class="n">DummyNone</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;recenter&#39;</span><span class="p">:</span>
+        <span class="n">pp</span> <span class="o">=</span> <span class="n">StandardScaler</span><span class="p">(</span><span class="n">with_mean</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">with_std</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;standardize&#39;</span><span class="p">:</span>
+        <span class="n">pp</span> <span class="o">=</span> <span class="n">StandardScaler</span><span class="p">(</span><span class="n">with_mean</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">with_std</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;normalize&#39;</span><span class="p">:</span>
+        <span class="n">content</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;norm&#39;</span><span class="p">,</span> <span class="s1">&#39;l2&#39;</span><span class="p">)</span>
+        <span class="c1"># pp = Normalizer(norm=content[1][0])</span>
+        <span class="n">pp</span> <span class="o">=</span> <span class="n">Normalizer</span><span class="p">(</span><span class="o">**</span><span class="n">content</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;minmax&#39;</span><span class="p">:</span>
+        <span class="n">content</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;feature_range&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">pp</span> <span class="o">=</span> <span class="n">MinMaxScaler</span><span class="p">(</span><span class="o">**</span><span class="n">content</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">pp</span> <span class="o">=</span> <span class="n">DummyNone</span><span class="p">()</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">pp</span><span class="p">,</span> <span class="s1">&#39;preproc&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="parse_dimred"><a class="viewcode-back" href="../../../index.html#adenine.core.define_pipeline.parse_dimred">[docs]</a><span class="k">def</span> <span class="nf">parse_dimred</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">content</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Parse the options of the dimensionality reduction step.</span>
+
+<span class="sd">    This function does the same as parse_preproc but works on the</span>
+<span class="sd">    dimensionality reduction &amp; manifold learning options.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    -----------</span>
+<span class="sd">    key : class or str, like {&#39;None&#39;, &#39;PCA&#39;, &#39;KernelPCA&#39;, &#39;Isomap&#39;, &#39;LLE&#39;,</span>
+<span class="sd">                              &#39;SE&#39;, &#39;MDS&#39;, &#39;tSNE&#39;, &#39;RBM&#39;}</span>
+<span class="sd">        The selected dimensionality reduction algorithm. In case in which key</span>
+<span class="sd">        is a `class`, it must contain both a `fit` and `transform` method.</span>
+
+<span class="sd">    content : dict</span>
+<span class="sd">        A dictionary containing parameters for each dimensionality reduction</span>
+<span class="sd">        class. Each parameter can be a list; in this case for each combination</span>
+<span class="sd">        of parameters a different pipeline will be created.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -----------</span>
+<span class="sd">    tpl : tuple</span>
+<span class="sd">        A tuple made like (&#39;dimres_name&#39;, dimred_obj, &#39;dimred&#39;), where</span>
+<span class="sd">        dimred_obj is a sklearn &#39;transforms&#39; (i.e. it has bot a .fit and .transform method).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isclass</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+        <span class="n">dr</span> <span class="o">=</span> <span class="n">key</span><span class="p">(</span><span class="o">**</span><span class="n">content</span><span class="p">)</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">dr</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">drs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;none&#39;</span><span class="p">:</span> <span class="n">DummyNone</span><span class="p">,</span> <span class="s1">&#39;pca&#39;</span><span class="p">:</span> <span class="n">PCA</span><span class="p">,</span> <span class="s1">&#39;incrementalpca&#39;</span><span class="p">:</span> <span class="n">IncrementalPCA</span><span class="p">,</span>
+               <span class="s1">&#39;randomizedpca&#39;</span><span class="p">:</span> <span class="n">RandomizedPCA</span><span class="p">,</span> <span class="s1">&#39;kernelpca&#39;</span><span class="p">:</span> <span class="n">KernelPCA</span><span class="p">,</span>
+               <span class="s1">&#39;isomap&#39;</span><span class="p">:</span> <span class="n">Isomap</span><span class="p">,</span> <span class="s1">&#39;lle&#39;</span><span class="p">:</span> <span class="n">LocallyLinearEmbedding</span><span class="p">,</span>
+               <span class="s1">&#39;se&#39;</span><span class="p">:</span> <span class="n">SpectralEmbedding</span><span class="p">,</span> <span class="s1">&#39;mds&#39;</span><span class="p">:</span> <span class="n">MDS</span><span class="p">,</span> <span class="s1">&#39;tsne&#39;</span><span class="p">:</span> <span class="n">TSNE</span><span class="p">,</span>
+               <span class="s1">&#39;rbm&#39;</span><span class="p">:</span> <span class="n">BernoulliRBM</span><span class="p">}</span>
+
+        <span class="n">content</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;n_components&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>  <span class="c1"># use three cluster as default</span>
+        <span class="n">dr</span> <span class="o">=</span> <span class="n">drs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="n">DummyNone</span><span class="p">)(</span><span class="o">**</span><span class="n">content</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">dr</span><span class="p">,</span> <span class="s1">&#39;dimred&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="parse_clustering"><a class="viewcode-back" href="../../../index.html#adenine.core.define_pipeline.parse_clustering">[docs]</a><span class="k">def</span> <span class="nf">parse_clustering</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">content</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Parse the options of the clustering step.</span>
+
+<span class="sd">    This function does the same as parse_preproc but works on the clustering</span>
+<span class="sd">    options.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    -----------</span>
+<span class="sd">    key : class or str, like {&#39;KMeans&#39;, &#39;AP&#39;, &#39;MS&#39;, &#39;Spectral&#39;, &#39;Hierarchical&#39;}</span>
+<span class="sd">        The selected clustering algorithm. In case in which key</span>
+<span class="sd">        is a `class`, it must contain a `fit` method.</span>
+
+<span class="sd">    content : dict</span>
+<span class="sd">        A dictionary containing parameters for each clustering class.</span>
+<span class="sd">        Each parameter can be a list; in this case for each combination</span>
+<span class="sd">        of parameters a different pipeline will be created.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -----------</span>
+<span class="sd">    tpl : tuple</span>
+<span class="sd">        A tuple made like (&#39;clust_name&#39;, clust_obj, &#39;clustering&#39;), where</span>
+<span class="sd">        clust_obj implements the `fit` method.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isclass</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+        <span class="n">cl</span> <span class="o">=</span> <span class="n">key</span><span class="p">(</span><span class="o">**</span><span class="n">content</span><span class="p">)</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">cl</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+    <span class="k">elif</span> <span class="s1">&#39;auto&#39;</span> <span class="ow">in</span> <span class="p">(</span><span class="n">content</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;n_clusters&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">),</span>
+                    <span class="n">content</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;preference&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">))</span> \
+            <span class="ow">and</span> <span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">!=</span> <span class="s1">&#39;hierarchical&#39;</span><span class="p">:</span>
+        <span class="c1"># Wrapper class that automatically detects the best number of clusters</span>
+        <span class="c1"># via 10-Fold CV</span>
+        <span class="n">content</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;n_clusters&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="n">content</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;preference&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;param_grid&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;n_jobs&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+                  <span class="s1">&#39;scoring&#39;</span><span class="p">:</span> <span class="n">silhouette_score</span><span class="p">,</span> <span class="s1">&#39;cv&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">}</span>
+
+        <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;kmeans&#39;</span><span class="p">:</span>
+            <span class="n">content</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;init&#39;</span><span class="p">,</span> <span class="s1">&#39;k-means++&#39;</span><span class="p">)</span>
+            <span class="n">content</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;n_jobs&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;estimator&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">KMeans</span><span class="p">(</span><span class="o">**</span><span class="n">content</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;ap&#39;</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;estimator&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">AffinityPropagation</span><span class="p">(</span><span class="o">**</span><span class="n">content</span><span class="p">)</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;affinity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;estimator&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">affinity</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;n_clusters = &#39;auto&#39; specified outside kmeans or &quot;</span>
+                          <span class="s2">&quot;ap. Trying to create GridSearchCV pipeline anyway &quot;</span>
+                          <span class="s2">&quot; ...&quot;</span><span class="p">)</span>
+        <span class="n">cl</span> <span class="o">=</span> <span class="n">GridSearchCV</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="s1">&#39;auto&#39;</span> <span class="ow">in</span> <span class="p">(</span><span class="n">content</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;n_clusters&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">),</span>
+                    <span class="n">content</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;preference&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">))</span> \
+            <span class="ow">and</span> <span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;hierarchical&#39;</span><span class="p">:</span>
+        <span class="c1"># TODO implement this</span>
+        <span class="c1"># from adenine.utils.extensions import AgglomerativeClustering</span>
+        <span class="n">cl</span> <span class="o">=</span> <span class="n">AgglomerativeClustering</span><span class="p">(</span><span class="o">**</span><span class="n">content</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;kmeans&#39;</span><span class="p">:</span>
+            <span class="n">content</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;n_jobs&#39;</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">cl</span> <span class="o">=</span> <span class="n">KMeans</span><span class="p">(</span><span class="o">**</span><span class="n">content</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;ap&#39;</span><span class="p">:</span>
+            <span class="n">content</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;preference&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">cl</span> <span class="o">=</span> <span class="n">AffinityPropagation</span><span class="p">(</span><span class="o">**</span><span class="n">content</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;ms&#39;</span><span class="p">:</span>
+            <span class="n">cl</span> <span class="o">=</span> <span class="n">MeanShift</span><span class="p">(</span><span class="o">**</span><span class="n">content</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;spectral&#39;</span><span class="p">:</span>
+            <span class="n">cl</span> <span class="o">=</span> <span class="n">SpectralClustering</span><span class="p">(</span><span class="o">**</span><span class="n">content</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;hierarchical&#39;</span><span class="p">:</span>
+            <span class="n">cl</span> <span class="o">=</span> <span class="n">AgglomerativeClustering</span><span class="p">(</span><span class="o">**</span><span class="n">content</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cl</span> <span class="o">=</span> <span class="n">DummyNone</span><span class="p">()</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">cl</span><span class="p">,</span> <span class="s1">&#39;clustering&#39;</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">_lst_of_tpls</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">parsing_function</span><span class="p">,</span> <span class="n">filt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Generate a list of tuples for each parameter combination.&quot;&quot;&quot;</span>
+    <span class="n">lst</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">step</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">step</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="mi">0</span><span class="p">]:</span>  <span class="c1"># On/Off flag</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">step</span><span class="p">[</span><span class="n">key</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">content_d</span> <span class="o">=</span> <span class="n">step</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">content_vals</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">values_iterator</span><span class="p">(</span><span class="n">content_d</span><span class="p">))</span>
+                <span class="k">for</span> <span class="n">ll</span> <span class="ow">in</span> <span class="n">modified_cartesian</span><span class="p">(</span><span class="o">*</span><span class="nb">map</span><span class="p">(</span><span class="n">ensure_list</span><span class="p">,</span> <span class="n">content_vals</span><span class="p">)):</span>
+                    <span class="n">content</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">content_d</span><span class="p">),</span> <span class="n">ll</span><span class="p">))</span>
+                    <span class="k">if</span> <span class="n">filt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">filt</span><span class="p">(</span><span class="n">content</span><span class="p">):</span>
+                        <span class="k">continue</span>
+                    <span class="n">lst</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">parsing_function</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">content</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">lst</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">parsing_function</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="p">{}))</span>
+    <span class="k">return</span> <span class="n">lst</span>
+
+
+<div class="viewcode-block" id="parse_steps"><a class="viewcode-back" href="../../../index.html#adenine.core.define_pipeline.parse_steps">[docs]</a><span class="k">def</span> <span class="nf">parse_steps</span><span class="p">(</span><span class="n">steps</span><span class="p">,</span> <span class="n">max_n_pipes</span><span class="o">=</span><span class="mi">200</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Parse the steps and create the pipelines.</span>
+
+<span class="sd">    This function parses the steps coded as dictionaries in the ade_config</span>
+<span class="sd">    files and creates a sklearn pipeline objects for each combination of</span>
+<span class="sd">    imputing -&gt; preprocessing -&gt; dimensionality reduction -&gt; clustering</span>
+<span class="sd">    algorithms.</span>
+
+<span class="sd">    A typical step may be of the following form:</span>
+<span class="sd">        stepX = {&#39;Algorithm&#39;: [On/Off flag, {&#39;parameter1&#39;, [list of params]}]}</span>
+<span class="sd">    where On/Off flag = {True, False} and &#39;list of params&#39; allows to specify</span>
+<span class="sd">    multiple params. In case in which the &#39;list of params&#39; is actually a list,</span>
+<span class="sd">    multiple pipelines are created for each combination of parameters.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    -----------</span>
+<span class="sd">    steps : list of dictionaries</span>
+<span class="sd">        A list of (usually 4) dictionaries that contains the details of the</span>
+<span class="sd">        pipelines to implement.</span>
+
+<span class="sd">    max_n_pipes : int, optional, default: 200</span>
+<span class="sd">        The maximum number of combinations allowed. This avoids a too expensive</span>
+<span class="sd">        computation.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -----------</span>
+<span class="sd">    pipes : list of sklearn.pipeline.Pipeline</span>
+<span class="sd">        The returned list must contain every possible combination of</span>
+<span class="sd">        imputing -&gt; preprocessing -&gt; dimensionality reduction -&gt; clustering</span>
+<span class="sd">        algorithms (up to max_n_pipes).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">im_lst_of_tpls</span> <span class="o">=</span> <span class="n">_lst_of_tpls</span><span class="p">(</span><span class="n">steps</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">parse_imputing</span><span class="p">)</span>
+    <span class="n">pp_lst_of_tpls</span> <span class="o">=</span> <span class="n">_lst_of_tpls</span><span class="p">(</span><span class="n">steps</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">parse_preproc</span><span class="p">)</span>
+    <span class="n">dr_lst_of_tpls</span> <span class="o">=</span> <span class="n">_lst_of_tpls</span><span class="p">(</span><span class="n">steps</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">parse_dimred</span><span class="p">)</span>
+
+    <span class="c1"># When parsing clustering options, take care of error-generating parameters</span>
+    <span class="n">cl_lst_of_tpls</span> <span class="o">=</span> <span class="n">_lst_of_tpls</span><span class="p">(</span>
+        <span class="n">steps</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">parse_clustering</span><span class="p">,</span>
+        <span class="n">filt</span><span class="o">=</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;affinity&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;manhattan&#39;</span><span class="p">,</span> <span class="s1">&#39;precomputed&#39;</span><span class="p">]</span>
+              <span class="ow">and</span> <span class="n">x</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;linkage&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;ward&#39;</span><span class="p">))</span>
+
+    <span class="c1"># Generate the list of list of tuples (i.e. the list of pipelines)</span>
+    <span class="n">pipes</span> <span class="o">=</span> <span class="n">modified_cartesian</span><span class="p">(</span><span class="n">im_lst_of_tpls</span><span class="p">,</span> <span class="n">pp_lst_of_tpls</span><span class="p">,</span> <span class="n">dr_lst_of_tpls</span><span class="p">,</span>
+                               <span class="n">cl_lst_of_tpls</span><span class="p">,</span> <span class="n">pipes_mode</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">pipe</span> <span class="ow">in</span> <span class="n">pipes</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Generated pipeline: </span><span class="se">\n</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pipe</span><span class="p">)</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;*** </span><span class="si">%d</span><span class="s2"> pipeline(s) generated ***&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">pipes</span><span class="p">))</span>
+
+    <span class="c1">#  Get only the first max_n_pipes</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pipes</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">max_n_pipes</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Maximum number of pipelines reached. &quot;</span>
+                        <span class="s2">&quot;I&#39;m keeping the first </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">max_n_pipes</span><span class="p">)</span>
+        <span class="n">pipes</span> <span class="o">=</span> <span class="n">pipes</span><span class="p">[:</span><span class="n">max_n_pipes</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">pipes</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../index.html">
+              <img class="logo" src="../../../_static/adenine_logo.png" alt="Logo"/>
+            </a></p>
+   
+      <h3>Download</h3>
+      <p>Current version: <b>0.1.4</b></p>
+      <p>Get ADENINE from the
+         <a href="http://pypi.python.org/pypi/ADENINE">Python Package Index</a>,
+         or install it with:
+      </p>
+      <pre>pip install --upgrade ADENINE</pre>
+      <p> or clone it from our <a href="https://github.com/slipguru/ADENINE">GitHub</a> repository: </p>
+      <pre>git clone https://github.com/slipguru/ADENINE</pre>
+      <!--or:-->
+      <!--<pre>easy_install -U ADENINE</pre>-->
+<!--      <p>Latest
+         <a href="https://bitbucket.org/slipguru/adenine/downloads/ADENINE.pdf">
+            documentation in pdf
+         </a>
+         is also available. -->
+      </p>
+   
+
+   
+   
+
+    
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+    <p class="logo">
+       <img class="logo" src="../../../_static/logos.png" alt="Logos" usemap="#logosmap" />
+    </p>
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">ADENINE 0.1.4 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2016, Samuele Fiorini - Federico Tomasi - Annalisa Barla.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.6.
+    </div>
+  </body>
+</html>
