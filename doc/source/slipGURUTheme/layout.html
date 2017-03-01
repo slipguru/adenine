@@ -1,0 +1,55 @@
+{% extends "basic/layout.html" %}
+
+{% block sidebarsearch %}
+    {{ super() }}
+    <p class="logo">
+       <img class="logo" src="{{ pathto('_static/logos.png', 1) }}" alt="Logos" usemap="#logosmap" />
+    </p>
+{% endblock %}
+
+{% block extrahead %}
+<meta name="keywords"
+      content="SlipGuru, 'University of Genoa', statistical learning,
+      computational biology, Python, distributed, computing, parallel" />
+<map id="logosmap" name="logosmap">
+    <area shape="rect" alt="SlipGURU" title="SlipGURU" coords="0,0,89,112"
+          href="http://slipguru.disi.unige.it/" />
+    <area shape="rect" alt="Dipartimento di Informatica e Scienze dell'Informazione"
+          title="Dipartimento di Informatica e Scienze dell'Informazione"
+          coords="95,4,200,34" href="http://www.disi.unige.it/" />
+    <area shape="rect" alt="Università Degli Studi di Genova"
+          title="Università Degli Studi di Genova" coords="124,48,171,107"
+          href="http://www.unige.it/" />
+</map>
+{% endblock %}
+
+{% block sidebarrel %}
+   {% if prev %}
+      {{ super() }}
+   {% else %}
+   {% endif %}
+{% endblock %}
+
+{% block sidebartoc %}
+   {% if prev %}
+      {{ super() }}
+   {% else %}
+      <h3>Download</h3>
+      <p>Current version: <b>{{ release }}</b></p>
+      <p>Get {{ project }} from the
+         <a href="http://pypi.python.org/pypi/{{ project }}">Python Package Index</a>,
+         or install it with:
+      </p>
+      <pre>pip install --upgrade {{ project }}</pre>
+      <p> or clone it from our <a href="https://github.com/slipguru/{{ project }}">GitHub</a> repository: </p>
+      <pre>git clone https://github.com/slipguru/{{ project }}</pre>
+      <!--or:-->
+      <!--<pre>easy_install -U {{ project }}</pre>-->
+<!--      <p>Latest
+         <a href="https://bitbucket.org/slipguru/{{ project|lower }}/downloads/{{ project }}.pdf">
+            documentation in pdf
+         </a>
+         is also available. -->
+      </p>
+   {% endif %}
+{% endblock %}

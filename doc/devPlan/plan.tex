@@ -1,0 +1,261 @@
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+
+\documentclass[paper=a4, fontsize=10pt]{scrartcl} % A4 paper and 10pt font size
+
+\usepackage[T1]{fontenc} % Use 8-bit encoding that has 256 glyphs
+\usepackage[english]{babel} % English language/hyphenation
+\usepackage{amsmath,amsfonts,amsthm} % Math packages
+
+\usepackage[margin=1in]{geometry}
+
+\usepackage{xspace} % space after new commands
+\usepackage{hyperref}
+\usepackage{enumitem}
+
+
+\usepackage{sectsty} % Allows customizing section commands
+\allsectionsfont{\centering \normalfont\scshape} % Make all sections centered, the default font and small caps
+
+\usepackage{fancyhdr} % Custom headers and footers
+\pagestyle{fancyplain} % Makes all pages in the document conform to the custom headers and footers
+\fancyhead{} % No page header - if you want one, create it in the same way as the footers below
+\fancyfoot[L]{} % Empty left footer
+\fancyfoot[C]{} % Empty center footer
+\fancyfoot[R]{\thepage} % Page numbering for right footer
+\renewcommand{\headrulewidth}{0pt} % Remove header underlines
+\renewcommand{\footrulewidth}{0pt} % Remove footer underlines
+\setlength{\headheight}{11pt} % Customize the height of the header
+
+\numberwithin{equation}{section} % Number equations within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+\numberwithin{figure}{section} % Number figures within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+\numberwithin{table}{section} % Number tables within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+
+\setlength\parindent{0pt} % Removes all indentation from paragraphs - comment this line for an assignment with lots of text
+
+%----------------------------------------------------------------------------------------
+%	TITLE SECTION
+%----------------------------------------------------------------------------------------
+
+\newcommand{\horrule}[1]{\rule{\linewidth}{#1}} % Create horizontal rule command with 1 argument of height
+\newcommand{\adenine}{{\tt adenine}\xspace}
+
+\title{	
+\normalfont \normalsize
+\huge{\tt ADENINE}: A Data ExploratioN pipelINE \\
+\horrule{2pt} \\[0.5cm] % Thick bottom horizontal rule
+development plan \\ % The assignment title
+}
+
+\author{Samuele Fiorini} % Your name
+
+\date{\normalsize\today} % Today's date or a custom date
+
+\begin{document}
+
+\maketitle % Print the title
+
+%----------------------------------------------------------------------------------------
+%	PROBLEM 1
+%----------------------------------------------------------------------------------------
+
+\section{Introduction and Motivation}
+
+A question that arises at the beginning of almost every new data analysis is
+the following:  {\sl are my data relevant for the problem I'm dealing with}? \\
+
+The final goal of this project (named \adenine) is to help its user to have a glimpse of the answer of
+this tedious question. \\
+
+In order to reach this goal, \adenine will take advantage of machine learning and
+data mining techniques. The final pipeline will essentially consist of three steps:
+
+\begin{enumerate}
+	
+  	\item {\bf Preprocessing}: have you ever wondered what would have 
+	changed if only  your data have been preprocessed in a different way? Or if
+	data preprocessing is a good idea   at all? \adenine will offer several
+	preprocessing procedures, such as: data centering, Min-Max scaling,
+	standardization or normalization and allows you to compare the results of the
+	analysis conducted with different starting point.
+	
+  	\item {\bf Dimensionality Reduction} (DR): in the context of data
+	exploration, this  phase becomes particularly helpful for high dimensional data (e.g.
+	-omics scenario).   This step, generically named DR, may actually include some
+	manifold learning   (such as Isomap, Multidimensional Scaling, etc), supervised
+	(Linear   Discriminant Analysis) and unsupervised (Principal Component Analysis, 
+	kernel PCA)  techniques.
+
+	\item {\bf Clustering}: this section aims at grouping data into clusters without taking
+	into account the class labels. Several techniques such as K-Means, Spectral or Hierarchical
+	clustering will work on both original and dimensionality reduced data.
+
+\end{enumerate}
+
+The final output of \adenine will be an as compact as possible visual and textual representation of 
+the results obtained from the pipelines made with each possible combination of the algorithms
+implemented at each step. As an example, referring to a pipeline built as:
+
+\begin{center}
+{\sl Data normalization $\rightarrow$ PCA $\rightarrow$ K-Means}
+\end{center}
+
+the output would be something like:
+
+\begin{itemize}
+
+	\item an output file containing the norm of the original variables (which has
+	been  used to coerce all the features in $[0,1]$),
+
+  	\item a 2-D or 3-D scatter plot of the data projected along the principal
+	components   and the percentage of explained variance associated   with each
+	one of them,
+
+	\item a pictorial representation of the data clustering results
+	obtained with the optimum number of cluster (learned from the data).
+
+\end{itemize}
+
+\subsection{Material for PhD progress}
+
+The study behind the implementation of \adenine  will be useful in terms of
+four PhD courses of my first-year work plan:
+
+\begin{enumerate}
+
+	\item {\sl A Machine Learning Crash Course} [DIBRIS] (Odone, Rosasco): \adenine will cover
+	a fair number of (mainly unsupervised) machine learning techniques. Hence, this course
+	has been fundamental to acquire the statistical learning background needed to become aware of
+	the underlying mechanisms of the algorithms.
+
+	\item {\sl Programming Concepts in Python} [DIBRIS] (Tacchella):  I plan to implement \adenine in
+	{\tt Python}. Hence,  most of the implementation choices will be made on the basis of the material
+	covered in the course.
+
+  	\item {\sl Programming Complex Heterogeneous Parallel Systems} [IMATI]
+	(Clematis,   D'Agostino, Danovaro, Galizia) and {the \sl 24th Summer School on
+	Parallel Computing} [CINECA] (Erbacci): \adenine will present several {\sl embarrassingly
+	parallel workload} as well as several {\sl isolate GPU accelerable} computations. 
+	The former PhD course and the latter school will allow me to develop the parallel computing
+	attitude I need to implement \adenine in an as optimized as possible way.
+
+\end{enumerate}
+
+
+\section{Implemented Algorithms}
+
+The implementation of nearly all the algorithms of \adenine will refer to the
+\href{http://scikit-learn.org/stable/index.html}{\tt scikit-learn} python
+library. See the following \href{http://scikit-learn.org/stable/unsupervised_learning.html}{\tt link} for a
+comprehensive list,
+
+\subsection{Preprocessing}
+
+At this step the data will be fed to the following preprocessing procedures:
+\begin{enumerate}[start = 0]
+	\item no preprocessing: the analysis will be conducted on raw data;
+
+	\item na\"ive recentering: remove the mean;
+
+	\item standardization: remove the mean and scale each feature by 
+	their standard deviations, this will make the data normally distributed;
+
+	\item normalization: scale all the samples to have unit norm
+
+\end{enumerate}
+
+In its first version \adenine will allow the user to impute the missing values by means of the
+median, the mean or the most frequent value (future works are in Section~\ref{sec:future}).
+See the {\tt sklearn} \href{http://scikit-learn.org/stable/modules/preprocessing.html}{docs}
+on data preprocessing for further details.
+
+\subsection{Dimensionality reduction}
+
+The following is a work-in-progress list of the techniques I plan to
+make available in \adenine. The list includes algorithms that come
+from very different standpoint, but that have a common outcome:
+the estimation of a low-dimensional embedding (manifold) in which the data can
+be projected for visualization or further purposes.
+
+\begin{enumerate}[label=(\alph*)]
+
+	\item Principal Component Analysis (PCA), in its Incremental or Randomized variants
+	in case of big data;
+
+	\item Kernel PCA, which may come along different kernels (Gaussian,
+	polynomial, and so on);
+	
+	\item Isomap;
+
+	\item Locally Linear Embedding (LLE), in its modified (MLLE) or Hessian 
+	(HLLE) regularized version;
+
+	\item Spectral Embedding (SE);
+
+	\item Local Tangent Space Alignment (LTSA);
+
+	\item Multidimensional Scaling (MDS), in its metric and non-metric version;
+
+	\item t-distributed Stochastic Neighbor Embedding (t-SNE).
+
+\end{enumerate}
+
+\subsection{Clustering}
+
+On the same line, this section presents a list of the clustering techniques I 
+plan to include in \adenine.
+
+\begin{enumerate}
+
+	\item [($\alpha$)] K-Means, in its Mini-Batch variant for big data;
+
+	\item [($\beta$)] Affinity Propagation;
+
+	\item [($\gamma$)] Mean Shift;
+
+	\item [($\delta$)] Spectral Clustering;
+
+	\item [($\epsilon$)] Hierarchical Agglomerative Clustering, exploring
+	different linkage type, i.e., Ward, complete, average as well as different 
+	metrics, e.g. Euclidean, Manhattan, Minkowski, etc.;
+
+	\item [($\zeta$)] DBSCAN;
+
+	\item [($\eta$)] Birch.
+
+\end{enumerate}
+
+Several indexes to analyze the clustering performances will be included, some
+of them may require ground truth labels (such as Adjusted Rand Index (ARI), the
+Adjusted Mutual Information (AMI), the homogeneity, completeness or V measure
+scores), while others may evaluate the cluster compactness or the separation
+between clusters (such as the silhouette score).
+
+\section{Future Works} \label{sec:future}
+
+Indeed \adenine is not meant to be an all-inclusive tool. This section, that
+will always be a work-in-progress, aims at mentioning all the features that
+are not going to be implemented in the first version of \adenine, but that may
+be implemented later on.
+
+\begin{itemize}
+
+	\item How can we handle missing values? \adenine may have some statistically robust
+	imputation tools (such as low-rank matrix completion, or collaborative filtering) in
+	future versions;
+
+	\item Kernel K-Means;
+
+	\item Dictionary Learning;
+
+	\item Factor Analysis;
+
+	\item Non-negative Matrix Factorization;
+
+	\item Outliers Detection.
+
+\end{itemize}
+%----------------------------------------------------------------------------------------
+
+\end{document}

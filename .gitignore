@@ -1,12 +1,29 @@
+<<<<<<< HEAD
 # -------------------------- Python -------------------------- #
 
+=======
+# OSX stuff
+*.DS_Store
+
+# Archivers
+**/*.tar.gz
+# -------------------------- Python -------------------------- #
+
+# Jupyter Notebook checkpoints
+*-checkpoint.ipynb
+
+>>>>>>> master
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
 
 # Temp
+<<<<<<< HEAD
 **/*~
+=======
+*~
+>>>>>>> master
 
 # C extensions
 *.so
@@ -28,15 +45,27 @@ var/
 *.egg-info/
 .installed.cfg
 *.egg
+<<<<<<< HEAD
 
 # Numpy files
 *.npy
+=======
+# Numpy files
+#*.npy
+>>>>>>> master
 
 # Dump files
 *.pkl
 
 # Images
+<<<<<<< HEAD
 **/*.png
+=======
+*.png
+!*adenine_logo.png
+!icon.png
+
+>>>>>>> master
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -106,7 +135,11 @@ target/
 *.lof
 *.log
 *.lot
+<<<<<<< HEAD
 *.fls
+=======
+**.fls
+>>>>>>> master
 *.out
 *.toc
 *.fmt
@@ -120,7 +153,11 @@ target/
 # these rules might exclude image files for figures etc.
 # *.ps
 # *.eps
+<<<<<<< HEAD
 *.pdf
+=======
+#*.pdf
+>>>>>>> master
 
 
 ## Bibliography auxiliary files (bibtex/biblatex/biber):
