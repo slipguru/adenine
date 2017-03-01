@@ -94,7 +94,7 @@ $ ade_analysis.py results/ade_experiment_<TODAY>
 ```
 
 ## Need more info?
-Check out the project [homepage](http://slipguru.github.io/adenine/index.html).
+Check out the project [homepage](http://slipguru.github.io/adenine/index.html)
 
 ## *Got large-scale data?
 
