@@ -21,7 +21,7 @@ The main structure of **adenine** can be summarized in the following 4 steps.
 
 The final output of **adenine** is a compact, textual and graphical representation of the results obtained from the pipelines made with each possible combination of the algorithms selected at each step.
 
-**adenine** can run on multiple cores/machines* and it is fully `scikit-learn` compliant.
+**adenine** can run on multiple cores/machines and it is fully `scikit-learn` compliant.
 
 User documentation
 ==================
