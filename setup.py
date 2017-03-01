@@ -36,7 +36,7 @@ setup(
     packages=['adenine', 'adenine.core', 'adenine.utils', 'adenine.externals'],
     requires=['numpy (>=1.10.1)',
               'scipy (>=0.16.1)',
-              'sklearn (>=0.17)',
+              'scikit-learn (>=0.18)',
               'matplotlib (>=1.5.1)',
               'seaborn (>=0.7.0)',
               'fastcluster (>=1.1.20)'],
