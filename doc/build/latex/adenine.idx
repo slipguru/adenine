@@ -1,28 +1,39 @@
-\indexentry{adenine.core.define\_pipeline (module)|hyperpage}{5}
-\indexentry{DummyNone (class in adenine.core.define\_pipeline)|hyperpage}{5}
-\indexentry{parse\_preproc() (in module adenine.core.define\_pipeline)|hyperpage}{5}
-\indexentry{parse\_dimred() (in module adenine.core.define\_pipeline)|hyperpage}{5}
-\indexentry{parse\_clustering() (in module adenine.core.define\_pipeline)|hyperpage}{6}
-\indexentry{parse\_steps() (in module adenine.core.define\_pipeline)|hyperpage}{6}
-\indexentry{adenine.core.pipelines (module)|hyperpage}{6}
-\indexentry{create() (in module adenine.core.pipelines)|hyperpage}{6}
-\indexentry{which\_level() (in module adenine.core.pipelines)|hyperpage}{6}
-\indexentry{evaluate() (in module adenine.core.pipelines)|hyperpage}{7}
-\indexentry{run() (in module adenine.core.pipelines)|hyperpage}{7}
-\indexentry{adenine.core.analyze\_results (module)|hyperpage}{7}
-\indexentry{make\_scatter() (in module adenine.core.analyze\_results)|hyperpage}{7}
-\indexentry{make\_voronoi() (in module adenine.core.analyze\_results)|hyperpage}{8}
-\indexentry{est\_clst\_perf() (in module adenine.core.analyze\_results)|hyperpage}{8}
-\indexentry{get\_step\_attributes() (in module adenine.core.analyze\_results)|hyperpage}{9}
-\indexentry{make\_tree() (in module adenine.core.analyze\_results)|hyperpage}{9}
-\indexentry{make\_dendrogram() (in module adenine.core.analyze\_results)|hyperpage}{10}
-\indexentry{make\_scatterplot() (in module adenine.core.analyze\_results)|hyperpage}{10}
-\indexentry{start() (in module adenine.core.analyze\_results)|hyperpage}{11}
+\indexentry{adenine.core.define\_pipeline (module)|hyperpage}{7}
+\indexentry{parse\_imputing() (in module adenine.core.define\_pipeline)|hyperpage}{7}
+\indexentry{parse\_preproc() (in module adenine.core.define\_pipeline)|hyperpage}{7}
+\indexentry{parse\_dimred() (in module adenine.core.define\_pipeline)|hyperpage}{7}
+\indexentry{parse\_clustering() (in module adenine.core.define\_pipeline)|hyperpage}{8}
+\indexentry{parse\_steps() (in module adenine.core.define\_pipeline)|hyperpage}{8}
+\indexentry{adenine.core.pipelines (module)|hyperpage}{9}
+\indexentry{create() (in module adenine.core.pipelines)|hyperpage}{9}
+\indexentry{which\_level() (in module adenine.core.pipelines)|hyperpage}{9}
+\indexentry{evaluate() (in module adenine.core.pipelines)|hyperpage}{9}
+\indexentry{pipe\_worker() (in module adenine.core.pipelines)|hyperpage}{9}
+\indexentry{adenine.core.analyze\_results (module)|hyperpage}{10}
+\indexentry{est\_clst\_perf() (in module adenine.core.analyze\_results)|hyperpage}{10}
+\indexentry{make\_df\_clst\_perf() (in module adenine.core.analyze\_results)|hyperpage}{10}
+\indexentry{get\_step\_attributes() (in module adenine.core.analyze\_results)|hyperpage}{10}
+\indexentry{analysis\_worker() (in module adenine.core.analyze\_results)|hyperpage}{11}
 \indexentry{adenine.utils.data\_source (module)|hyperpage}{11}
-\indexentry{MixGauss() (in module adenine.utils.data\_source)|hyperpage}{11}
+\indexentry{generate\_gauss() (in module adenine.utils.data\_source)|hyperpage}{11}
 \indexentry{load\_custom() (in module adenine.utils.data\_source)|hyperpage}{11}
 \indexentry{load() (in module adenine.utils.data\_source)|hyperpage}{12}
-\indexentry{adenine.utils.extra (module)|hyperpage}{12}
-\indexentry{modified\_cartesian() (in module adenine.utils.extra)|hyperpage}{12}
-\indexentry{make\_time\_flag() (in module adenine.utils.extra)|hyperpage}{12}
-\indexentry{sec\_to\_time() (in module adenine.utils.extra)|hyperpage}{13}
+\indexentry{adenine.core.plotting (module)|hyperpage}{13}
+\indexentry{silhouette() (in module adenine.core.plotting)|hyperpage}{13}
+\indexentry{scatter() (in module adenine.core.plotting)|hyperpage}{13}
+\indexentry{voronoi() (in module adenine.core.plotting)|hyperpage}{13}
+\indexentry{tree() (in module adenine.core.plotting)|hyperpage}{14}
+\indexentry{dendrogram() (in module adenine.core.plotting)|hyperpage}{14}
+\indexentry{pcmagnitude() (in module adenine.core.plotting)|hyperpage}{15}
+\indexentry{eigs() (in module adenine.core.plotting)|hyperpage}{15}
+\indexentry{adenine.utils.extra (module)|hyperpage}{16}
+\indexentry{Palette (class in adenine.utils.extra)|hyperpage}{16}
+\indexentry{values\_iterator() (in module adenine.utils.extra)|hyperpage}{16}
+\indexentry{items\_iterator() (in module adenine.utils.extra)|hyperpage}{16}
+\indexentry{modified\_cartesian() (in module adenine.utils.extra)|hyperpage}{16}
+\indexentry{make\_time\_flag() (in module adenine.utils.extra)|hyperpage}{16}
+\indexentry{sec\_to\_time() (in module adenine.utils.extra)|hyperpage}{16}
+\indexentry{get\_time() (in module adenine.utils.extra)|hyperpage}{17}
+\indexentry{ensure\_symmetry() (in module adenine.utils.extra)|hyperpage}{17}
+\indexentry{timed() (in module adenine.utils.extra)|hyperpage}{17}
+\indexentry{set\_module\_defaults() (in module adenine.utils.extra)|hyperpage}{17}

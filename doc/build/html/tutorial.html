@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Quick start tutorial &mdash; adenine 0.1.0 documentation</title>
+    <title>Quick start tutorial &#8212; ADENINE 0.1.4 documentation</title>
     
     <link rel="stylesheet" href="_static/slipGuru.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.1.0',
+        VERSION:     '0.1.4',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,8 +23,8 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="adenine 0.1.0 documentation" href="index.html" />
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="ADENINE 0.1.4 documentation" href="index.html" />
     <link rel="prev" title="ADENINE (A Data ExploratioN pIpeliNE)" href="index.html" />
 <meta name="keywords"
       content="SlipGuru, 'University of Genoa', statistical learning,
@@ -41,8 +41,8 @@
 </map>
 
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -52,141 +52,165 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="np-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
           <a href="index.html" title="ADENINE (A Data ExploratioN pIpeliNE)"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">adenine 0.1.0 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">ADENINE 0.1.4 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="quick-start-tutorial">
 <span id="tutorial"></span><h1>Quick start tutorial<a class="headerlink" href="#quick-start-tutorial" title="Permalink to this headline">¶</a></h1>
-<p><strong>adenine</strong> may be installed using standard Python tools (with
+<p><strong>Adenine*</strong> can be installed using standard Python tools (with
 administrative or sudo permissions on GNU-Linux platforms):</p>
-<div class="highlight-python"><div class="highlight"><pre>$ pip install adenine
-
-or
-
-$ easy_install adenine
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ pip install adenine
 </pre></div>
 </div>
 <div class="section" id="installation-from-sources">
 <h2>Installation from sources<a class="headerlink" href="#installation-from-sources" title="Permalink to this headline">¶</a></h2>
-<p>If you like to manually install <strong>adenine</strong>, download the source tar.gz
-from our
-<a class="reference external" href="https://bitbucket.org/samuele_fiorini/adenine">BitBucket repository</a>.
-Then extract it and move into the root directory:</p>
-<div class="highlight-python"><div class="highlight"><pre>$ tar xvf adenine-|release|.tar.gz
+<p>If you like to manually install <strong>Adenine</strong>, download the .zip or .tar.gz archive
+from <a class="reference external" href="http://slipguru.github.io/adenine/">http://slipguru.github.io/adenine/</a>. Then extract it and move into the root directory:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ unzip slipguru-adenine-|release|.zip
 $ cd adenine-|release|/
 </pre></div>
 </div>
-<p>From here, you may use the standard Python installation step:</p>
-<div class="highlight-python"><div class="highlight"><pre>$ python setup.py install
+<p>or:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ tar xvf slipguru-adenine-|release|.tar.gz
+$ cd adenine-|release|/
 </pre></div>
 </div>
-<p>After <strong>adenine</strong> installation, you should have access to two scripts,
-named with a common <tt class="docutils literal"><span class="pre">ade_</span></tt> prefix:</p>
-<div class="highlight-python"><div class="highlight"><pre>$ ade_&lt;TAB&gt;
+<p>Otherwise you can clone our <a class="reference external" href="https://github.com/slipguru/adenine">GitHub repository</a>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ git clone https://github.com/slipguru/adenine.git
+</pre></div>
+</div>
+<p>From here, you can follow the standard Python installation step:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ python setup.py install
+</pre></div>
+</div>
+<p>After <strong>Adenine</strong> installation, you should have access to two scripts,
+named with a common <code class="docutils literal"><span class="pre">ade_</span></code> prefix:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ ade_&lt;TAB&gt;
 ade_analysis.py    ade_run.py
 </pre></div>
 </div>
-<p>This tutorial assumes that you downloaded and extracted <strong>adenine</strong>
-source package which contains a <tt class="docutils literal"><span class="pre">examples</span></tt> directory with some <tt class="docutils literal"><span class="pre">.npy</span></tt> files
-which will be used to show <strong>adenine</strong>&#8216;s&#8217; functionalities.</p>
-<p><strong>adenine</strong> needs only 3 ingredients:</p>
+<p>This tutorial assumes that you downloaded and extracted <strong>Adenine</strong>
+source package which contains a <code class="docutils literal"><span class="pre">examples\data</span></code> directory with some data files (<code class="docutils literal"><span class="pre">.npy</span></code> or <code class="docutils literal"><span class="pre">.csv</span></code>) which will be used to show <strong>Adenine</strong> functionalities.</p>
+<p><strong>Adenine</strong> needs only 3 ingredients:</p>
 <ul class="simple">
-<li>A <tt class="docutils literal"><span class="pre">X.npy</span></tt> input matrix</li>
-<li>A <tt class="docutils literal"><span class="pre">y.npy</span></tt> output vector (optional)</li>
-<li>A <tt class="docutils literal"><span class="pre">configuration</span></tt> file</li>
+<li><code class="docutils literal"><span class="pre">n_samples</span> <span class="pre">x</span> <span class="pre">n_variables</span></code> input matrix</li>
+<li><code class="docutils literal"><span class="pre">n_samples</span> <span class="pre">x</span> <span class="pre">1</span></code> output vector (optional)</li>
+<li><code class="docutils literal"><span class="pre">configuration</span></code> file</li>
 </ul>
 </div>
 <div class="section" id="input-data-format">
 <h2>Input data format<a class="headerlink" href="#input-data-format" title="Permalink to this headline">¶</a></h2>
-<p>Input data are assumed to be <tt class="docutils literal"><span class="pre">numpy</span></tt> array dumped in a <tt class="docutils literal"><span class="pre">.npy</span></tt> files organized with a row for each sample and a column for each feature.</p>
+<p>Input data are assumed to be:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">numpy</span></code> array stored in <code class="docutils literal"><span class="pre">.npy</span></code> files organized with a row for each sample and a column for each feature,</li>
+<li>tabular data stored in comma separated <code class="docutils literal"><span class="pre">.csv</span></code> files presenting the variables header on the first row and the sample indexes on the first column,</li>
+<li>toy examples available from <code class="docutils literal"><span class="pre">adenine.utils.data_source</span></code> function.</li>
+</ul>
 </div>
 <div class="section" id="configuration-file">
 <span id="configuration"></span><h2>Configuration File<a class="headerlink" href="#configuration-file" title="Permalink to this headline">¶</a></h2>
-<p><strong>adenine</strong> configuration file is a standard Python script. It is
+<p><strong>Adenine</strong> configuration file is a standard Python script. It is
 imported as a module, then all the code is executed. In this file the user can define all the option needed to read the data and to create the pipelines.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="c">#!/usr/bin/python</span>
-<span class="c"># -*- coding: utf-8 -*-</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;Configuration file for adenine.&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">adenine.utils</span> <span class="kn">import</span> <span class="n">data_source</span>
 
-<span class="c"># --------------------------  EXPERMIENT INFO ------------------------- #</span>
-<span class="n">exp_tag</span> <span class="o">=</span> <span class="s">&#39;debug_csv&#39;</span>
-<span class="n">output_root_folder</span> <span class="o">=</span> <span class="s">&#39;results&#39;</span>
-<span class="c"># parallel = False</span>
+<span class="c1"># --------------------------  EXPERMIENT INFO ------------------------- #</span>
+<span class="n">exp_tag</span> <span class="o">=</span> <span class="s1">&#39;_experiment&#39;</span>
+<span class="n">output_root_folder</span> <span class="o">=</span> <span class="s1">&#39;results&#39;</span>
+<span class="n">plotting_context</span> <span class="o">=</span> <span class="s1">&#39;notebook&#39;</span>  <span class="c1"># one of {paper, notebook, talk, poster}</span>
+<span class="n">file_format</span> <span class="o">=</span> <span class="s1">&#39;pdf&#39;</span>  <span class="c1"># or &#39;png&#39;</span>
 
-<span class="c"># ----------------------------  INPUT DATA ---------------------------- #</span>
-<span class="c"># X, y, feat_names, class_names = data_source.load(&#39;iris&#39;)</span>
-<span class="c"># X, y, feat_names, class_names = data_source.load(&#39;gauss&#39;)</span>
-<span class="c"># X, y, feat_names, class_names = data_source.load(&#39;digits&#39;)</span>
-<span class="c"># X, y, feat_names, class_names = data_source.load(&#39;diabetes&#39;)</span>
-<span class="c"># X, y, feat_names, class_names = data_source.load(&#39;boston&#39;)</span>
-<span class="c"># X, y, feat_names, class_names = data_source.load(&#39;custom&#39;, &#39;X.npy&#39;, &#39;y.npy&#39;)</span>
-<span class="c"># X, y, feat_names, class_names = data_source.load(&#39;custom&#39;, &#39;X.csv&#39;, &#39;y.csv&#39;)</span>
-<span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">feat_names</span><span class="p">,</span> <span class="n">class_names</span> <span class="o">=</span> <span class="n">data_source</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s">&#39;custom&#39;</span><span class="p">,</span> <span class="s">&#39;/home/fede/src/adenine/adenine/examples/TM_matrix.csv&#39;</span><span class="p">)</span>
-<span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">T</span> <span class="o">==</span> <span class="n">X</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
-    <span class="n">X</span> <span class="o">=</span> <span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">T</span> <span class="o">+</span> <span class="n">X</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.</span>
-    <span class="n">X</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">-</span> <span class="n">X</span>
+<span class="c1"># ----------------------------  INPUT DATA ---------------------------- #</span>
+<span class="c1"># Load an example dataset or specify your input data in tabular format</span>
+<span class="n">data_file</span> <span class="o">=</span> <span class="s1">&#39;data.csv&#39;</span>
+<span class="n">labels_file</span> <span class="o">=</span> <span class="s1">&#39;labels.csv&#39;</span>  <span class="c1"># OPTIONAL</span>
+<span class="n">samples_on</span> <span class="o">=</span> <span class="s1">&#39;rows&#39;</span>  <span class="c1"># if samples lie on columns use &#39;cols&#39; or &#39;col&#39;</span>
+<span class="n">data_sep</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span>  <span class="c1"># the data separator. e.g., &#39;,&#39;, &#39;\t&#39;, &#39; &#39;, ...</span>
+<span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">feat_names</span><span class="p">,</span> <span class="n">index</span> <span class="o">=</span> <span class="n">data_source</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;custom&#39;</span><span class="p">,</span>
+                                           <span class="n">data_file</span><span class="p">,</span> <span class="n">labels_file</span><span class="p">,</span>
+                                           <span class="n">samples_on</span><span class="o">=</span><span class="n">samples_on</span><span class="p">,</span>
+                                           <span class="n">sep</span><span class="o">=</span><span class="n">data_sep</span><span class="p">)</span>
 
-<span class="c"># -----------------------  PIPELINE DEFINITION ------------------------ #</span>
+<span class="c1"># -----------------------  PIPELINES DEFINITION ------------------------ #</span>
+<span class="c1"># --- Missing values imputing --- #</span>
+<span class="n">step0</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Impute&#39;</span><span class="p">:</span> <span class="p">[</span><span class="bp">False</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;missing_values&#39;</span><span class="p">:</span> <span class="s1">&#39;NaN&#39;</span><span class="p">,</span>
+                            <span class="s1">&#39;strategy&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;median&#39;</span><span class="p">,</span>
+                                         <span class="s1">&#39;mean&#39;</span><span class="p">,</span>
+                                         <span class="s1">&#39;nearest_neighbors&#39;</span><span class="p">]}]}</span>
 
-<span class="c"># --- Missing Values Imputing --- #</span>
-<span class="n">step0</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;Impute&#39;</span><span class="p">:</span> <span class="p">[</span><span class="bp">False</span><span class="p">],</span> <span class="s">&#39;Missing&#39;</span><span class="p">:</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="s">&#39;Replacement&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;median&#39;</span><span class="p">,</span><span class="s">&#39;mean&#39;</span><span class="p">]}</span>
+<span class="c1"># --- Data preprocessing --- #</span>
+<span class="n">step1</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;None&#39;</span><span class="p">:</span> <span class="p">[</span><span class="bp">False</span><span class="p">],</span> <span class="s1">&#39;Recenter&#39;</span><span class="p">:</span> <span class="p">[</span><span class="bp">False</span><span class="p">],</span> <span class="s1">&#39;Standardize&#39;</span><span class="p">:</span> <span class="p">[</span><span class="bp">False</span><span class="p">],</span>
+         <span class="s1">&#39;Normalize&#39;</span><span class="p">:</span> <span class="p">[</span><span class="bp">False</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;norm&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;l1&#39;</span><span class="p">,</span> <span class="s1">&#39;l2&#39;</span><span class="p">]}],</span>
+         <span class="s1">&#39;MinMax&#39;</span><span class="p">:</span> <span class="p">[</span><span class="bp">False</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;feature_range&#39;</span><span class="p">:</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)]}]}</span>
 
-<span class="c"># --- Data Preprocessing --- #</span>
-<span class="n">step1</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;None&#39;</span><span class="p">:</span> <span class="p">[</span><span class="bp">True</span><span class="p">],</span> <span class="s">&#39;Recenter&#39;</span><span class="p">:</span> <span class="p">[</span><span class="bp">False</span><span class="p">],</span> <span class="s">&#39;Standardize&#39;</span><span class="p">:</span> <span class="p">[</span><span class="bp">False</span><span class="p">],</span>
-         <span class="s">&#39;Normalize&#39;</span><span class="p">:</span> <span class="p">[</span><span class="bp">False</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;l2&#39;</span><span class="p">]],</span> <span class="s">&#39;MinMax&#39;</span><span class="p">:</span> <span class="p">[</span><span class="bp">False</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]]}</span>
+<span class="c1"># --- Unsupervised features learning --- #</span>
+<span class="c1"># affinity ca be precumputed for SE</span>
+<span class="n">step2</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;PCA&#39;</span><span class="p">:</span> <span class="p">[</span><span class="bp">False</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;n_components&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">}],</span>
+         <span class="s1">&#39;IncrementalPCA&#39;</span><span class="p">:</span> <span class="p">[</span><span class="bp">False</span><span class="p">],</span>
+         <span class="s1">&#39;RandomizedPCA&#39;</span><span class="p">:</span> <span class="p">[</span><span class="bp">False</span><span class="p">],</span>
+         <span class="s1">&#39;KernelPCA&#39;</span><span class="p">:</span> <span class="p">[</span><span class="bp">False</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;kernel&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;linear&#39;</span><span class="p">,</span> <span class="s1">&#39;rbf&#39;</span><span class="p">,</span> <span class="s1">&#39;poly&#39;</span><span class="p">]}],</span>
+         <span class="s1">&#39;Isomap&#39;</span><span class="p">:</span> <span class="p">[</span><span class="bp">False</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;n_neighbors&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">}],</span>
+         <span class="s1">&#39;LLE&#39;</span><span class="p">:</span> <span class="p">[</span><span class="bp">False</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;n_neighbors&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+                         <span class="s1">&#39;method&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;standard&#39;</span><span class="p">,</span> <span class="s1">&#39;modified&#39;</span><span class="p">,</span>
+                                    <span class="s1">&#39;hessian&#39;</span><span class="p">,</span> <span class="s1">&#39;ltsa&#39;</span><span class="p">]}],</span>
+         <span class="s1">&#39;SE&#39;</span><span class="p">:</span> <span class="p">[</span><span class="bp">False</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;affinity&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;nearest_neighbors&#39;</span><span class="p">,</span> <span class="s1">&#39;rbf&#39;</span><span class="p">]}],</span>
+         <span class="s1">&#39;MDS&#39;</span><span class="p">:</span> <span class="p">[</span><span class="bp">False</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;metric&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">}],</span>
+         <span class="s1">&#39;tSNE&#39;</span><span class="p">:</span> <span class="p">[</span><span class="bp">False</span><span class="p">],</span>
+         <span class="s1">&#39;RBM&#39;</span><span class="p">:</span> <span class="p">[</span><span class="bp">False</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;n_components&#39;</span><span class="p">:</span> <span class="mi">256</span><span class="p">}],</span>
+         <span class="s1">&#39;None&#39;</span><span class="p">:</span> <span class="p">[</span><span class="bp">False</span><span class="p">]</span>
+         <span class="p">}</span>
 
-<span class="c"># --- Dimensionality Reduction &amp; Manifold Learning --- #</span>
-<span class="n">step2</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;PCA&#39;</span><span class="p">:</span> <span class="p">[</span><span class="bp">False</span><span class="p">],</span> <span class="s">&#39;IncrementalPCA&#39;</span><span class="p">:</span> <span class="p">[</span><span class="bp">False</span><span class="p">],</span> <span class="s">&#39;RandomizedPCA&#39;</span><span class="p">:</span> <span class="p">[</span><span class="bp">False</span><span class="p">],</span>
-         <span class="s">&#39;KernelPCA&#39;</span><span class="p">:</span> <span class="p">[</span><span class="bp">False</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;linear&#39;</span><span class="p">,</span><span class="s">&#39;rbf&#39;</span><span class="p">,</span><span class="s">&#39;poly&#39;</span><span class="p">]],</span> <span class="s">&#39;Isomap&#39;</span><span class="p">:</span> <span class="p">[</span><span class="bp">False</span><span class="p">],</span>
-         <span class="s">&#39;LLE&#39;</span><span class="p">:</span> <span class="p">[</span><span class="bp">False</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;standard&#39;</span><span class="p">,</span><span class="s">&#39;modified&#39;</span><span class="p">,</span><span class="s">&#39;hessian&#39;</span><span class="p">,</span> <span class="s">&#39;ltsa&#39;</span><span class="p">]],</span>
-         <span class="s">&#39;SE&#39;</span><span class="p">:</span> <span class="p">[</span><span class="bp">False</span><span class="p">],</span> <span class="s">&#39;MDS&#39;</span><span class="p">:</span> <span class="p">[</span><span class="bp">False</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;metric&#39;</span><span class="p">,</span><span class="s">&#39;nonmetric&#39;</span><span class="p">]],</span>
-         <span class="s">&#39;tSNE&#39;</span><span class="p">:</span> <span class="p">[</span><span class="bp">False</span><span class="p">],</span> <span class="s">&#39;None&#39;</span><span class="p">:</span> <span class="p">[</span><span class="bp">True</span><span class="p">]}</span>
-
-<span class="c"># --- Clustering --- #</span>
-<span class="n">step3</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;KMeans&#39;</span><span class="p">:</span> <span class="p">[</span><span class="bp">False</span><span class="p">,</span> <span class="p">[</span><span class="mi">5</span><span class="p">]],</span>
-         <span class="s">&#39;KernelKMeans&#39;</span><span class="p">:</span> <span class="p">[</span><span class="bp">False</span><span class="p">,</span> <span class="p">[</span><span class="mi">3</span><span class="p">,[</span><span class="s">&#39;rbf&#39;</span><span class="p">,</span><span class="s">&#39;poly&#39;</span><span class="p">]]],</span> <span class="c">#TODO</span>
-         <span class="s">&#39;AP&#39;</span><span class="p">:</span> <span class="p">[</span><span class="bp">False</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;precomputed&#39;</span><span class="p">]],</span> <span class="s">&#39;MS&#39;</span><span class="p">:</span> <span class="p">[</span><span class="bp">False</span><span class="p">],</span>
-         <span class="s">&#39;Spectral&#39;</span><span class="p">:</span> <span class="p">[</span><span class="bp">True</span><span class="p">,</span> <span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;precomputed&#39;</span><span class="p">]]],</span>
-         <span class="c">#&#39;Hierarchical&#39;: [False, [3, [&#39;manhattan&#39;,&#39;euclidean&#39;], [&#39;ward&#39;,&#39;complete&#39;,&#39;average&#39;]]]</span>
-         <span class="s">&#39;Hierarchical&#39;</span><span class="p">:</span> <span class="p">[</span><span class="bp">False</span><span class="p">,</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;precomputed&#39;</span><span class="p">]]]</span>
+<span class="c1"># --- Clustering --- #</span>
+<span class="c1"># affinity ca be precumputed for AP, Spectral and Hierarchical</span>
+<span class="n">step3</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;KMeans&#39;</span><span class="p">:</span> <span class="p">[</span><span class="bp">False</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;n_clusters&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;auto&#39;</span><span class="p">]}],</span>
+         <span class="s1">&#39;AP&#39;</span><span class="p">:</span> <span class="p">[</span><span class="bp">False</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;preference&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;auto&#39;</span><span class="p">]}],</span>
+         <span class="s1">&#39;MS&#39;</span><span class="p">:</span> <span class="p">[</span><span class="bp">False</span><span class="p">],</span>
+         <span class="s1">&#39;Spectral&#39;</span><span class="p">:</span> <span class="p">[</span><span class="bp">False</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;n_clusters&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">8</span><span class="p">]}],</span>
+         <span class="s1">&#39;Hierarchical&#39;</span><span class="p">:</span> <span class="p">[</span><span class="bp">False</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;n_clusters&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span>
+                                  <span class="s1">&#39;affinity&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;manhattan&#39;</span><span class="p">,</span> <span class="s1">&#39;euclidean&#39;</span><span class="p">],</span>
+                                  <span class="s1">&#39;linkage&#39;</span><span class="p">:</span>  <span class="p">[</span><span class="s1">&#39;ward&#39;</span><span class="p">,</span> <span class="s1">&#39;complete&#39;</span><span class="p">,</span> <span class="s1">&#39;average&#39;</span><span class="p">]}]</span>
          <span class="p">}</span>
 </pre></div>
 </div>
 </div>
 <div class="section" id="experiment-runner">
 <span id="experiment"></span><h2>Experiment runner<a class="headerlink" href="#experiment-runner" title="Permalink to this headline">¶</a></h2>
-<p>The <tt class="docutils literal"><span class="pre">ade_run.py</span></tt> script, executes the full <strong>adenine</strong> framework. The prototype is the following:</p>
-<div class="highlight-python"><div class="highlight"><pre>$ ade_run.py ade_config.py
+<p>The <code class="docutils literal"><span class="pre">ade_run.py</span></code> script, executes the full <strong>Adenine</strong> framework. The prototype is the following:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ ade_run.py ade_config.py
 </pre></div>
 </div>
-<p>When launched, the script reads the data, then it creates and runs each pipeline saving the results in a three-like structure which has the current folder as root.</p>
+<p>When launched, the script reads the data, then it creates and runs each pipeline saving the results in a tree-like structure which has the current folder as root.</p>
 </div>
 <div class="section" id="results-analysis">
 <span id="analysis"></span><h2>Results analysis<a class="headerlink" href="#results-analysis" title="Permalink to this headline">¶</a></h2>
-<p>This is the last step, needed to be performed in order to get some useful
-summaries and plots from an already executed experiment.
-The <tt class="docutils literal"><span class="pre">ade_analysis.py</span></tt> script accepts as only parameter a result directory
+<p>The <code class="docutils literal"><span class="pre">ade_analysis.py</span></code> script provides useful summaries and graphs from the results of the experiment. This script accepts as only parameter a result directory
 already created:</p>
-<div class="highlight-python"><div class="highlight"><pre>$ ade_analysis.py result-dir
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ ade_analysis.py result-dir
 </pre></div>
 </div>
-<p>The script prints some results and produces a set of textual and graphical
-results. An example of possible output obtained by one of the implemented pipelines is represented below.</p>
-<div class="figure align-center">
-<img alt="_static/KMeans.png" src="_static/KMeans.png" />
+<p>The script produces a set of textual and graphical results. An output example obtained by one of the implemented pipelines is represented below.</p>
+<a class="reference internal image-reference" href="_images/pca.png"><img alt="broken link" src="_images/pca.png" style="width: 400.0px; height: 400.0px;" /></a>
+<a class="reference internal image-reference" href="_images/kpca.png"><img alt="broken link" src="_images/kpca.png" style="width: 400.0px; height: 400.0px;" /></a>
+<p>You can reproduce the example above specifying <code class="docutils literal"><span class="pre">data_source.load('circles')</span></code> in the configuration file.</p>
 </div>
+<div class="section" id="example-dataset">
+<h2>Example dataset<a class="headerlink" href="#example-dataset" title="Permalink to this headline">¶</a></h2>
+<p>An example dataset can be dowloaded <code class="xref download docutils literal"><span class="pre">here</span></code>. The dataset is a random extraction of 801 samples (with dimension 20531) measuring RNA-Seq gene expression of patients affected by 5 different types of tumor: breast invasive carcinoma (BRCA), kidney renal clear cell carcinoma (KIRC), colon  (COAD), lung  (LUAD) and prostate adenocarcinoma (PRAD). The full dataset is maintained by The Cancer Genome Atlas Pan-Cancer Project [1] and we refer to the <a class="reference external" href="https://www.synapse.org/#!Synapse:syn4301332">original repository</a> for furher details.</p>
+</div>
+<div class="section" id="reference">
+<h2>Reference<a class="headerlink" href="#reference" title="Permalink to this headline">¶</a></h2>
+<p>[1] Weinstein, John N., et al. &#8220;The cancer genome atlas pan-cancer analysis project.&#8221; Nature genetics 45.10 (2013): 1113-1120.</p>
 </div>
 </div>
 
@@ -194,8 +218,11 @@ results. An example of possible output obtained by one of the implemented pipeli
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/adenine_logo.png" alt="Logo"/>
+            </a></p>
    
       
   <h3><a href="index.html">Table Of Contents</a></h3>
@@ -206,6 +233,8 @@ results. An example of possible output obtained by one of the implemented pipeli
 <li><a class="reference internal" href="#configuration-file">Configuration File</a></li>
 <li><a class="reference internal" href="#experiment-runner">Experiment runner</a></li>
 <li><a class="reference internal" href="#results-analysis">Results analysis</a></li>
+<li><a class="reference internal" href="#example-dataset">Example dataset</a></li>
+<li><a class="reference internal" href="#reference">Reference</a></li>
 </ul>
 </li>
 </ul>
@@ -219,23 +248,22 @@ results. An example of possible output obtained by one of the implemented pipeli
                         title="previous chapter">ADENINE (A Data ExploratioN pIpeliNE)</a></p>
    
 
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="_sources/tutorial.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/tutorial.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
     
-<div id="searchbox" style="display: none">
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
     <p class="logo">
@@ -246,7 +274,7 @@ results. An example of possible output obtained by one of the implemented pipeli
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -256,17 +284,14 @@ results. An example of possible output obtained by one of the implemented pipeli
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="np-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
           <a href="index.html" title="ADENINE (A Data ExploratioN pIpeliNE)"
              >previous</a> |</li>
-        <li><a href="index.html">adenine 0.1.0 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">ADENINE 0.1.4 documentation</a> &#187;</li> 
       </ul>
     </div>
-    <div class="footer">
-        &copy; Copyright 2015, Samuele Fiorini.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2016, Samuele Fiorini - Federico Tomasi - Annalisa Barla.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.6.
     </div>
   </body>
 </html>
