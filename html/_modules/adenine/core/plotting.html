@@ -1,0 +1,776 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>adenine.core.plotting &#8212; ADENINE 0.1.4 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/slipGuru.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.1.4',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="ADENINE 0.1.4 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" />
+<meta name="keywords"
+      content="SlipGuru, 'University of Genoa', statistical learning,
+      computational biology, Python, distributed, computing, parallel" />
+<map id="logosmap" name="logosmap">
+    <area shape="rect" alt="SlipGURU" title="SlipGURU" coords="0,0,89,112"
+          href="http://slipguru.disi.unige.it/" />
+    <area shape="rect" alt="Dipartimento di Informatica e Scienze dell'Informazione"
+          title="Dipartimento di Informatica e Scienze dell'Informazione"
+          coords="95,4,200,34" href="http://www.disi.unige.it/" />
+    <area shape="rect" alt="Università Degli Studi di Genova"
+          title="Università Degli Studi di Genova" coords="124,48,171,107"
+          href="http://www.unige.it/" />
+</map>
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">ADENINE 0.1.4 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for adenine.core.plotting</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/python -W ignore::DeprecationWarning</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;Adenine plotting module.&quot;&quot;&quot;</span>
+
+<span class="c1">######################################################################</span>
+<span class="c1"># Copyright (C) 2016 Samuele Fiorini, Federico Tomasi, Annalisa Barla</span>
+<span class="c1">#</span>
+<span class="c1"># FreeBSD License</span>
+<span class="c1">######################################################################</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="c1"># import cPickle as pkl</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy</span> <span class="k">as</span> <span class="nn">sp</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span><span class="p">;</span> <span class="n">sns</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">font</span><span class="o">=</span><span class="s2">&quot;monospace&quot;</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">sklearn</span> <span class="k">import</span> <span class="n">metrics</span>
+<span class="c1"># Legacy import</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="k">import</span> <span class="n">StratifiedShuffleSplit</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">sklearn.cross_validation</span> <span class="k">import</span> <span class="n">StratifiedShuffleSplit</span>
+
+<span class="kn">from</span> <span class="nn">adenine.utils.extra</span> <span class="k">import</span> <span class="n">title_from_filename</span><span class="p">,</span> <span class="n">Palette</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;silhouette&quot;</span><span class="p">,</span> <span class="s2">&quot;scatter&quot;</span><span class="p">,</span> <span class="s2">&quot;voronoi&quot;</span><span class="p">,</span> <span class="s2">&quot;tree&quot;</span><span class="p">,</span>
+           <span class="s2">&quot;dendrogram&quot;</span><span class="p">,</span> <span class="s2">&quot;pcmagnitude&quot;</span><span class="p">,</span> <span class="s2">&quot;eigs&quot;</span><span class="p">)</span>
+
+<span class="n">DEFAULT_EXT</span> <span class="o">=</span> <span class="s1">&#39;png&#39;</span>
+
+
+<div class="viewcode-block" id="silhouette"><a class="viewcode-back" href="../../../index.html#adenine.core.plotting.silhouette">[docs]</a><span class="k">def</span> <span class="nf">silhouette</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">data_in</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Generate and save the silhouette plot of data_in w.r.t labels.</span>
+
+<span class="sd">    This function generates the silhouette plot representing how data are</span>
+<span class="sd">    correctly clustered, based on labels.</span>
+<span class="sd">    The plots will be saved into the root folder in a tree-like structure.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    -----------</span>
+<span class="sd">    root : string</span>
+<span class="sd">        The root path for the output creation</span>
+
+<span class="sd">    data_in : array of float, shape : (n_samples, n_dimensions)</span>
+<span class="sd">        The low space embedding estimated by the dimensionality reduction and</span>
+<span class="sd">        manifold learning algorithm.</span>
+
+<span class="sd">    labels : array of float, shape : n_samples</span>
+<span class="sd">        The label vector. It can contain true or estimated labels.</span>
+
+<span class="sd">    model : sklearn or sklearn-like object</span>
+<span class="sd">        An instance of the class that evaluates a step.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">labels</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Cannot make silhouette plot with no real labels.&#39;</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">data_in</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Cannot make silhouette if number of labels is </span><span class="si">%d</span><span class="s1">. &#39;</span>
+                        <span class="s1">&#39;Valid values are 2 to n_samples - 1 &#39;</span>
+                        <span class="s1">&#39;(inclusive).&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="p">))</span>
+        <span class="k">return</span>
+
+    <span class="c1"># Create a subplot with 1 row and 2 columns</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="p">(</span><span class="n">ax1</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">set_size_inches</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">15</span><span class="p">)</span>
+
+    <span class="c1"># The silhouette coefficient can range from -1, 1</span>
+    <span class="c1"># ax1.set_xlim([-1, 1])</span>
+
+    <span class="c1"># The (n_clusters+1)*10 is for inserting blank space between silhouette</span>
+    <span class="c1"># plots of individual clusters.</span>
+    <span class="n">n_clusters</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">ax1</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_in</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">n_clusters</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="mi">10</span><span class="p">])</span>
+
+    <span class="c1"># The silhouette_score gives the average value for all the samples.</span>
+    <span class="c1"># This gives a perspective into the density and separation of the formed</span>
+    <span class="c1"># clusters</span>
+    <span class="n">metric</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">affinity</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s1">&#39;affinity&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="s1">&#39;euclidean&#39;</span>
+    <span class="c1"># catch exceptions of Spectral Embedding affinity</span>
+    <span class="k">if</span> <span class="n">metric</span> <span class="o">==</span> <span class="s1">&#39;rbf&#39;</span><span class="p">:</span>
+        <span class="k">def</span> <span class="nf">metric</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">metrics</span><span class="o">.</span><span class="n">pairwise</span><span class="o">.</span><span class="n">rbf_kernel</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span>
+                                               <span class="n">y</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">metric</span> <span class="o">==</span> <span class="s1">&#39;nearest_neighbors&#39;</span><span class="p">:</span>
+        <span class="n">metric</span> <span class="o">=</span> <span class="s1">&#39;euclidean&#39;</span>
+    <span class="n">sample_silhouette_values</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">silhouette_samples</span><span class="p">(</span><span class="n">data_in</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span>
+                                                          <span class="n">metric</span><span class="o">=</span><span class="n">metric</span><span class="p">)</span>
+    <span class="n">sil</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">sample_silhouette_values</span><span class="p">)</span>
+
+    <span class="n">y_lower</span> <span class="o">=</span> <span class="mi">10</span>
+    <span class="n">palette</span> <span class="o">=</span> <span class="n">Palette</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">labels</span><span class="p">)):</span>
+        <span class="c1"># Aggregate the silhouette scores for samples belonging to</span>
+        <span class="c1"># cluster i, and sort them</span>
+        <span class="n">ith_cluster_silhouette_values</span> <span class="o">=</span> <span class="n">sample_silhouette_values</span><span class="p">[</span><span class="n">labels</span> <span class="o">==</span> <span class="n">label</span><span class="p">]</span>
+        <span class="n">ith_cluster_silhouette_values</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+
+        <span class="n">size_cluster_i</span> <span class="o">=</span> <span class="n">ith_cluster_silhouette_values</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">y_upper</span> <span class="o">=</span> <span class="n">y_lower</span> <span class="o">+</span> <span class="n">size_cluster_i</span>
+
+        <span class="c1"># color = cm.spectral(float(i) / n_clusters)</span>
+        <span class="n">color</span> <span class="o">=</span> <span class="n">palette</span><span class="o">.</span><span class="n">next</span><span class="p">()</span>
+        <span class="n">ax1</span><span class="o">.</span><span class="n">fill_betweenx</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">y_lower</span><span class="p">,</span> <span class="n">y_upper</span><span class="p">),</span>
+                          <span class="mi">0</span><span class="p">,</span> <span class="n">ith_cluster_silhouette_values</span><span class="p">,</span>
+                          <span class="n">facecolor</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
+
+        <span class="c1"># Label the silhouette plots with their cluster numbers at the middle</span>
+        <span class="n">ax1</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="o">-</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">y_lower</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">size_cluster_i</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">label</span><span class="p">))</span>
+
+        <span class="c1"># Compute the new y_lower for next plot</span>
+        <span class="n">y_lower</span> <span class="o">=</span> <span class="n">y_upper</span> <span class="o">+</span> <span class="mi">10</span>  <span class="c1"># 10 for the 0 samples</span>
+
+    <span class="c1"># ax1.set_title(&quot;Silhouette plot for the various clusters.&quot;)</span>
+    <span class="n">ax1</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;silhouette coefficient values&quot;</span><span class="p">)</span>
+    <span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;cluster label&quot;</span><span class="p">)</span>
+
+    <span class="c1"># The vertical line for average silhoutte score of all the values</span>
+    <span class="n">ax1</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">sil</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
+    <span class="n">ax1</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">([])</span>
+    <span class="c1"># ax1.set_xticks([-0.6, -0.4, -0.2, 0, 0.2, 0.4, 0.6, 0.8, 1])</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s2">&quot;Silhouette analysis. &quot;</span>
+                 <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2"> clusters for </span><span class="si">{2}</span><span class="s2"> samples, average score </span><span class="si">{1:.4f}</span><span class="s2">&quot;</span>
+                 <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">n_clusters</span><span class="p">,</span> <span class="n">sil</span><span class="p">,</span> <span class="n">data_in</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="n">root</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">root</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;_silhouette.&quot;</span> <span class="o">+</span> <span class="n">DEFAULT_EXT</span><span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Figure saved </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="scatter"><a class="viewcode-back" href="../../../index.html#adenine.core.plotting.scatter">[docs]</a><span class="k">def</span> <span class="nf">scatter</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">data_in</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">true_labels</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Generate the scatter plot of the dimensionality reduced data set.</span>
+
+<span class="sd">    This function generates the scatter plot representing the dimensionality</span>
+<span class="sd">    reduced data set. The plots will be saved into the root folder in a</span>
+<span class="sd">    tree-like structure.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    root : string</span>
+<span class="sd">        The root path for the output creation</span>
+
+<span class="sd">    data_in : array of float, shape : (n_samples, n_dimensions)</span>
+<span class="sd">        The low space embedding estimated by the dimensinality reduction and</span>
+<span class="sd">        manifold learning algorithm.</span>
+
+<span class="sd">    labels : array of float, shape : n_samples</span>
+<span class="sd">        The label vector. It can contain true or estimated labels.</span>
+
+<span class="sd">    true_labels : boolean</span>
+<span class="sd">        Identify if labels contains true or estimated labels.</span>
+
+<span class="sd">    model : sklearn or sklearn-like object</span>
+<span class="sd">        An instance of the class that evaluates a step. In particular this must</span>
+<span class="sd">        be a clustering model provided with the clusters_centers_ attribute</span>
+<span class="sd">        (e.g. KMeans).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s1">&#39;affinity&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">model</span><span class="o">.</span><span class="n">affinity</span> <span class="o">==</span> <span class="s1">&#39;precomputed&#39;</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Scatter cannot be performed with precomputed distances.&quot;</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="n">n_samples</span><span class="p">,</span> <span class="n">n_dim</span> <span class="o">=</span> <span class="n">data_in</span><span class="o">.</span><span class="n">shape</span>
+
+    <span class="c1"># Define plot color</span>
+    <span class="k">if</span> <span class="n">labels</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_samples</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">short</span><span class="p">)</span>
+        <span class="n">hue</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
+        <span class="n">hue</span> <span class="o">=</span> <span class="s1">&#39;Classes&#39;</span> <span class="k">if</span> <span class="n">true_labels</span> <span class="k">else</span> <span class="s1">&#39;Estimated Labels&#39;</span>
+
+    <span class="n">title</span> <span class="o">=</span> <span class="n">title_from_filename</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+
+    <span class="c1"># Seaborn scatter plot</span>
+    <span class="c1"># 2D plot</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">data_in</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+        <span class="n">data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">X</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="p">:</span><span class="mi">2</span><span class="p">],</span> <span class="n">labels</span><span class="p">[</span><span class="n">idx</span><span class="p">][:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])),</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;$x_1$&quot;</span><span class="p">,</span> <span class="s2">&quot;$x_2$&quot;</span><span class="p">,</span> <span class="n">hue</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
+            <span class="p">{</span><span class="s2">&quot;$x_1$&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="s2">&quot;$x_2$&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">})</span>
+    <span class="k">if</span> <span class="n">df</span><span class="o">.</span><span class="n">dtypes</span><span class="p">[</span><span class="n">hue</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;O&#39;</span><span class="p">:</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">hue</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">hue</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;int64&#39;</span><span class="p">)</span>
+    <span class="c1"># Generate seaborn plot</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">FacetGrid</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">hue</span><span class="o">=</span><span class="n">hue</span><span class="p">,</span> <span class="n">palette</span><span class="o">=</span><span class="s2">&quot;Set1&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">legend_out</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">,</span> <span class="s2">&quot;$x_1$&quot;</span><span class="p">,</span> <span class="s2">&quot;$x_2$&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">lw</span><span class="o">=.</span><span class="mi">5</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">hue</span> <span class="o">!=</span> <span class="s1">&#39; &#39;</span><span class="p">:</span>
+        <span class="n">g</span><span class="o">.</span><span class="n">add_legend</span><span class="p">()</span>  <span class="c1"># customize legend</span>
+    <span class="c1"># g.set_xticklabels([])</span>
+    <span class="c1"># g.set_yticklabels([])</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">autoscale_view</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="n">root</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">root</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;_scatter2D.&quot;</span> <span class="o">+</span> <span class="n">DEFAULT_EXT</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Figure saved </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="c1"># 3D plot</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="n">root</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">root</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;_scatter3D.&quot;</span> <span class="o">+</span> <span class="n">DEFAULT_EXT</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">n_dim</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> not generated (data have less than 3 dimensions)&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">mpl_toolkits.mplot3d</span> <span class="k">import</span> <span class="n">Axes3D</span>
+            <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span><span class="o">.</span><span class="n">gca</span><span class="p">(</span><span class="n">projection</span><span class="o">=</span><span class="s1">&#39;3d&#39;</span><span class="p">)</span>
+            <span class="c1"># ax.scatter(X[:,0], X[:,1], X[:,2], y, c=y, cmap=&#39;hot&#39;, s=100,</span>
+            <span class="c1">#            linewidth=.5, edgecolor=&quot;white&quot;)</span>
+            <span class="n">palette</span> <span class="o">=</span> <span class="n">Palette</span><span class="p">(</span><span class="n">n_colors</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">labels</span><span class="p">)))</span>
+            <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">labels</span><span class="p">)):</span>
+                <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">labels</span> <span class="o">==</span> <span class="n">label</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                    <span class="n">data_in</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">][</span><span class="n">idx</span><span class="p">],</span> <span class="n">data_in</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">][</span><span class="n">idx</span><span class="p">],</span> <span class="n">data_in</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">][</span><span class="n">idx</span><span class="p">],</span>
+                    <span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">palette</span><span class="o">.</span><span class="n">next</span><span class="p">(),</span> <span class="n">label</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">label</span><span class="p">),</span> <span class="n">mew</span><span class="o">=.</span><span class="mi">5</span><span class="p">,</span>
+                    <span class="n">mec</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">)</span>
+
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">r&#39;$x_1$&#39;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">r&#39;$x_2$&#39;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_zlabel</span><span class="p">(</span><span class="s1">r&#39;$x_3$&#39;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">autoscale_view</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;upper left&#39;</span><span class="p">,</span> <span class="n">numpoints</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncol</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+                      <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Figure saved </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">except</span> <span class="n">StandardError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Error in 3D plot: </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+
+    <span class="c1"># seaborn pairplot</span>
+    <span class="n">n_cols</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">n_dim</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+    <span class="n">cols</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;$x_</span><span class="si">{}</span><span class="s2">$&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_cols</span><span class="p">)]</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">data_in</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span>
+    <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">X</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="p">:],</span> <span class="n">labels</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])),</span>
+                      <span class="n">columns</span><span class="o">=</span><span class="n">cols</span> <span class="o">+</span> <span class="p">[</span><span class="n">hue</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
+                          <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">cols</span><span class="p">,</span> <span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">*</span> <span class="n">n_cols</span><span class="p">)))</span>
+    <span class="k">if</span> <span class="n">df</span><span class="o">.</span><span class="n">dtypes</span><span class="p">[</span><span class="n">hue</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;O&#39;</span><span class="p">:</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">hue</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">hue</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;int64&#39;</span><span class="p">)</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">PairGrid</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">hue</span><span class="o">=</span><span class="n">hue</span><span class="p">,</span> <span class="n">palette</span><span class="o">=</span><span class="s2">&quot;Set1&quot;</span><span class="p">,</span> <span class="nb">vars</span><span class="o">=</span><span class="n">cols</span><span class="p">)</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">map_diag</span><span class="p">(</span><span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">)</span>  <span class="c1"># , palette=&quot;Set1&quot;)</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">map_offdiag</span><span class="p">(</span><span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=.</span><span class="mi">5</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">)</span>
+
+    <span class="c1"># g = sns.pairplot(df, hue=hue, palette=&quot;Set1&quot;,</span>
+    <span class="c1">#    vars=[&quot;$x_1$&quot;,&quot;$x_2$&quot;,&quot;$x_3$&quot;]), size=5)</span>
+    <span class="k">if</span> <span class="n">hue</span> <span class="o">!=</span> <span class="s1">&#39; &#39;</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="n">hue</span><span class="p">,</span> <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">1.05</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">loc</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                   <span class="n">borderaxespad</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="s2">&quot;large&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mf">1.01</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="s2">&quot;large&quot;</span><span class="p">)</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="n">root</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">root</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;_pairgrid.&quot;</span> <span class="o">+</span> <span class="n">DEFAULT_EXT</span><span class="p">)</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Figure saved </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="voronoi"><a class="viewcode-back" href="../../../index.html#adenine.core.plotting.voronoi">[docs]</a><span class="k">def</span> <span class="nf">voronoi</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">data_in</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">true_labels</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Generate the Voronoi tessellation obtained from the clustering algorithm.</span>
+
+<span class="sd">    This function generates the Voronoi tessellation obtained from the</span>
+<span class="sd">    clustering algorithm applied on the data projected on a two-dimensional</span>
+<span class="sd">    embedding. The plots will be saved into the appropriate folder of the</span>
+<span class="sd">    tree-like structure created into the root folder.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    -----------</span>
+<span class="sd">    root : string</span>
+<span class="sd">        The root path for the output creation</span>
+
+<span class="sd">    data_in : array of float, shape : (n_samples, n_dimensions)</span>
+<span class="sd">        The low space embedding estimated by the dimensinality reduction and</span>
+<span class="sd">        manifold learning algorithm.</span>
+
+<span class="sd">    labels : array of int, shape : n_samples</span>
+<span class="sd">        The result of the clustering step.</span>
+
+<span class="sd">    true_labels : boolean [deprecated]</span>
+<span class="sd">        Identify if labels contains true or estimated labels.</span>
+
+<span class="sd">    model : sklearn or sklearn-like object</span>
+<span class="sd">        An instance of the class that evaluates a step. In particular this must</span>
+<span class="sd">        be a clustering model provided with the clusters_centers_ attribute</span>
+<span class="sd">        (e.g. KMeans).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">n_samples</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">data_in</span><span class="o">.</span><span class="n">shape</span>
+
+    <span class="c1"># Define plot color</span>
+    <span class="k">if</span> <span class="n">labels</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_samples</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">short</span><span class="p">)</span>
+        <span class="n">hue</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
+        <span class="n">hue</span> <span class="o">=</span> <span class="s1">&#39;Classes&#39;</span>
+
+    <span class="n">title</span> <span class="o">=</span> <span class="n">title_from_filename</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+
+    <span class="c1"># Seaborn scatter Plot</span>
+    <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">data_in</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="n">labels</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+        <span class="n">data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">X</span><span class="p">,</span> <span class="n">labels</span><span class="p">)),</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;$x_1$&quot;</span><span class="p">,</span> <span class="s2">&quot;$x_2$&quot;</span><span class="p">,</span> <span class="n">hue</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
+            <span class="p">{</span><span class="s2">&quot;$x_1$&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="s2">&quot;$x_2$&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">})</span>
+    <span class="k">if</span> <span class="n">df</span><span class="o">.</span><span class="n">dtypes</span><span class="p">[</span><span class="n">hue</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;O&#39;</span><span class="p">:</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">hue</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">hue</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;int64&#39;</span><span class="p">)</span>
+    <span class="c1"># Generate seaborn plot</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">FacetGrid</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">hue</span><span class="o">=</span><span class="n">hue</span><span class="p">,</span> <span class="n">palette</span><span class="o">=</span><span class="s2">&quot;Set1&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">legend_out</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">,</span> <span class="s2">&quot;$x_1$&quot;</span><span class="p">,</span> <span class="s2">&quot;$x_2$&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">lw</span><span class="o">=.</span><span class="mi">5</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">hue</span> <span class="o">!=</span> <span class="s1">&#39; &#39;</span><span class="p">:</span>
+        <span class="n">g</span><span class="o">.</span><span class="n">add_legend</span><span class="p">()</span>  <span class="c1"># customize legend</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">autoscale_view</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+
+    <span class="c1"># Add centroids</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s1">&#39;cluster_centers_&#39;</span><span class="p">):</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">cluster_centers_</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">model</span><span class="o">.</span><span class="n">cluster_centers_</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span>
+                    <span class="n">s</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;h&#39;</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Make and add to the Plot the decision boundary.</span>
+    <span class="c1"># the number of points in that makes the background.</span>
+    <span class="c1"># Reducing this will decrease the quality of the voronoi background</span>
+    <span class="n">npoints</span> <span class="o">=</span> <span class="mi">1000</span>
+    <span class="n">x_min</span><span class="p">,</span> <span class="n">x_max</span> <span class="o">=</span> <span class="n">X</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">X</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+    <span class="n">y_min</span><span class="p">,</span> <span class="n">y_max</span> <span class="o">=</span> <span class="n">X</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">X</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+    <span class="n">offset</span> <span class="o">=</span> <span class="p">(</span><span class="n">x_max</span> <span class="o">-</span> <span class="n">x_min</span><span class="p">)</span> <span class="o">/</span> <span class="mf">5.</span> <span class="o">+</span> <span class="p">(</span><span class="n">y_max</span> <span class="o">-</span> <span class="n">y_min</span><span class="p">)</span> <span class="o">/</span> <span class="mf">5.</span>  <span class="c1"># zoom out the plot</span>
+    <span class="n">xx</span><span class="p">,</span> <span class="n">yy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">x_min</span> <span class="o">-</span> <span class="n">offset</span><span class="p">,</span> <span class="n">x_max</span> <span class="o">+</span> <span class="n">offset</span><span class="p">,</span> <span class="n">npoints</span><span class="p">),</span>
+                         <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">y_min</span> <span class="o">-</span> <span class="n">offset</span><span class="p">,</span> <span class="n">y_max</span> <span class="o">+</span> <span class="n">offset</span><span class="p">,</span> <span class="n">npoints</span><span class="p">))</span>
+
+    <span class="c1"># Obtain labels for each point in mesh. Use last trained model.</span>
+    <span class="n">Z</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">c_</span><span class="p">[</span><span class="n">xx</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="n">yy</span><span class="o">.</span><span class="n">ravel</span><span class="p">()])</span>
+    <span class="c1"># Put the result into a color plot</span>
+    <span class="n">Z</span> <span class="o">=</span> <span class="n">Z</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">xx</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">Z</span><span class="p">,</span> <span class="n">interpolation</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span><span class="p">,</span>
+               <span class="n">extent</span><span class="o">=</span><span class="p">(</span><span class="n">xx</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">xx</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="n">yy</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">yy</span><span class="o">.</span><span class="n">max</span><span class="p">()),</span>
+               <span class="n">cmap</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="s1">&#39;Pastel1&#39;</span><span class="p">),</span> <span class="n">aspect</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s1">&#39;lower&#39;</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">([</span><span class="n">xx</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">xx</span><span class="o">.</span><span class="n">max</span><span class="p">()])</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">([</span><span class="n">yy</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">yy</span><span class="o">.</span><span class="n">max</span><span class="p">()])</span>
+
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">root</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="n">DEFAULT_EXT</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Figure saved </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="tree"><a class="viewcode-back" href="../../../index.html#adenine.core.plotting.tree">[docs]</a><span class="k">def</span> <span class="nf">tree</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">data_in</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Generate the tree structure obtained from the clustering algorithm.</span>
+
+<span class="sd">    This function generates the tree obtained from the clustering algorithm</span>
+<span class="sd">    applied on the data. The plots will be saved into the appropriate folder of</span>
+<span class="sd">    the tree-like structure created into the root folder.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    -----------</span>
+<span class="sd">    root : string</span>
+<span class="sd">        The root path for the output creation</span>
+
+<span class="sd">    data_in : array of float, shape : (n_samples, n_dimensions)</span>
+<span class="sd">        The low space embedding estimated by the dimensinality reduction and</span>
+<span class="sd">        manifold learning algorithm.</span>
+
+<span class="sd">    labels : array of int, shape : n_samples</span>
+<span class="sd">        The result of the clustering step.</span>
+
+<span class="sd">    index : list of integers (or strings)</span>
+<span class="sd">        This is the samples identifier, if provided as first column (or row) of</span>
+<span class="sd">        of the input file. Otherwise it is just an incremental range of size</span>
+<span class="sd">        n_samples.</span>
+
+<span class="sd">    model : sklearn or sklearn-like object</span>
+<span class="sd">        An instance of the class that evaluates a step. In particular this must</span>
+<span class="sd">        be a clustering model provided with the clusters_centers_ attribute</span>
+<span class="sd">        (e.g. KMeans).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">root</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;_tree.pdf&#39;</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">import</span> <span class="nn">itertools</span>
+        <span class="kn">import</span> <span class="nn">pydot</span>
+        <span class="n">graph</span> <span class="o">=</span> <span class="n">pydot</span><span class="o">.</span><span class="n">Dot</span><span class="p">(</span><span class="n">graph_type</span><span class="o">=</span><span class="s1">&#39;graph&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">labels</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">short</span><span class="p">)</span>
+            <span class="n">palette</span> <span class="o">=</span> <span class="n">Palette</span><span class="p">(</span><span class="s1">&#39;hls&#39;</span><span class="p">,</span> <span class="n">n_colors</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">palette</span><span class="o">.</span><span class="n">palette</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">palette</span> <span class="o">=</span> <span class="n">Palette</span><span class="p">(</span><span class="s1">&#39;hls&#39;</span><span class="p">,</span> <span class="n">n_colors</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="n">colors</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="nb">zip</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">labels</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])))</span>
+        <span class="n">ii</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">data_in</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">children_</span><span class="p">):</span>
+            <span class="n">root_node</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">ii</span><span class="p">)</span>
+            <span class="n">fillcolor</span> <span class="o">=</span> <span class="p">(</span><span class="k">lambda</span> <span class="n">_</span><span class="p">:</span>
+                         <span class="n">palette</span><span class="o">.</span><span class="n">palette</span><span class="o">.</span><span class="n">as_hex</span><span class="p">()[</span><span class="n">colors</span><span class="p">[</span><span class="n">labels</span><span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="n">_</span><span class="p">]]]]</span>
+                         <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="n">_</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">labels</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">else</span> <span class="s1">&#39;white&#39;</span><span class="p">)</span>
+            <span class="n">left_node</span> <span class="o">=</span> <span class="n">pydot</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span>
+                <span class="nb">str</span><span class="p">(</span><span class="n">index</span><span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">index</span><span class="p">)</span> <span class="k">else</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+                <span class="n">style</span><span class="o">=</span><span class="s2">&quot;filled&quot;</span><span class="p">,</span> <span class="n">fillcolor</span><span class="o">=</span><span class="n">fillcolor</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+            <span class="n">right_node</span> <span class="o">=</span> <span class="n">pydot</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span>
+                <span class="nb">str</span><span class="p">(</span><span class="n">index</span><span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">index</span><span class="p">)</span> <span class="k">else</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+                <span class="n">style</span><span class="o">=</span><span class="s2">&quot;filled&quot;</span><span class="p">,</span> <span class="n">fillcolor</span><span class="o">=</span><span class="n">fillcolor</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+
+            <span class="n">graph</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">left_node</span><span class="p">)</span>
+            <span class="n">graph</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">right_node</span><span class="p">)</span>
+            <span class="n">graph</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">pydot</span><span class="o">.</span><span class="n">Edge</span><span class="p">(</span><span class="n">root_node</span><span class="p">,</span> <span class="n">left_node</span><span class="p">))</span>
+            <span class="n">graph</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">pydot</span><span class="o">.</span><span class="n">Edge</span><span class="p">(</span><span class="n">root_node</span><span class="p">,</span> <span class="n">right_node</span><span class="p">))</span>
+
+        <span class="c1"># graph.write_png(filename[:-2]+&quot;ng&quot;)</span>
+        <span class="n">graph</span><span class="o">.</span><span class="n">write_pdf</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Figure saved </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">StandardError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s1">&#39;Cannot create </span><span class="si">%s</span><span class="s1">. tb: </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="dendrogram"><a class="viewcode-back" href="../../../index.html#adenine.core.plotting.dendrogram">[docs]</a><span class="k">def</span> <span class="nf">dendrogram</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">data_in</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n_max</span><span class="o">=</span><span class="mi">150</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Generate and save the dendrogram obtained from the clustering algorithm.</span>
+
+<span class="sd">    This function generates the dendrogram obtained from the clustering</span>
+<span class="sd">    algorithm applied on the data. The plots will be saved into the appropriate</span>
+<span class="sd">    folder of the tree-like structure created into the root folder. The row</span>
+<span class="sd">    colors of the heatmap are the either true or estimated data labels.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    -----------</span>
+<span class="sd">    root : string</span>
+<span class="sd">        The root path for the output creation</span>
+
+<span class="sd">    data_in : array of float, shape : (n_samples, n_dimensions)</span>
+<span class="sd">        The low space embedding estimated by the dimensinality reduction and</span>
+<span class="sd">        manifold learning algorithm.</span>
+
+<span class="sd">    labels : array of int, shape : n_samples</span>
+<span class="sd">        The result of the clustering step.</span>
+
+<span class="sd">    index : list of integers (or strings)</span>
+<span class="sd">        This is the samples identifier, if provided as first column (or row) of</span>
+<span class="sd">        of the input file. Otherwise it is just an incremental range of size</span>
+<span class="sd">        n_samples.</span>
+
+<span class="sd">    model : sklearn or sklearn-like object</span>
+<span class="sd">        An instance of the class that evaluates a step. In particular this must</span>
+<span class="sd">        be a clustering model provided with the clusters_centers_ attribute</span>
+<span class="sd">        (e.g. KMeans).</span>
+
+<span class="sd">    n_max : int, (INACTIVE)</span>
+<span class="sd">        The maximum number of samples to include in the dendrogram.</span>
+<span class="sd">        When the number of samples is bigger than n_max, only n_max samples</span>
+<span class="sd">        randomly extracted from the dataset are represented. The random</span>
+<span class="sd">        extraction is performed using</span>
+<span class="sd">        sklearn.model_selection.StratifiedShuffleSplit</span>
+<span class="sd">        (or sklearn.cross_validation.StratifiedShuffleSplit for legacy</span>
+<span class="sd">        reasons).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># define col names</span>
+    <span class="n">col</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;$x_{&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;}$&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">data_in</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">1</span><span class="p">)]</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data_in</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">col</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">index</span><span class="p">)</span>
+
+    <span class="c1"># -- Code for row colors adapted from:</span>
+    <span class="c1"># https://stanford.edu/~mwaskom/software/seaborn/examples/structured_heatmap.html</span>
+    <span class="c1"># Create a custom palette to identify the classes</span>
+    <span class="k">if</span> <span class="n">labels</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">short</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">mapping</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="nb">zip</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">labels</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])))</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="n">mapping</span><span class="o">.</span><span class="n">get</span><span class="p">)(</span><span class="n">labels</span><span class="p">)</span>
+
+    <span class="n">n_colors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">custom_pal</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">color_palette</span><span class="p">(</span><span class="s2">&quot;hls&quot;</span><span class="p">,</span> <span class="n">n_colors</span><span class="p">)</span>
+    <span class="n">custom_lut</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_colors</span><span class="p">)),</span> <span class="n">custom_pal</span><span class="p">))</span>
+
+    <span class="c1"># Convert the palette to vectors that will be drawn on the matrix side</span>
+    <span class="n">custom_colors</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">labels</span><span class="p">))</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">custom_lut</span><span class="p">)</span>
+
+    <span class="c1"># Create a custom colormap for the heatmap values</span>
+    <span class="n">cmap</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">diverging_palette</span><span class="p">(</span><span class="mi">220</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">as_cmap</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">affinity</span> <span class="o">==</span> <span class="s1">&#39;precomputed&#39;</span><span class="p">:</span>
+        <span class="kn">import</span> <span class="nn">scipy.spatial.distance</span> <span class="k">as</span> <span class="nn">ssd</span>
+        <span class="kn">from</span> <span class="nn">scipy.cluster.hierarchy</span> <span class="k">import</span> <span class="n">linkage</span>
+        <span class="c1"># convert the redundant square matrix into a condensed one.</span>
+        <span class="c1"># Even if the docs of scipy said so, linkage function does not</span>
+        <span class="c1"># understand that the matrix is precomputed, unless it is 1-dimensional</span>
+        <span class="n">Z</span> <span class="o">=</span> <span class="n">linkage</span><span class="p">(</span><span class="n">ssd</span><span class="o">.</span><span class="n">squareform</span><span class="p">(</span><span class="n">data_in</span><span class="p">),</span> <span class="n">method</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">linkage</span><span class="p">,</span>
+                    <span class="n">metric</span><span class="o">=</span><span class="s1">&#39;euclidean&#39;</span><span class="p">)</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">clustermap</span><span class="p">(</span>
+            <span class="n">df</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">linkage</span><span class="p">,</span> <span class="n">row_linkage</span><span class="o">=</span><span class="n">Z</span><span class="p">,</span> <span class="n">col_linkage</span><span class="o">=</span><span class="n">Z</span><span class="p">,</span>
+            <span class="n">linewidths</span><span class="o">=.</span><span class="mi">5</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># workaround to a different name used for manhattan/cityblock distance</span>
+        <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">affinity</span> <span class="o">==</span> <span class="s1">&#39;manhattan&#39;</span><span class="p">:</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">affinity</span> <span class="o">=</span> <span class="s1">&#39;cityblock&#39;</span>
+
+        <span class="n">g</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">clustermap</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">linkage</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">affinity</span><span class="p">,</span>
+                           <span class="n">row_colors</span><span class="o">=</span><span class="n">custom_colors</span><span class="p">,</span> <span class="n">linewidths</span><span class="o">=.</span><span class="mi">5</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">setp</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">ax_heatmap</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">get_majorticklabels</span><span class="p">(),</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">root</span><span class="p">)</span> <span class="o">+</span>
+                            <span class="s1">&#39;_dendrogram.&#39;</span> <span class="o">+</span> <span class="n">DEFAULT_EXT</span><span class="p">)</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Figure saved </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="pcmagnitude"><a class="viewcode-back" href="../../../index.html#adenine.core.plotting.pcmagnitude">[docs]</a><span class="k">def</span> <span class="nf">pcmagnitude</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">points</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Plot the trend of principal components magnitude.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    -----------</span>
+<span class="sd">    root : string</span>
+<span class="sd">        The root path for the output creation.</span>
+
+<span class="sd">    points : array of float, shape : n_components</span>
+<span class="sd">        This could be the explained variance ratio or the eigenvalues of the</span>
+<span class="sd">        centered matrix, according to the PCA algorithm of choice, respectively</span>
+<span class="sd">        PCA or KernelPCA.</span>
+
+<span class="sd">    title : string</span>
+<span class="sd">        Plot title.</span>
+
+<span class="sd">    ylabel : string</span>
+<span class="sd">        Y-axis label.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="n">points</span><span class="p">,</span> <span class="s1">&#39;-o&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="s1">&#39;on&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="n">ylabel</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)])</span>  <span class="c1"># Show maximum 20 components</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">root</span><span class="p">)</span> <span class="o">+</span>
+                            <span class="s2">&quot;_magnitude.&quot;</span> <span class="o">+</span> <span class="n">DEFAULT_EXT</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="eigs"><a class="viewcode-back" href="../../../index.html#adenine.core.plotting.eigs">[docs]</a><span class="k">def</span> <span class="nf">eigs</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">affinity</span><span class="p">,</span> <span class="n">n_clusters</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">normalised</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+         <span class="n">n_components</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">,</span> <span class="n">rw</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Plot eigenvalues of the Laplacian associated to data affinity matrix.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    -----------</span>
+<span class="sd">    root : string</span>
+<span class="sd">        The root path for the output creation.</span>
+
+<span class="sd">    affinity : array of float, shape : (n_samples, n_samples)</span>
+<span class="sd">        The affinity matrix.</span>
+
+<span class="sd">    n_clusters : int, optional</span>
+<span class="sd">        The number of clusters.</span>
+
+<span class="sd">    title : string, optional</span>
+<span class="sd">        Plot title.</span>
+
+<span class="sd">    ylabel : string, optional</span>
+<span class="sd">        Y-axis label.</span>
+
+<span class="sd">    normalised : boolean, optional, default True</span>
+<span class="sd">        Choose whether to normalise the Laplacian matrix.</span>
+
+<span class="sd">    n_components : int, optional, default 20</span>
+<span class="sd">        Number of components to show in the plot.</span>
+
+<span class="sd">    filename : None or str, optional, default None</span>
+<span class="sd">        If not None, overrides default filename for saving the plot.</span>
+
+<span class="sd">    ylim : &#39;auto&#39;, None, tuple or list, optional, default &#39;auto&#39;</span>
+<span class="sd">        If &#39;auto&#39;, choose the highest eigenvalue for the height of the plot.</span>
+<span class="sd">        If None, plt.ylim is not called (matplotlib default is used).</span>
+<span class="sd">        Otherwise, specify manually the desired ylim.</span>
+
+<span class="sd">    rw : boolean, optional, default False</span>
+<span class="sd">        Normalise the Laplacian matrix as the random walks point of view.</span>
+<span class="sd">        This should be better suited with unclear data distributions.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Efficient way to extract the main diagonal from a sparse matrix</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">affinity</span><span class="p">,</span> <span class="n">sp</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">csr</span><span class="o">.</span><span class="n">csr_matrix</span><span class="p">):</span>
+        <span class="n">dd</span> <span class="o">=</span> <span class="n">affinity</span><span class="o">.</span><span class="n">diagonal</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>  <span class="c1"># or from a dense one</span>
+        <span class="n">dd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">affinity</span><span class="p">)</span>
+    <span class="n">W</span> <span class="o">=</span> <span class="n">affinity</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">dd</span><span class="p">)</span>
+    <span class="n">D</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">W</span><span class="p">])</span>
+    <span class="n">laplacian</span> <span class="o">=</span> <span class="n">D</span> <span class="o">-</span> <span class="n">W</span>
+
+    <span class="k">if</span> <span class="n">rw</span><span class="p">:</span>
+        <span class="c1"># compute normalised laplacian as random walks. Better with unclear</span>
+        <span class="c1"># distributions</span>
+        <span class="n">aux</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="mf">1.</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">W</span><span class="p">]))</span>
+        <span class="n">laplacian</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">laplacian</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">aux</span><span class="p">,</span> <span class="n">W</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">normalised</span><span class="p">:</span>
+        <span class="c1"># Compute the normalised Laplacian</span>
+        <span class="c1"># aux = np.linalg.inv(np.diag([np.sqrt(np.sum(x)) for x in W]))</span>
+        <span class="n">aux</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="mf">1.</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">x</span><span class="p">))</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">W</span><span class="p">]))</span>
+        <span class="n">laplacian</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">laplacian</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">-</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">aux</span><span class="p">,</span> <span class="n">W</span><span class="p">),</span> <span class="n">aux</span><span class="p">))</span>
+
+    <span class="c1"># TODO: replace the previous manual laplacian creation with sklearn utils.</span>
+    <span class="c1"># Performance gain and np.allclose checks already performed with success.</span>
+    <span class="c1"># from sklearn.utils import graph</span>
+    <span class="c1"># laplacian = graph.graph_laplacian(affinity, normed=normalised)</span>
+    <span class="c1"># warn: RW is not implemented in sklearn</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigvals</span><span class="p">(</span><span class="n">laplacian</span><span class="p">)</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">w</span><span class="p">)))</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">w</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="n">w</span><span class="p">,</span> <span class="s1">&#39;-o&#39;</span><span class="p">,</span>
+                 <span class="n">label</span><span class="o">=</span><span class="s1">&#39;eigenvalues (sorted&#39;</span> <span class="o">+</span>
+                       <span class="p">(</span><span class="s1">&#39; and normalised rw)&#39;</span> <span class="k">if</span> <span class="n">rw</span> <span class="k">else</span>
+                        <span class="p">(</span><span class="s1">&#39; and normalised)&#39;</span> <span class="k">if</span> <span class="n">normalised</span> <span class="k">else</span> <span class="s1">&#39;)&#39;</span><span class="p">)))</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="s1">&#39;on&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="n">ylabel</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="n">n_components</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">w</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)])</span>  <span class="c1"># Show max n_components</span>
+        <span class="k">if</span> <span class="n">ylim</span> <span class="o">==</span> <span class="s1">&#39;auto&#39;</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="n">w</span><span class="p">[:</span><span class="nb">min</span><span class="p">(</span><span class="n">n_components</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">w</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span>
+                     <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">w</span><span class="p">[:</span><span class="nb">min</span><span class="p">(</span><span class="n">n_components</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">w</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span>
+                          <span class="n">w</span><span class="p">[:</span><span class="nb">min</span><span class="p">(</span><span class="n">n_components</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">w</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)][</span><span class="o">-</span><span class="mi">2</span><span class="p">])))</span>
+        <span class="k">elif</span> <span class="n">ylim</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="n">ylim</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">n_clusters</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">n_clusters</span> <span class="o">+</span> <span class="o">.</span><span class="mi">5</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span>
+                        <span class="n">label</span><span class="o">=</span><span class="s1">&#39;selected clusters&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;upper left&#39;</span><span class="p">,</span> <span class="n">numpoints</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncol</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+        <span class="c1"># , bbox_to_anchor=(1, 1))</span>
+        <span class="k">if</span> <span class="n">filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">root</span><span class="p">)</span> <span class="o">+</span>
+                                    <span class="s2">&quot;_eigenvals.&quot;</span> <span class="o">+</span> <span class="n">DEFAULT_EXT</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">LinAlgError</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;Error in plot_eigs: Affinity matrix contained &quot;</span>
+                         <span class="s2">&quot;negative values. You can try by specifying &quot;</span>
+                         <span class="s2">&quot;normalised=False&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../index.html">
+              <img class="logo" src="../../../_static/adenine_logo.png" alt="Logo"/>
+            </a></p>
+   
+      <h3>Download</h3>
+      <p>Current version: <b>0.1.4</b></p>
+      <p>Get ADENINE from the
+         <a href="http://pypi.python.org/pypi/ADENINE">Python Package Index</a>,
+         or install it with:
+      </p>
+      <pre>pip install --upgrade ADENINE</pre>
+      <p> or clone it from our <a href="https://github.com/slipguru/ADENINE">GitHub</a> repository: </p>
+      <pre>git clone https://github.com/slipguru/ADENINE</pre>
+      <!--or:-->
+      <!--<pre>easy_install -U ADENINE</pre>-->
+<!--      <p>Latest
+         <a href="https://bitbucket.org/slipguru/adenine/downloads/ADENINE.pdf">
+            documentation in pdf
+         </a>
+         is also available. -->
+      </p>
+   
+
+   
+   
+
+    
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+    <p class="logo">
+       <img class="logo" src="../../../_static/logos.png" alt="Logos" usemap="#logosmap" />
+    </p>
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">ADENINE 0.1.4 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2016, Samuele Fiorini - Federico Tomasi - Annalisa Barla.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.6.
+    </div>
+  </body>
+</html>
