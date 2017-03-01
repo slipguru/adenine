@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 =====================================
-ADENINE (A Data ExploratioN pIpeliNE)
+Adenine (A Data ExploratioN pIpeliNE)
 =====================================
 
 **adenine** is a machine learning and data mining Python library for exploratory data analysis.
