@@ -6,7 +6,7 @@ __pycache__/
 *$py.class
 
 # Temp
-*~
+**/*~
 
 # C extensions
 *.so
@@ -36,7 +36,7 @@ var/
 *.pkl
 
 # Images
-*.png
+**/*.png
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
