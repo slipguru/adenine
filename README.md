@@ -99,3 +99,6 @@ $ ade_analysis.py results/ade_experiment_<TODAY>
 ```bash
 $ mpirun -np <MPI-TASKS> --hosts <HOSTS-LIST> ade_run.py my-config-file.py
 ```
+
+## Need more info?
+Check out the project [homepage](http://slipguru.github.io/adenine/index.html).
