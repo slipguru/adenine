@@ -34,11 +34,12 @@ setup(
     license='FreeBSD',
 
     packages=['adenine', 'adenine.core', 'adenine.utils', 'adenine.externals'],
-    requires=['numpy (>=1.10.1)',
-              'scipy (>=0.16.1)',
-              'sklearn (>=0.17)',
-              'matplotlib (>=1.5.1)',
-              'seaborn (>=0.7.0)',
-              'fastcluster (>=1.1.20)'],
+    install_requires=['numpy (>=1.10.1)',
+                      'scipy (>=0.16.1)',
+                      'scikit-learn (>=0.18)',
+                      'matplotlib (>=1.5.1)',
+                      'seaborn (>=0.7.0)',
+                      'joblib',
+                      'fastcluster (>=1.1.20)'],
     scripts=['scripts/ade_run.py', 'scripts/ade_analysis.py'],
 )

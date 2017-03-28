@@ -93,7 +93,10 @@ $ ade_run.py my-config-file.py
 $ ade_analysis.py results/ade_experiment_<TODAY>
 ```
 
-## *Got large scale data?
+## Need more info?
+Check out the project [homepage](http://slipguru.github.io/adenine/index.html)
+
+## *Got large-scale data?
 
 **adenine** takes advantage of `mpi4py` to distribute the execution of the pipelines on HPC architectures
 ```bash
