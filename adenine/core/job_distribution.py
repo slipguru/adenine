@@ -7,12 +7,8 @@ import shutil
 import gzip
 import numpy as np
 
-try:
-    import cPickle as pkl
-except:
-    import pickle as pkl
-
 from collections import deque
+from six.moves import cPickle as pkl
 
 from adenine.core import define_pipeline
 from adenine.core.pipelines import pipe_worker
@@ -88,6 +84,12 @@ def master_single_machine(pipes, X):
         proc.join()
         count += 1
     logging.info("%d jobs collected", count)
+
+    # import joblib as jl
+    # jl.Parallel(n_jobs=-1) \
+    #     (jl.delayed(pipe_worker)(
+    #         'pipe' + str(i), pipe, pipes_dump, X) for i, pipe in enumerate(
+    #             pipes))
 
     return dict(pipes_dump)
 
