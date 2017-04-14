@@ -439,8 +439,7 @@ def _expand_cluster_order(ordered_db, optics_obj, optics_objs, minpts,
         # Continue processing
         order_seed = list()
         _update_order_seed(
-            optics_objs,
-            optics_obj, neighbors, order_seed)
+            optics_objs, optics_obj, neighbors, order_seed)
 
         while len(order_seed) > 0:
             optic_descriptor = order_seed[0]
