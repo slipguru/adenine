@@ -29,11 +29,174 @@ Authors: Federico Tomasi, federico.tomasi@dibris.unige.it
 """
 import matplotlib.pyplot as plt
 import numpy as np
+import itertools
+
+from scipy.spatial import distance
+from scipy.sparse import issparse
+
+from sklearn.utils.fixes import partial
+from sklearn.metrics.pairwise import check_pairwise_arrays
+from sklearn.metrics.pairwise import _parallel_pairwise
+from sklearn.metrics.pairwise import PAIRWISE_BOOLEAN_FUNCTIONS
+from sklearn.metrics.pairwise import PAIRWISE_DISTANCE_FUNCTIONS
+
 from sklearn.metrics import pairwise_distances
 from sklearn.base import BaseEstimator, ClusterMixin
 
 # TODO remove dependencies
 import pyclustering.core.optics_wrapper as wrapper
+
+
+def _pairwise_callable(X, Y, metric, **kwds):
+    """Handle the callable case for pairwise_{distances,kernels}
+    """
+    try:
+        X, Y = check_pairwise_arrays(X, Y)
+    except TypeError:
+        X, Y = check_pairwise_arrays(X, Y, dtype=object)  # try not to convert
+
+    if X is Y:
+        # Only calculate metric for upper triangle
+        out = np.zeros((X.shape[0], Y.shape[0]), dtype='float')
+        iterator = itertools.combinations(range(X.shape[0]), 2)
+        for i, j in iterator:
+            out[i, j] = metric(X[i], Y[j], **kwds)
+
+        # Make symmetric
+        # NB: out += out.T will produce incorrect results
+        out = out + out.T
+
+        # Calculate diagonal
+        # NB: nonzero diagonals are allowed for both metrics and kernels
+        for i in range(X.shape[0]):
+            x = X[i]
+            out[i, i] = metric(x, x, **kwds)
+
+    else:
+        # Calculate all cells
+        out = np.empty((X.shape[0], Y.shape[0]), dtype='float')
+        iterator = itertools.product(range(X.shape[0]), range(Y.shape[0]))
+        for i, j in iterator:
+            out[i, j] = metric(X[i], Y[j], **kwds)
+
+    return out
+
+
+_VALID_METRICS = ['euclidean', 'l2', 'l1', 'manhattan', 'cityblock',
+                  'braycurtis', 'canberra', 'chebyshev', 'correlation',
+                  'cosine', 'dice', 'hamming', 'jaccard', 'kulsinski',
+                  'mahalanobis', 'matching', 'minkowski', 'rogerstanimoto',
+                  'russellrao', 'seuclidean', 'sokalmichener',
+                  'sokalsneath', 'sqeuclidean', 'yule', "wminkowski"]
+
+
+def pairwise_distances(X, Y=None, metric="euclidean", n_jobs=1, **kwds):
+    """ Compute the distance matrix from a vector array X and optional Y.
+
+    This method takes either a vector array or a distance matrix, and returns
+    a distance matrix. If the input is a vector array, the distances are
+    computed. If the input is a distances matrix, it is returned instead.
+
+    This method provides a safe way to take a distance matrix as input, while
+    preserving compatibility with many other algorithms that take a vector
+    array.
+
+    If Y is given (default is None), then the returned matrix is the pairwise
+    distance between the arrays from both X and Y.
+
+    Valid values for metric are:
+
+    - From scikit-learn: ['cityblock', 'cosine', 'euclidean', 'l1', 'l2',
+      'manhattan']. These metrics support sparse matrix inputs.
+
+    - From scipy.spatial.distance: ['braycurtis', 'canberra', 'chebyshev',
+      'correlation', 'dice', 'hamming', 'jaccard', 'kulsinski', 'mahalanobis',
+      'matching', 'minkowski', 'rogerstanimoto', 'russellrao', 'seuclidean',
+      'sokalmichener', 'sokalsneath', 'sqeuclidean', 'yule']
+      See the documentation for scipy.spatial.distance for details on these
+      metrics. These metrics do not support sparse matrix inputs.
+
+    Note that in the case of 'cityblock', 'cosine' and 'euclidean' (which are
+    valid scipy.spatial.distance metrics), the scikit-learn implementation
+    will be used, which is faster and has support for sparse matrices (except
+    for 'cityblock'). For a verbose description of the metrics from
+    scikit-learn, see the __doc__ of the sklearn.pairwise.distance_metrics
+    function.
+
+    Read more in the :ref:`User Guide <metrics>`.
+
+    Parameters
+    ----------
+    X : array [n_samples_a, n_samples_a] if metric == "precomputed", or, \
+             [n_samples_a, n_features] otherwise
+        Array of pairwise distances between samples, or a feature array.
+
+    Y : array [n_samples_b, n_features], optional
+        An optional second feature array. Only allowed if metric != "precomputed".
+
+    metric : string, or callable
+        The metric to use when calculating distance between instances in a
+        feature array. If metric is a string, it must be one of the options
+        allowed by scipy.spatial.distance.pdist for its metric parameter, or
+        a metric listed in pairwise.PAIRWISE_DISTANCE_FUNCTIONS.
+        If metric is "precomputed", X is assumed to be a distance matrix.
+        Alternatively, if metric is a callable function, it is called on each
+        pair of instances (rows) and the resulting value recorded. The callable
+        should take two arrays from X as input and return a value indicating
+        the distance between them.
+
+    n_jobs : int
+        The number of jobs to use for the computation. This works by breaking
+        down the pairwise matrix into n_jobs even slices and computing them in
+        parallel.
+
+        If -1 all CPUs are used. If 1 is given, no parallel computing code is
+        used at all, which is useful for debugging. For n_jobs below -1,
+        (n_cpus + 1 + n_jobs) are used. Thus for n_jobs = -2, all CPUs but one
+        are used.
+
+    `**kwds` : optional keyword parameters
+        Any further parameters are passed directly to the distance function.
+        If using a scipy.spatial.distance metric, the parameters are still
+        metric dependent. See the scipy docs for usage examples.
+
+    Returns
+    -------
+    D : array [n_samples_a, n_samples_a] or [n_samples_a, n_samples_b]
+        A distance matrix D such that D_{i, j} is the distance between the
+        ith and jth vectors of the given matrix X, if Y is None.
+        If Y is not None, then D_{i, j} is the distance between the ith array
+        from X and the jth array from Y.
+
+    """
+    if (metric not in _VALID_METRICS and
+            not callable(metric) and metric != "precomputed"):
+        raise ValueError("Unknown metric %s. "
+                         "Valid metrics are %s, or 'precomputed', or a "
+                         "callable" % (metric, _VALID_METRICS))
+
+    if metric == "precomputed":
+        X, _ = check_pairwise_arrays(X, Y, precomputed=True)
+        return X
+    elif metric in PAIRWISE_DISTANCE_FUNCTIONS:
+        func = PAIRWISE_DISTANCE_FUNCTIONS[metric]
+    elif callable(metric):
+        func = partial(_pairwise_callable, metric=metric, **kwds)
+    else:
+        if issparse(X) or issparse(Y):
+            raise TypeError("scipy distance metrics do not"
+                            " support sparse matrices.")
+
+        dtype = bool if metric in PAIRWISE_BOOLEAN_FUNCTIONS else None
+
+        X, Y = check_pairwise_arrays(X, Y, dtype=dtype)
+
+        if n_jobs == 1 and X is Y:
+            return distance.squareform(distance.pdist(X, metric=metric,
+                                                      **kwds))
+        func = partial(distance.cdist, metric=metric, **kwds)
+
+    return _parallel_pairwise(X, Y, func, n_jobs, **kwds)
 
 
 class ordering_visualizer:
@@ -224,7 +387,7 @@ class OpticsDescriptor(object):
         """
         # Reachability distance - the smallest distance to be reachable by
         # core object.
-        self.index_object = index
+        self.index = index
 
         # Core distance - the smallest distance to reach specified number
         # of neighbors that is not greater then connectivity radius.
@@ -237,7 +400,7 @@ class OpticsDescriptor(object):
         self.processed = False
 
     def __repr__(self):
-        return '(%s, [c: %s, r: %s])' % (self.index_object, self.core_distance, self.reachability_distance);
+        return '(%s, [c: %s, r: %s])' % (self.index, self.core_distance, self.reachability_distance);
 
 
 def optics(X, eps=0.5, min_samples=5, metric='minkowski'):
@@ -328,8 +491,8 @@ class Optics(BaseEstimator, ClusterMixin):
             self._ordering = []
 
             for cluster in self.clusters_:
-                for index_object in cluster:
-                    optics_obj = self._optics_objects[index_object]
+                for index in cluster:
+                    optics_obj = self._optics_objects[index]
                     if optics_obj.reachability_distance is not None:
                         self._ordering.append(optics_obj.reachability_distance)
 
@@ -354,6 +517,17 @@ class Optics(BaseEstimator, ClusterMixin):
         else:
             self._fit(X)
 
+        labels = np.empty(X.shape[0], dtype=int)
+        for i, cluster in enumerate(self.clusters_):
+            cluster = np.array(cluster, dtype=int)
+            labels[cluster] = i
+
+        # noise do not belong to any cluster, so they belong to their own
+        len_clusters = len(self.clusters_)
+        for i, cluster in enumerate(self.noise_):
+            labels[cluster] = i + len_clusters
+
+        self.labels_ = labels
         return self
 
     def allocate_clusters(self, X):
@@ -362,18 +536,15 @@ class Optics(BaseEstimator, ClusterMixin):
         self._optics_objects = [OpticsDescriptor(i) for i in range(X.shape[0])]
         self._ordered_database = []  # List of OPTICS objects in traverse order
 
-        # _clusters : list of clusters where each cluster contains indexes
-        # of objects from input data
-        # _noise : List of allocated noise objects
-        self.clusters_ = None
-        self.noise_ = None
-
         for optics_obj in self._optics_objects:
             if not optics_obj.processed:
                 _expand_cluster_order(
                     self._ordered_database, optics_obj, self._optics_objects,
                     self.minpts, X, self.metric, self.eps)
 
+        # _clusters : list of clusters where each cluster contains indexes
+        # of objects from input data
+        # _noise : List of allocated noise objects
         self.clusters_ = []
         self.noise_ = []
 
@@ -387,11 +558,11 @@ class Optics(BaseEstimator, ClusterMixin):
                         self.clusters_.append(current_cluster)
                         current_cluster = []
 
-                    current_cluster.append(optics_obj.index_object)
+                    current_cluster.append(optics_obj.index)
                 else:
-                    self.noise_.append(optics_obj.index_object)
+                    self.noise_.append(optics_obj.index)
             else:
-                current_cluster.append(optics_obj.index_object)
+                current_cluster.append(optics_obj.index)
 
         if len(current_cluster) > 0:
             self.clusters_.append(current_cluster)
@@ -425,7 +596,7 @@ def _expand_cluster_order(ordered_db, optics_obj, optics_objs, minpts,
     optics_obj.processed = True
 
     neighbors = _neighbor_indexes(
-        optics_obj.index_object, X, metric, eps)
+        optics_obj.index, X, metric, eps)
     optics_obj.reachability_distance = None
 
     ordered_db.append(optics_obj)
@@ -446,16 +617,15 @@ def _expand_cluster_order(ordered_db, optics_obj, optics_objs, minpts,
             order_seed.remove(optic_descriptor)
 
             neighbors = _neighbor_indexes(
-                optic_descriptor.index_object, X, metric, eps)
+                optic_descriptor.index, X, metric, eps)
             optic_descriptor.processed = True
 
             ordered_db.append(optic_descriptor)
 
-            if (len(neighbors) >= minpts):
+            if len(neighbors) >= minpts:
                 # neighbors.sort(key=lambda obj: obj[1])
                 neighbors = neighbors[neighbors[:, 1].argsort()]
-                optic_descriptor.core_distance = neighbors[
-                    minpts - 1][1]
+                optic_descriptor.core_distance = neighbors[minpts - 1][1]
 
                 _update_order_seed(
                     optics_objs,
@@ -499,12 +669,17 @@ def _update_order_seed(optics_objs, optic_descriptor, neighbors,
                     order_seed.sort(key=lambda obj: obj.reachability_distance)
 
 
-def _neighbor_indexes(index_object, X, metric, eps):
+def _neighbor_indexes(index, X, metric, eps):
     """List of indices and distance of neighbors of a point."""
-    # get neighbors of index_object
-    neigh = pairwise_distances(X[index_object].reshape(1, -1), X)
+    # get neighbors of index
+    sample = X[index]
+    if isinstance(sample, np.ndarray):
+        # avoid deprecation warning
+        sample = sample.reshape(1, -1)
+
+    neigh = pairwise_distances(sample, X, metric)
     idx = np.where(neigh <= eps)[1]
 
     # discard point itself
-    idx = idx[idx != index_object]
+    idx = idx[idx != index]
     return np.vstack((idx, neigh.flat[idx])).T
