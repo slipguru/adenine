@@ -37,14 +37,12 @@ from scipy.sparse import issparse
 from sklearn.utils.fixes import partial
 from sklearn.metrics.pairwise import check_pairwise_arrays
 from sklearn.metrics.pairwise import _parallel_pairwise
+from sklearn.metrics.pairwise import _VALID_METRICS
 from sklearn.metrics.pairwise import PAIRWISE_BOOLEAN_FUNCTIONS
 from sklearn.metrics.pairwise import PAIRWISE_DISTANCE_FUNCTIONS
 
 from sklearn.metrics import pairwise_distances
 from sklearn.base import BaseEstimator, ClusterMixin
-
-# TODO remove dependencies
-import pyclustering.core.optics_wrapper as wrapper
 
 
 def _pairwise_callable(X, Y, metric, **kwds):
@@ -80,14 +78,6 @@ def _pairwise_callable(X, Y, metric, **kwds):
             out[i, j] = metric(X[i], Y[j], **kwds)
 
     return out
-
-
-_VALID_METRICS = ['euclidean', 'l2', 'l1', 'manhattan', 'cityblock',
-                  'braycurtis', 'canberra', 'chebyshev', 'correlation',
-                  'cosine', 'dice', 'hamming', 'jaccard', 'kulsinski',
-                  'mahalanobis', 'matching', 'minkowski', 'rogerstanimoto',
-                  'russellrao', 'seuclidean', 'sokalmichener',
-                  'sokalsneath', 'sqeuclidean', 'yule', "wminkowski"]
 
 
 def pairwise_distances(X, Y=None, metric="euclidean", n_jobs=1, **kwds):
@@ -199,178 +189,146 @@ def pairwise_distances(X, Y=None, metric="euclidean", n_jobs=1, **kwds):
     return _parallel_pairwise(X, Y, func, n_jobs, **kwds)
 
 
-class ordering_visualizer:
-    """!
-    @brief Cluster ordering diagram visualizer that represents dataset
-    graphically as density-based clustering structure.
+def show_ordering_diagram(analyser, amount_clusters=None):
+    """Display cluster-ordering diagram.
 
-    @see ordering_analyser
+    @param[in] analyser (ordering_analyser): cluster-ordering analyser
+    whose ordering diagram should be displayed.
+    @param[in] amount_clusters (uint): if not 'None' it displays
+    connectivity radius line that can used for allocation of specified
+    amount of clusters.
+
+    Example demonstrates general abilities of 'ordering_visualizer' class:
+    @code
+    # Display cluster-ordering diagram with connectivity radius is used
+    for allocation of three clusters.
+    show_ordering_diagram(analyser, 3);
+
+    # Display cluster-ordering diagram without radius.
+    sshow_ordering_diagram(analyser);
+    @endcode
 
     """
+    ordering = analyser.cluster_ordering
+    indexes = [i for i in range(0, len(ordering))]
 
-    @staticmethod
-    def show_ordering_diagram(analyser, amount_clusters=None):
-        """Display cluster-ordering diagram.
+    axis = plt.subplot(111)
+    axis.bar(indexes, ordering, color='k')
+    plt.xlim([0, len(ordering)])
 
-        @param[in] analyser (ordering_analyser): cluster-ordering analyser
-        whose ordering diagram should be displayed.
-        @param[in] amount_clusters (uint): if not 'None' it displays
-        connectivity radius line that can used for allocation of specified
-        amount of clusters.
+    if amount_clusters is not None:
+        radius = analyser.calculate_connectivity_radius(amount_clusters)
+        plt.axhline(y=radius, linewidth=2, color='b')
+        plt.text(0, radius + radius * 0.03, " Radius:   " + str(
+            round(radius, 4)) + ";\n Clusters: " + str(amount_clusters),
+            color='b', fontsize=10)
 
-        Example demonstrates general abilities of 'ordering_visualizer' class:
-        @code
-        # Display cluster-ordering diagram with connectivity radius is used
-        for allocation of three clusters.
-        ordering_visualizer.show_ordering_diagram(analyser, 3);
-
-        # Display cluster-ordering diagram without radius.
-        ordering_visualizer.show_ordering_diagram(analyser);
-        @endcode
-
-        """
-        ordering = analyser.cluster_ordering
-        indexes = [i for i in range(0, len(ordering))]
-
-        axis = plt.subplot(111)
-        axis.bar(indexes, ordering, color = 'black')
-        plt.xlim([0, len(ordering)])
-
-        if (amount_clusters is not None):
-            radius = analyser.calculate_connvectivity_radius(amount_clusters);
-            plt.axhline(y = analyser.calculate_connvectivity_radius(amount_clusters), linewidth = 2, color = 'b');
-            plt.text(0, radius + radius * 0.03, " Radius:   " + str(round(radius, 4)) + ";\n Clusters: " + str(amount_clusters), color = 'b', fontsize = 10);
-
-        plt.show();
+    plt.show()
+    return plt.gcf()
 
 
-class ordering_analyser:
-    """Analyser of cluster ordering diagram.
+def calculate_connectivity_radius(ordering, amount_clusters, max_iter=100):
+    """Calculate connectivity radius of allocation specified amount of
+    clusters using ordering diagram.
 
-    Using cluster-ordering it is able to connectivity radius for allocation
-    of specified amount of clusters and calculate amount of clusters using
-    specified connectivity radius. Cluster-ordering is formed by OPTICS
-    during cluster analysis.
+    Parameters
+    ----------
+    amount_clusters, int
+        Amount of clusters that should be allocated by calculated
+        connectivity radius.
+    max_iter: int, optional, default 100
+        Maximum number of iteration for searching connectivity radius
+        to allocated specified amount of clusters.
+
+    Returns
+    -------
+    Value of connectivity radius, it may be 'None' if connectivity radius
+    hasn't been found for the specified amount of iterations.
     """
+    maximum_distance = max(ordering)
 
-    @property
-    def cluster_ordering(self):
-        """!
-        @brief (list) Returns values of dataset cluster ordering.
+    upper_distance = maximum_distance
+    lower_distance = 0.0
 
-        """
-        return self._ordering;
+    radius = None
+    result = None
 
+    if (extract_cluster_amount(ordering, maximum_distance) <= amount_clusters):
+        for _ in range(max_iter):
+            radius = (lower_distance + upper_distance) / 2.
 
-    def __init__(self, ordering_diagram):
-        """!
-        @brief Analyser of ordering diagram that is based on reachability-distances.
+            amount = extract_cluster_amount(ordering, radius)
+            if amount == amount_clusters:
+                result = radius
+                break
 
-        @see calculate_connvectivity_radius
+            elif amount == 0:
+                break
 
-        """
-        self._ordering = ordering_diagram;
+            elif amount > amount_clusters:
+                lower_distance = radius
 
-
-    def __len__(self):
-        """!
-        @brief Returns length of clustering-ordering diagram.
-
-        """
-        return len(self._ordering);
-
-
-    def calculate_connvectivity_radius(self, amount_clusters, maximum_iterations = 100):
-        """!
-        @brief Calculates connectivity radius of allocation specified amount of clusters using ordering diagram.
-
-        @param[in] amount_clusters (uint): amount of clusters that should be allocated by calculated connectivity radius.
-        @param[in] maximum_iterations (uint): maximum number of iteration for searching connectivity radius to allocated specified amount of clusters (by default it is restricted by 100 iterations).
-
-        @return (double) Value of connectivity radius, it may be 'None' if connectivity radius hasn't been found for the specified amount of iterations.
-
-        """
-
-        maximum_distance = max(self._ordering);
-
-        upper_distance = maximum_distance;
-        lower_distance = 0.0;
-
-        radius = None;
-        result = None;
-
-        if (self.extract_cluster_amount(maximum_distance) <= amount_clusters):
-            for _ in range(maximum_iterations):
-                radius = (lower_distance + upper_distance) / 2.0;
-
-                amount = self.extract_cluster_amount(radius);
-                if (amount == amount_clusters):
-                    result = radius;
-                    break;
-
-                elif (amount == 0):
-                    break;
-
-                elif (amount > amount_clusters):
-                    lower_distance = radius;
-
-                elif (amount < amount_clusters):
-                    upper_distance = radius;
-
-        return result;
+            elif amount < amount_clusters:
+                upper_distance = radius
+    return result
 
 
-    def extract_cluster_amount(self, radius):
-        """!
-        @brief Obtains amount of clustering that can be allocated by using specified radius for ordering diagram.
-        @details When growth of reachability-distances is detected than it is considered as a start point of cluster,
-                 than pick is detected and after that recession is observed until new growth (that means end of the
-                 current cluster and start of a new one) or end of diagram.
+def extract_cluster_amount(ordering, radius):
+    """Amount of clustering that can be allocated using specifiedradius for
+    ordering diagram.
 
-        @param[in] radius (double): connectivity radius that is used for cluster allocation.
+    When growth of reachability-distances is detected than it is
+    considered as a start point of cluster, than pick is detected and after
+    that recession is observed until new growth (that means end of the
+    current cluster and start of a new one) or end of diagram.
 
+    Parameters
+    ----------
+    radius : double
+    Connectivity radius used for cluster allocation.
 
-        @return (unit) Amount of clusters that can be allocated by the connectivity radius on ordering diagram.
+    Returns
+    -------
+    Amount of clusters that can be allocated by the connectivity radius
+    on ordering diagram.
+    """
+    amount_clusters = 1
 
-        """
+    cluster_start = False
+    cluster_pick = False
+    total_similarity = True
+    previous_cluster_distance = None
+    previous_distance = None
 
-        amount_clusters = 1;
-
-        cluster_start = False;
-        cluster_pick = False;
-        total_similarity = True;
-        previous_cluster_distance = None;
-        previous_distance = None;
-
-        for distance in self._ordering:
-            if (distance >= radius):
-                if (cluster_start is False):
-                    cluster_start = True;
-                    amount_clusters += 1;
-
-                else:
-                    if ((distance < previous_cluster_distance) and (cluster_pick is False)):
-                        cluster_pick = True;
-
-                    elif ((distance > previous_cluster_distance) and (cluster_pick is True)):
-                        cluster_pick = False;
-                        amount_clusters += 1;
-
-                previous_cluster_distance = distance;
+    for dist in ordering:
+        if (dist >= radius):
+            if not cluster_start:
+                cluster_start = True
+                amount_clusters += 1
 
             else:
-                cluster_start = False;
-                cluster_pick = False;
+                if dist < previous_cluster_distance and not cluster_pick:
+                    cluster_pick = True
 
-            if ( (previous_distance is not None) and (distance != previous_distance) ):
-                total_similarity = False;
+                elif dist > previous_cluster_distance and cluster_pick:
+                    cluster_pick = False
+                    amount_clusters += 1
 
-            previous_distance = distance;
+            previous_cluster_distance = dist
 
-        if ( (total_similarity is True) and (previous_distance > radius) ):
-            amount_clusters = 0;
+        else:
+            cluster_start = False
+            cluster_pick = False
 
-        return amount_clusters;
+        if previous_distance is not None and dist != previous_distance:
+            total_similarity = False
+
+        previous_distance = dist
+
+    if total_similarity and previous_distance > radius:
+        amount_clusters = 0
+
+    return amount_clusters
 
 
 class OpticsDescriptor(object):
@@ -477,7 +435,7 @@ class Optics(BaseEstimator, ClusterMixin):
         self.n_clusters = n_clusters
         self.ccore = ccore
         self.metric = metric
-        self._ordering = None
+        self.ordering_ = None
 
     def get_ordering(self):
         """Clustering ordering information about the input data set.
@@ -487,16 +445,16 @@ class Optics(BaseEstimator, ClusterMixin):
 
         @return (ordering_analyser) Analyser of clustering ordering.
         """
-        if self._ordering is None:
-            self._ordering = []
+        if self.ordering_ is None:
+            self.ordering_ = []
 
             for cluster in self.clusters_:
                 for index in cluster:
-                    optics_obj = self._optics_objects[index]
+                    optics_obj = self.optics_objs_[index]
                     if optics_obj.reachability_distance is not None:
-                        self._ordering.append(optics_obj.reachability_distance)
+                        self.ordering_.append(optics_obj.reachability_distance)
 
-        return self._ordering
+        return self.ordering_
 
     def fit(self, X):
         """Cluster analysis in line with rules of OPTICS algorithm.
@@ -506,16 +464,24 @@ class Optics(BaseEstimator, ClusterMixin):
         if not self.eps > 0.0:
             raise ValueError("eps must be positive.")
 
-        self._X_fit = X
-
         if self.ccore:
-            # TODO
-            (self.clusters_, self.noise_, self._ordering, self.eps) = \
-                wrapper.optics(self._X_fit, self.eps, self.minpts,
+            # use c implementation by pyclustering
+            import pyclustering.core.optics_wrapper as wrapper
+            (self.clusters_, self.noise_, self.ordering_, self.eps) = \
+                wrapper.optics(X, self.eps, self.minpts,
                                self.n_clusters)
-
         else:
-            self._fit(X)
+            # Performs cluster allocation and builds ordering diagram based on
+            # reachability-distances.
+            self.allocate_clusters(X)
+
+            if self.n_clusters is not None and self.n_clusters != len(
+                    self.clusters_):
+                radius = calculate_connectivity_radius(
+                    self.get_ordering(), self.n_clusters)
+                if radius is not None:
+                    self.eps = radius
+                    self.allocate_clusters(X)
 
         labels = np.empty(X.shape[0], dtype=int)
         for i, cluster in enumerate(self.clusters_):
@@ -531,53 +497,44 @@ class Optics(BaseEstimator, ClusterMixin):
         return self
 
     def allocate_clusters(self, X):
-        self._processed = np.zeros(X.shape[0], dtype=bool)  # none is processed
+        # self._processed = np.zeros(X.shape[0], dtype=bool)  # none is processed
         # List of OPTICS objects that corresponds to objects from input sample
-        self._optics_objects = [OpticsDescriptor(i) for i in range(X.shape[0])]
-        self._ordered_database = []  # List of OPTICS objects in traverse order
+        self.optics_objs_ = map(OpticsDescriptor, np.arange(X.shape[0]))
+        ordered_database = []  # List of OPTICS objects in traverse order
 
-        for optics_obj in self._optics_objects:
+        for optics_obj in self.optics_objs_:
             if not optics_obj.processed:
                 _expand_cluster_order(
-                    self._ordered_database, optics_obj, self._optics_objects,
+                    ordered_database, optics_obj, self.optics_objs_,
                     self.minpts, X, self.metric, self.eps)
 
         # _clusters : list of clusters where each cluster contains indexes
         # of objects from input data
         # _noise : List of allocated noise objects
-        self.clusters_ = []
-        self.noise_ = []
+        clusters = []
+        noise = []
 
         current_cluster = []
-        for optics_obj in self._ordered_database:
+        for optics_obj in ordered_database:
             if optics_obj.reachability_distance is None or \
                     optics_obj.reachability_distance > self.eps:
                 if optics_obj.core_distance is not None and \
                         optics_obj.core_distance <= self.eps:
                     if len(current_cluster) > 0:
-                        self.clusters_.append(current_cluster)
+                        clusters.append(current_cluster)
                         current_cluster = []
 
                     current_cluster.append(optics_obj.index)
                 else:
-                    self.noise_.append(optics_obj.index)
+                    noise.append(optics_obj.index)
             else:
                 current_cluster.append(optics_obj.index)
 
         if len(current_cluster) > 0:
-            self.clusters_.append(current_cluster)
+            clusters.append(current_cluster)
 
-    def _fit(self, X):
-        # Performs cluster allocation and builds ordering diagram based on
-        # reachability-distances.
-        self.allocate_clusters(X)
-
-        if self.n_clusters is not None and self.n_clusters != len(self.clusters_):
-            analyser = ordering_analyser(self.get_ordering())
-            radius = analyser.calculate_connvectivity_radius(self.n_clusters)
-            if radius is not None:
-                self.eps = radius
-                self.allocate_clusters(X)
+        self.clusters_ = clusters
+        self.noise_ = noise
 
 
 def _expand_cluster_order(ordered_db, optics_obj, optics_objs, minpts,
@@ -593,78 +550,84 @@ def _expand_cluster_order(ordered_db, optics_obj, optics_objs, minpts,
     optics_obj : object
         Object that hasn't been processed.
     """
-    optics_obj.processed = True
-
     neighbors = _neighbor_indexes(
         optics_obj.index, X, metric, eps)
+    optics_obj.processed = True
     optics_obj.reachability_distance = None
 
     ordered_db.append(optics_obj)
 
     # Check core distance
-    if len(neighbors) >= minpts:
+    if len(neighbors) > minpts:
         # neighbors.sort(key=lambda obj: obj[1])
         neighbors = neighbors[neighbors[:, 1].argsort()]
-        optics_obj.core_distance = neighbors[minpts - 1][1]
+        optics_obj.core_distance = neighbors[minpts][1]
 
         # Continue processing
         order_seed = list()
         _update_order_seed(
-            optics_objs, optics_obj, neighbors, order_seed)
+            optics_objs, optics_obj.core_distance, neighbors, order_seed)
 
         while len(order_seed) > 0:
-            optic_descriptor = order_seed[0]
-            order_seed.remove(optic_descriptor)
+            current_obj = order_seed[0]
+            order_seed.remove(current_obj)
 
             neighbors = _neighbor_indexes(
-                optic_descriptor.index, X, metric, eps)
-            optic_descriptor.processed = True
+                current_obj.index, X, metric, eps)
+            current_obj.processed = True
 
-            ordered_db.append(optic_descriptor)
+            ordered_db.append(current_obj)
 
-            if len(neighbors) >= minpts:
+            if len(neighbors) > minpts:
                 # neighbors.sort(key=lambda obj: obj[1])
                 neighbors = neighbors[neighbors[:, 1].argsort()]
-                optic_descriptor.core_distance = neighbors[minpts - 1][1]
+                current_obj.core_distance = neighbors[minpts][1]
 
                 _update_order_seed(
                     optics_objs,
-                    optic_descriptor, neighbors, order_seed)
+                    current_obj.core_distance, neighbors, order_seed)
             else:
-                optic_descriptor.core_distance = None
+                current_obj.core_distance = None
 
     else:
         optics_obj.core_distance = None
 
-def _update_order_seed(optics_objs, optic_descriptor, neighbors,
-                       order_seed):
-    """Update sorted list of reachable objects (from core-object) that
-    should be processed using neighbors of core-object.
 
-    @param[in] optic_descriptor (OpticsDescriptor): Core-object whose neighbors should be analysed.
-    @param[in] neighbors (list): List of neighbors of core-object.
-    @param[in|out] order_seed (list): List of sorted object in line with reachable distance.
+def _update_order_seed(optics_objs, core_distance, neighbors,
+                       order_seed):
+    """Update sorted list of reachable objects (from core-object).
+
+    They should be processed using neighbors of core-object.
+
+    Parameters
+    ----------
+    core_distance : OpticsDescriptor.core_distance
+        Core-object whose neighbors should be analysed.
+    neighbors : list
+        List of neighbors of core-object.
+    order_seed : list
+        List of sorted object in line with reachable distance.
 
     """
     for idx, current_reachable_distance in neighbors:
         idx = int(idx)
         if not optics_objs[idx].processed:
             reachable_distance = max(
-                current_reachable_distance, optic_descriptor.core_distance)
+                current_reachable_distance, core_distance)
             if optics_objs[idx].reachability_distance is None:
                 optics_objs[idx].reachability_distance = reachable_distance
 
                 # insert element in queue O(n) - worst case.
                 index_insertion = len(order_seed)
                 for index_seed in range(0, len(order_seed)):
-                    if (reachable_distance < order_seed[index_seed].reachability_distance):
+                    if reachable_distance < order_seed[index_seed].reachability_distance:
                         index_insertion = index_seed
                         break
 
                 order_seed.insert(index_insertion, optics_objs[idx])
 
             else:
-                if (reachable_distance < optics_objs[idx].reachability_distance):
+                if reachable_distance < optics_objs[idx].reachability_distance:
                     optics_objs[idx].reachability_distance = reachable_distance
                     order_seed.sort(key=lambda obj: obj.reachability_distance)
 
@@ -681,5 +644,5 @@ def _neighbor_indexes(index, X, metric, eps):
     idx = np.where(neigh <= eps)[1]
 
     # discard point itself
-    idx = idx[idx != index]
+    # idx = idx[idx != index]
     return np.vstack((idx, neigh.flat[idx])).T
