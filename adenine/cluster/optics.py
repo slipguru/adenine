@@ -50,7 +50,7 @@ def _pairwise_callable(X, Y, metric, **kwds):
     """
     try:
         X, Y = check_pairwise_arrays(X, Y)
-    except TypeError:
+    except ValueError:
         X, Y = check_pairwise_arrays(X, Y, dtype=object)  # try not to convert
 
     if X is Y:
