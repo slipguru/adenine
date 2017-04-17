@@ -398,7 +398,7 @@ class Optics(BaseEstimator, ClusterMixin):
     """
 
     def __init__(self, eps=0.5, min_samples=5, n_clusters=None, ccore=False,
-                 metric='euclidean'):
+                 metric='euclidean', n_jobs=1):
         """Constructor of clustering algorithm OPTICS.
 
         Parameters
@@ -435,6 +435,7 @@ class Optics(BaseEstimator, ClusterMixin):
         self.n_clusters = n_clusters
         self.ccore = ccore
         self.metric = metric
+        self.n_jobs = n_jobs
         self.ordering_ = None
 
     def get_ordering(self):
@@ -506,7 +507,7 @@ class Optics(BaseEstimator, ClusterMixin):
             if not optics_obj.processed:
                 _expand_cluster_order(
                     ordered_database, optics_obj, self.optics_objs_,
-                    self.minpts, X, self.metric, self.eps)
+                    self.minpts, X, self.metric, self.eps, n_jobs=self.n_jobs)
 
         # _clusters : list of clusters where each cluster contains indexes
         # of objects from input data
@@ -538,7 +539,7 @@ class Optics(BaseEstimator, ClusterMixin):
 
 
 def _expand_cluster_order(ordered_db, optics_obj, optics_objs, minpts,
-                          X, metric, eps):
+                          X, metric, eps, n_jobs=1):
     """Expand cluster order from not processed optic-object.
 
     Traverse procedure is performed until objects are reachable from
@@ -551,7 +552,7 @@ def _expand_cluster_order(ordered_db, optics_obj, optics_objs, minpts,
         Object that hasn't been processed.
     """
     neighbors = _neighbor_indexes(
-        optics_obj.index, X, metric, eps)
+        optics_obj.index, X, metric, eps, n_jobs=n_jobs)
     optics_obj.processed = True
     optics_obj.reachability_distance = None
 
@@ -573,7 +574,7 @@ def _expand_cluster_order(ordered_db, optics_obj, optics_objs, minpts,
             order_seed.remove(current_obj)
 
             neighbors = _neighbor_indexes(
-                current_obj.index, X, metric, eps)
+                current_obj.index, X, metric, eps, n_jobs=n_jobs)
             current_obj.processed = True
 
             ordered_db.append(current_obj)
@@ -632,7 +633,7 @@ def _update_order_seed(optics_objs, core_distance, neighbors,
                     order_seed.sort(key=lambda obj: obj.reachability_distance)
 
 
-def _neighbor_indexes(index, X, metric, eps):
+def _neighbor_indexes(index, X, metric='euclidean', eps=0.5, n_jobs=1):
     """List of indices and distance of neighbors of a point."""
     # get neighbors of index
     sample = X[index]
@@ -640,7 +641,7 @@ def _neighbor_indexes(index, X, metric, eps):
         # avoid deprecation warning
         sample = sample.reshape(1, -1)
 
-    neigh = pairwise_distances(sample, X, metric)
+    neigh = pairwise_distances(sample, X, metric=metric, n_jobs=n_jobs)
     idx = np.where(neigh <= eps)[1]
 
     # discard point itself
