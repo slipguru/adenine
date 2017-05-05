@@ -398,7 +398,7 @@ class Optics(BaseEstimator, ClusterMixin):
     """
 
     def __init__(self, eps=0.5, min_samples=5, n_clusters=None, ccore=False,
-                 metric='euclidean', n_jobs=1):
+                 metric='euclidean', n_jobs=1, dist_params=None):
         """Constructor of clustering algorithm OPTICS.
 
         Parameters
@@ -437,6 +437,7 @@ class Optics(BaseEstimator, ClusterMixin):
         self.metric = metric
         self.n_jobs = n_jobs
         self.ordering_ = None
+        self.dist_params = dist_params or {}
 
     def get_ordering(self):
         """Clustering ordering information about the input data set.
@@ -492,7 +493,7 @@ class Optics(BaseEstimator, ClusterMixin):
         # noise do not belong to any cluster, so they belong to their own
         len_clusters = len(self.clusters_)
         for i, cluster in enumerate(self.noise_):
-            labels[cluster] = i + len_clusters
+            labels[cluster] = -1 #i + len_clusters
 
         self.labels_ = labels
         return self
@@ -507,7 +508,8 @@ class Optics(BaseEstimator, ClusterMixin):
             if not optics_obj.processed:
                 _expand_cluster_order(
                     ordered_database, optics_obj, self.optics_objs_,
-                    self.minpts, X, self.metric, self.eps, n_jobs=self.n_jobs)
+                    self.minpts, X, self.metric, self.eps, n_jobs=self.n_jobs,
+                    **self.dist_params)
 
         # _clusters : list of clusters where each cluster contains indexes
         # of objects from input data
@@ -539,7 +541,7 @@ class Optics(BaseEstimator, ClusterMixin):
 
 
 def _expand_cluster_order(ordered_db, optics_obj, optics_objs, minpts,
-                          X, metric, eps, n_jobs=1):
+                          X, metric, eps, n_jobs=1, **dist_params):
     """Expand cluster order from not processed optic-object.
 
     Traverse procedure is performed until objects are reachable from
@@ -552,7 +554,7 @@ def _expand_cluster_order(ordered_db, optics_obj, optics_objs, minpts,
         Object that hasn't been processed.
     """
     neighbors = _neighbor_indexes(
-        optics_obj.index, X, metric, eps, n_jobs=n_jobs)
+        optics_obj.index, X, metric, eps, n_jobs=n_jobs, **dist_params)
     optics_obj.processed = True
     optics_obj.reachability_distance = None
 
@@ -570,11 +572,17 @@ def _expand_cluster_order(ordered_db, optics_obj, optics_objs, minpts,
             optics_objs, optics_obj.core_distance, neighbors, order_seed)
 
         while len(order_seed) > 0:
-            current_obj = order_seed[0]
-            order_seed.remove(current_obj)
+            # current_obj = order_seed[0]
+            # order_seed.remove(current_obj)
+            try:
+                current_obj = pop_task(order_seed)
+            except KeyError:
+                # actually all were processed
+                break
 
             neighbors = _neighbor_indexes(
-                current_obj.index, X, metric, eps, n_jobs=n_jobs)
+                current_obj.index, X, metric, eps, n_jobs=n_jobs,
+                **dist_params)
             current_obj.processed = True
 
             ordered_db.append(current_obj)
@@ -592,6 +600,36 @@ def _expand_cluster_order(ordered_db, optics_obj, optics_objs, minpts,
 
     else:
         optics_obj.core_distance = None
+
+
+import heapq
+# pq = []                         # list of entries arranged in a heap
+entry_finder = {}               # mapping of tasks to entries
+REMOVED = '<removed-task>'      # placeholder for a removed task
+counter = itertools.count()     # unique sequence count
+
+def add_task(heap, task, priority=0):
+    'Add a new task or update the priority of an existing task'
+    if task in entry_finder:
+        remove_task(task)
+    count = next(counter)
+    entry = [priority, count, task]
+    entry_finder[task] = entry
+    heapq.heappush(heap, entry)
+
+def remove_task(task):
+    'Mark an existing task as REMOVED.  Raise KeyError if not found.'
+    entry = entry_finder.pop(task)
+    entry[-1] = REMOVED
+
+def pop_task(heap):
+    'Remove and return the lowest priority task. Raise KeyError if empty.'
+    while heap:
+        priority, count, task = heapq.heappop(heap)
+        if task is not REMOVED:
+            del entry_finder[task]
+            return task
+    raise KeyError('pop from an empty priority queue')
 
 
 def _update_order_seed(optics_objs, core_distance, neighbors,
@@ -618,30 +656,41 @@ def _update_order_seed(optics_objs, core_distance, neighbors,
             if optics_objs[idx].reachability_distance is None:
                 optics_objs[idx].reachability_distance = reachable_distance
 
-                # insert element in queue O(n) - worst case.
-                index_insertion = len(order_seed)
-                for index_seed in range(0, len(order_seed)):
-                    if reachable_distance < order_seed[index_seed].reachability_distance:
-                        index_insertion = index_seed
-                        break
-
-                order_seed.insert(index_insertion, optics_objs[idx])
+                add_task(order_seed, optics_objs[idx], reachable_distance)
+                # # insert element in queue O(n) - worst case.
+                # index_insertion = len(order_seed)
+                # for index_seed, seed in enumerate(order_seed):
+                #     if reachable_distance < seed.reachability_distance:
+                #         index_insertion = index_seed
+                #         break
+                #
+                # order_seed.insert(index_insertion, optics_objs[idx])
 
             else:
                 if reachable_distance < optics_objs[idx].reachability_distance:
                     optics_objs[idx].reachability_distance = reachable_distance
-                    order_seed.sort(key=lambda obj: obj.reachability_distance)
+                    # order_seed.sort(key=lambda obj: obj.reachability_distance)
+                    add_task(order_seed, optics_objs[idx], reachable_distance)
 
 
-def _neighbor_indexes(index, X, metric='euclidean', eps=0.5, n_jobs=1):
-    """List of indices and distance of neighbors of a point."""
+
+def _neighbor_indexes(index, X, metric='euclidean', eps=0.5, n_jobs=1,
+                      **kwargs):
+    """List of indices and distance of neighbors of a point.
+
+    Parameters
+    ----------
+    kwargs :
+        Other parameters to pass directly to the distance function.
+    """
     # get neighbors of index
     sample = X[index]
     if isinstance(sample, np.ndarray):
         # avoid deprecation warning
         sample = sample.reshape(1, -1)
 
-    neigh = pairwise_distances(sample, X, metric=metric, n_jobs=n_jobs)
+    neigh = pairwise_distances(sample, X, metric=metric, n_jobs=n_jobs,
+                               **kwargs)
     idx = np.where(neigh <= eps)[1]
 
     # discard point itself
