@@ -181,12 +181,15 @@ def main(config_file):
     """Generate the pipelines."""
     # Load the configuration file
     config_path = os.path.abspath(config_file)
-    use_compression = config_file.get('use_compression', False)
 
     # For some reason, it must be atomic
     imp.acquire_lock()
     config = imp.load_source('ade_config', config_path)
     imp.release_lock()
+    if hasattr(config, 'use_compression'):
+        use_compression = config.use_compression
+    else:
+        use_compression = False
 
     extra.set_module_defaults(
         config, {

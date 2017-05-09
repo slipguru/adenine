@@ -38,8 +38,7 @@ def init_main():
     root_folder = args.result_folder
     filename = [f for f in os.listdir(root_folder)
                 if os.path.isfile(os.path.join(root_folder, f)) and
-                f.endswith('.pkl') and f != "__data.pkl"]
-                # f.endswith('.pkl.tz') and f != "__data.pkl.tz"]
+                '.pkl' in f  and f != "__data.pkl"]
     if not filename:
         sys.stderr.write("No .pkl file found in {}. Aborting...\n"
                          .format(root_folder))
@@ -59,7 +58,10 @@ def main(dumpfile):
     extra.set_module_defaults(config, {'file_format': 'pdf',
                                        'plotting_context': 'paper',
                                        'verbose': False})
-    use_compression = config.get('use_compression', False)
+    if hasattr(config, 'use_compression'):
+        use_compression = config.use_compression
+    else:
+        use_compression = False
 
     # Load the results used with ade_run.py
     try:
