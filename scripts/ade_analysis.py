@@ -38,7 +38,8 @@ def init_main():
     root_folder = args.result_folder
     filename = [f for f in os.listdir(root_folder)
                 if os.path.isfile(os.path.join(root_folder, f)) and
-                f.endswith('.pkl.tz') and f != "__data.pkl.tz"]
+                f.endswith('.pkl') and f != "__data.pkl"]
+                # f.endswith('.pkl.tz') and f != "__data.pkl.tz"]
     if not filename:
         sys.stderr.write("No .pkl file found in {}. Aborting...\n"
                          .format(root_folder))
@@ -58,18 +59,32 @@ def main(dumpfile):
     extra.set_module_defaults(config, {'file_format': 'pdf',
                                        'plotting_context': 'paper',
                                        'verbose': False})
+    use_compression = config.get('use_compression', False)
 
     # Load the results used with ade_run.py
     try:
-        with gzip.open(os.path.join(os.path.dirname(dumpfile),
-                                    '__data.pkl.tz'), 'r') as fdata:
-            data_X_y_index = pkl.load(fdata)
-            data = data_X_y_index['X']
-            labels = data_X_y_index['y']
-            index = data_X_y_index['index']
+        if use_compression:
+            with gzip.open(os.path.join(os.path.dirname(dumpfile),
+                                        '__data.pkl.tz'), 'r') as fdata:
+                data_X_y_index = pkl.load(fdata)
+                data = data_X_y_index['X']
+                labels = data_X_y_index['y']
+                index = data_X_y_index['index']
+        else:
+            with open(os.path.join(os.path.dirname(dumpfile),
+                                   '__data.pkl'), 'r') as fdata:
+                data_X_y_index = pkl.load(fdata)
+                data = data_X_y_index['X']
+                labels = data_X_y_index['y']
+                index = data_X_y_index['index']
     except IOError:
-        sys.stderr.write("Cannot load __data.pkl.tz. "
-                         "Reloading data from config file ...")
+        if use_compression:
+            data_filename = '__data.pkl.tz'
+        else:
+            data_filename = '__data.pkl'
+
+        sys.stderr.write("Cannot load {} Reloading data from "
+                         "config file ...".format(data_filename))
         data = config.X
         labels = config.y
         index = config.index if hasattr(config, 'index') \
@@ -93,8 +108,12 @@ def main(dumpfile):
     tic = time.time()
     print("\nUnpickling output ...", end=' ')
     # Load the results
-    with gzip.open(dumpfile, 'r') as fres:
-        res = pkl.load(fres)
+    if use_compression:
+        with gzip.open(dumpfile, 'r') as fres:
+            res = pkl.load(fres)
+    else:
+        with open(dumpfile, 'r') as fres:
+            res = pkl.load(fres)
 
     print("done: {} s".format(extra.sec_to_time(time.time() - tic)))
 

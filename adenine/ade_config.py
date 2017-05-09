@@ -9,6 +9,7 @@ exp_tag = '_experiment'
 output_root_folder = 'results'
 plotting_context = 'notebook'  # one of {paper, notebook, talk, poster}
 file_format = 'pdf'  # or 'png'
+use_compression = False  # use gzip to compress the results
 
 # ----------------------------  INPUT DATA ---------------------------- #
 # Load an example dataset or specify your input data in tabular format

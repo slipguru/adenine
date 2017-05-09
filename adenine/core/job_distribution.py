@@ -181,6 +181,7 @@ def main(config_file):
     """Generate the pipelines."""
     # Load the configuration file
     config_path = os.path.abspath(config_file)
+    use_compression = config_file.get('use_compression', False)
 
     # For some reason, it must be atomic
     imp.acquire_lock()
@@ -233,16 +234,27 @@ def main(config_file):
         os.makedirs(outfolder)
 
         # pkl Dump
-        with gzip.open(os.path.join(outfolder, outfile + '.pkl.tz'),
-                       'w+') as out:
-            pkl.dump(pipes_dump, out)
-        logging.info("Dump : %s", os.path.join(outfolder, outfile + '.pkl.tz'))
+        logging.info('Saving Adenine results...')
+        if use_compression:
+            with gzip.open(os.path.join(outfolder, outfile + '.pkl.tz'),
+                           'wb') as out:
+                pkl.dump(pipes_dump, out)
+            logging.info("Dump : %s", os.path.join(outfolder, outfile + '.pkl.tz'))
+        else:
+            with open(os.path.join(outfolder, outfile + '.pkl'), 'wb') as out:
+                pkl.dump(pipes_dump, out)
+                logging.info("Dump : %s", os.path.join(outfolder, outfile + '.pkl'))
 
         index = config.index if hasattr(config, 'index') \
             else np.arange(X.shape[0])
-        with gzip.open(os.path.join(outfolder, '__data.pkl.tz'), 'w+') as out:
-            pkl.dump({'X': X, 'y': config.y, 'index': index}, out)
-        logging.info("Dump : %s", os.path.join(outfolder, '__data.pkl.tz'))
+        if use_compression:
+            with gzip.open(os.path.join(outfolder, '__data.pkl.tz'), 'wb') as out:
+                pkl.dump({'X': X, 'y': config.y, 'index': index}, out)
+            logging.info("Dump : %s", os.path.join(outfolder, '__data.pkl.tz'))
+        else:
+            with open(os.path.join(outfolder, '__data.pkl'), 'wb') as out:
+                pkl.dump({'X': X, 'y': config.y, 'index': index}, out)
+            logging.info("Dump : %s", os.path.join(outfolder, '__data.pkl'))
 
         # Copy the ade_config just used into the outFolder
         shutil.copy(config_path, os.path.join(outfolder, 'ade_config.py'))
