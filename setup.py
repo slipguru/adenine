@@ -1,7 +1,7 @@
 #!/usr/bin/python
 """adenine setup script."""
 
-from distutils.core import setup
+from setuptools import setup
 
 # Package Version
 from adenine import __version__ as version
