@@ -248,15 +248,17 @@ def main(config_file):
                 pkl.dump(pipes_dump, out)
                 logging.info("Dump : %s", os.path.join(outfolder, outfile + '.pkl'))
 
-        index = config.index if hasattr(config, 'index') \
+        # Retrieve info from the config file
+        _index = config.index if hasattr(config, 'index') \
             else np.arange(X.shape[0])
+        _y = config.y if hasattr(config, 'y') else None
         if use_compression:
             with gzip.open(os.path.join(outfolder, '__data.pkl.tz'), 'wb') as out:
-                pkl.dump({'X': X, 'y': config.y, 'index': index}, out)
+                pkl.dump({'X': X, 'y': _y, 'index': _index}, out)
             logging.info("Dump : %s", os.path.join(outfolder, '__data.pkl.tz'))
         else:
             with open(os.path.join(outfolder, '__data.pkl'), 'wb') as out:
-                pkl.dump({'X': X, 'y': config.y, 'index': index}, out)
+                pkl.dump({'X': X, 'y': _y, 'index': _index}, out)
             logging.info("Dump : %s", os.path.join(outfolder, '__data.pkl'))
 
         # Copy the ade_config just used into the outFolder

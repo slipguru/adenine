@@ -328,14 +328,17 @@ def GEO_select_samples(data, labels, new_labels, selected_labels, index,
         selected_labels appears here
     """
     mapped_y = label_mapper(labels, new_labels)
-    mapped_y = pd.DataFrame(data=mapped_y, index=index,
-                            columns=['Phenotype'])
-    y = mapped_y[mapped_y['Phenotype'].isin(selected_labels)]
     if samples_on in ['col', 'cols']:
         tmp = index
         index = feat_names
         feat_names = tmp
+        mapped_y = pd.DataFrame(data=mapped_y, index=index,
+                                columns=['Phenotype'])
+        y = mapped_y[mapped_y['Phenotype'].isin(selected_labels)]
         X = pd.DataFrame(data.T, index=index, columns=feat_names).loc[y.index].transpose()
     else:
+        mapped_y = pd.DataFrame(data=mapped_y, index=index,
+                                columns=['Phenotype'])
+        y = mapped_y[mapped_y['Phenotype'].isin(selected_labels)]
         X = pd.DataFrame(data, index=index, columns=feat_names).loc[y.index]
     return X.values, y.values.ravel(), X.columns, X.index.tolist()
