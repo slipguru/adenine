@@ -179,13 +179,31 @@ def slave(X):
 
 def main(config_file):
     """Generate the pipelines."""
-    # Load the configuration file
-    config_path = os.path.abspath(config_file)
 
-    # For some reason, it must be atomic
-    imp.acquire_lock()
-    config = imp.load_source('ade_config', config_path)
-    imp.release_lock()
+    if RANK == 0:
+        # Load the configuration file
+        config_path = os.path.abspath(config_file)
+
+        # For some reason, it must be atomic
+        imp.acquire_lock()
+        config = imp.load_source('ade_config', config_path)
+        imp.release_lock()
+
+    # this barrier prevents the slave to re-download the same GEO
+    # dataset if not locally present
+    if IS_MPI_JOB:
+        # Wait for all jobs to end
+        COMM.barrier()
+
+    if RANK != 0:
+        # Load the configuration file
+        config_path = os.path.abspath(config_file)
+
+        # For some reason, it must be atomic
+        imp.acquire_lock()
+        config = imp.load_source('ade_config', config_path)
+        imp.release_lock()
+
     if hasattr(config, 'use_compression'):
         use_compression = config.use_compression
     else:
