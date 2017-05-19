@@ -43,5 +43,6 @@ setup(
                       'fastcluster (>=1.1.20)',
                       'GEOparse (>=0.1.10)',
                       'pydot (>=1.2.3)'],
-    scripts=['scripts/ade_run.py', 'scripts/ade_analysis.py'],
+    scripts=['scripts/ade_run.py', 'scripts/ade_analysis.py',
+             'scripts/ade_GEO2csv.py'],
 )
