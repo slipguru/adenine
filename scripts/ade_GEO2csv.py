@@ -21,6 +21,9 @@ def main():
     parser.add_argument('--version', action='version',
                         version='%(prog)s v' + __version__)
     parser.add_argument('accession_number', help='GEO DataSets Accession number')
+    parser.add_argument('--phenotype_name', '--pheno_name', dest='pheno_name',
+                        default='title', help='The filed in which '
+                        'phenotypes information are stored.')
     parser.add_argument('--phenotypes', '--pheno', dest='pheno',
                         action='store', default=None,
                         help='Select samples by their phenotypes ('
@@ -29,7 +32,7 @@ def main():
 
     # Get the data
     try:
-        data = GEO2csv.get_GEO(args.accession_number)
+        data = GEO2csv.get_GEO(args.accession_number, args.pheno_name)
 
         # Filter samples per phenotype
         if args.pheno is not None:

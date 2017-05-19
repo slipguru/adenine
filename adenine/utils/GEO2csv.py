@@ -16,7 +16,7 @@ import pandas as pd
 from sklearn import datasets
 
 
-def get_GEO(accession_number):
+def get_GEO(accession_number, phenotype_name='title'):
     """Get the GEO data from its accession number.
 
     Parameters
@@ -30,7 +30,7 @@ def get_GEO(accession_number):
     xx = gse.pivot_samples('VALUE').transpose()
     index = xx.index.tolist()
     feature_names = xx.columns.tolist()
-    yy = gse.phenotype_data['title']
+    yy = gse.phenotype_data[phenotype_name]
     data = datasets.base.Bunch(data=xx.values, target=yy.values,
                                feature_names=feature_names,
                                index=index)
