@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""This module is just a wrapper for some sklearn.datasets functions."""
+"""This module is mainly a wrapper for some sklearn.datasets functions."""
 
 ######################################################################
 # Copyright (C) 2016 Samuele Fiorini, Federico Tomasi, Annalisa Barla
@@ -139,7 +139,6 @@ def load(opt='custom', x_filename=None, y_filename=None, n_samples=0,
         'boston', 'circles' and 'moons' refer to the correspondent
         `scikit-learn` datasets. 'custom' can be used to load a custom dataset
         which name is specified in `x_filename` and `y_filename` (optional).
-        'GSEXXXXX' is any GEO accession ID loaded by `GEOparse`.
 
     x_filename : string, default : None
         The data matrix file name.
@@ -212,19 +211,8 @@ def load(opt='custom', x_filename=None, y_filename=None, n_samples=0,
         elif opt.lower() == 'custom':
             data = load_custom(x_filename, y_filename, samples_on, **kwargs)
         elif opt.lower().startswith('gse'):
-            import GEOparse
-            gse = GEOparse.get_GEO(geo=opt, destdir=os.curdir,
-                                   silent=True, include_data=True,
-                                   how='full')
-            xx = gse.pivot_samples('VALUE')
-            if samples_on.lower() in ['row', 'rows']:
-                xx = xx.transpose()
-            index = xx.index.tolist()
-            feature_names = xx.columns.tolist()
-            yy = gse.phenotype_data['title']
-            data = datasets.base.Bunch(data=xx.values, target=yy.values,
-                                       feature_names=feature_names,
-                                       index=index)
+            raise Exception("Use ade_GEO2csv.py to convert GEO DataSets"
+                            "into csv files.")
     except IOError as e:
         print("I/O error({0}): {1}".format(e.errno, e.strerror))
 
@@ -254,91 +242,3 @@ def load(opt='custom', x_filename=None, y_filename=None, n_samples=0,
         else np.arange(X.shape[0])
 
     return X, y, feat_names, index
-
-
-def label_mapper(raw_labels, new_labels):
-    """Map some raw labels into new labels.
-
-    When dealing with GEO DataSets it is very common that each GSM sample has
-    a different phenotye (e.g. 'Brain - 001', 'Brain - 002', ...). This
-    function maps these raw labels into new homogeneous labels.
-
-    Parameters
-    -----------
-    raw_labels : list of strings
-        list of unpreprocessed labels
-    new_labels : list of strings
-        list of labels to map
-
-    Returns
-    -----------
-    y : array of float, shape : n_samples
-        the modified label vector
-
-    Examples
-    -----------
-    >>> raw_labels = ['Brain - 001', 'Brain - 002', 'Muscle - 001', 'Muscle - 002']
-    >>> label_mapper(raw_labels, ['Brain', 'Muscle'])
-    ['Brain', 'Brain', 'Muscle', 'Muscle']
-    """
-    y = []
-    for rl in raw_labels:
-        for nl in new_labels:
-            if nl in rl:
-                y.append(nl)
-                break
-        else:
-            logging.critical('No mapping rule for %s', rl)
-    return y
-
-
-def GEO_select_samples(data, labels, new_labels, selected_labels, index,
-                       feat_names=None, samples_on='row'):
-    """GEO DataSets data selection tool.
-
-    Modify the labels with `label_mapper` then return only the samples with
-    labels in selected_labels.
-
-    Parameters
-    -----------
-    data : array of float, shape : n_samples x n_features
-        the dataset
-    labels : numpy array (n_samples,)
-        the labels vector
-    new_labels : list of strings
-        list of labels to map
-    selected_labels : list of strings
-        a subset of new_labels containing only the samples wanted in the
-        final dataset
-    index : list of strings
-        the sample indexes
-    feat_names : list of strings
-        the feature set
-    samples_on : string in ['col', 'cols', 'row', 'rows']
-        wether the samples are on columns or rows
-
-    Returns
-    -----------
-    X : array of float, shape : n_samples x n_features
-        The input data matrix, only the samples with corresponding label in
-        selected_labels appears here
-
-    y : array of float, shape : n_samples
-        The label vector, only the samples with corresponding label in
-        selected_labels appears here
-    """
-    mapped_y = label_mapper(labels, new_labels)
-    if samples_on in ['col', 'cols']:
-        tmp = index
-        index = feat_names
-        feat_names = tmp
-        mapped_y = pd.DataFrame(data=mapped_y, index=index,
-                                columns=['Phenotype'])
-        y = mapped_y[mapped_y['Phenotype'].isin(selected_labels)]
-        X = pd.DataFrame(data.T, index=index, columns=feat_names).loc[y.index].transpose()
-    else:
-        mapped_y = pd.DataFrame(data=mapped_y, index=index,
-                                columns=['Phenotype'])
-        y = mapped_y[mapped_y['Phenotype'].isin(selected_labels)]
-        X = pd.DataFrame(data, index=index, columns=feat_names).loc[y.index]
-    return X.values, y.values.ravel(), X.columns, X.index.tolist()
