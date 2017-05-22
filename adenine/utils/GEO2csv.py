@@ -34,6 +34,12 @@ def get_GEO(accession_number, phenotype_name='title'):
     data = datasets.base.Bunch(data=xx.values, target=yy.values,
                                feature_names=feature_names,
                                index=index)
+
+
+    print('Desired labels can be found with --phenotype_name = ')
+    for k in gse.phenotype_data.keys():
+        print('- {}'.format(k))
+
     return data
 
 
