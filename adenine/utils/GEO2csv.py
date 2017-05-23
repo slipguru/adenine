@@ -14,6 +14,7 @@ import logging
 import os
 import pandas as pd
 from sklearn import datasets
+from six.moves import filter
 
 
 def get_GEO(accession_number, phenotype_name='title', return_gse=False):
@@ -157,4 +158,29 @@ def id2gs(data, gse):
 
     # Make bunch and return
     return datasets.base.Bunch(data=data.data, feature_names=gene_symbol,
+                               target=data.target, index=data.index)
+
+
+def restrict_to_signature(data, signature):
+    """Restrict the data to the genes in the signature.
+
+    Parameters
+    -----------
+    data : sklearn.datasets.base.Bunch
+        the dataset bunch
+    signature : list
+        list of signature genes
+
+    Returns
+    -----------
+    data : sklearn.datasets.base.Bunch
+        where feature_names has the gene symbols restricted to signature
+    """
+    df = pd.DataFrame(data=data.data, index=data.index,
+                      columns=data.feature_names)
+    # Filter out signatures gene not in the gene set
+    signature = list(filter(lambda x: x in data.feature_names, signature))
+    df = df[signature]
+    # Make bunch and return
+    return datasets.base.Bunch(data=df.values, feature_names=df.columns,
                                target=data.target, index=data.index)

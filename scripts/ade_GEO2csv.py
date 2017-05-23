@@ -31,16 +31,17 @@ def main():
     parser.add_argument('--gene_symbol', action='store_true', dest='gs',
                         help='Use this option to convert the platform IDs '
                         'to gene symbols')
+    parser.add_argument('--signature', dest='signature',
+                        default=None, help='Generate a data matrix comprising '
+                        'only the genes in the signature.')
     args = parser.parse_args()
 
     # Get the data
     try:
-        if args.gs:
-            data, gse = GEO2csv.get_GEO(args.accession_number, args.pheno_name,
-                                        args.gs)
+        if args.gs or (args.signature is not None):
+            data, gse = GEO2csv.get_GEO(args.accession_number, args.pheno_name, True)
         else:
             data = GEO2csv.get_GEO(args.accession_number, args.pheno_name)[0]
-
         print('* GEO dataset {} loaded'.format(args.accession_number))
 
         # Filter samples per phenotype
@@ -50,9 +51,13 @@ def main():
                     index=data.index, feature_names=data.feature_names)
             print('* Phenotypes {}'.format(args.pheno))
 
-        if args.gs:
+        if args.gs or (args.signature is not None):
             data = GEO2csv.id2gs(data, gse)
             print('* Probe ID converted to gene symbols')
+
+        if args.signature is not None:
+            data = GEO2csv.restrict_to_signature(data, args.signature.split(','))
+            print('* Dataset restricted to {}'.format(data.feature_names))
 
         # Save dataset
         pd.DataFrame(data=data.data, columns=data.feature_names,
