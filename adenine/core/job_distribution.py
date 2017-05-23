@@ -24,7 +24,7 @@ try:
     IS_MPI_JOB = COMM.Get_size() > 1
 
 except ImportError:
-    print("mpi4py module not found. Adenine cannot run on multiple machines.")
+    # print("mpi4py module not found. MPI job distribution disabled.")
     COMM = None
     RANK = 0
     NAME = 'localhost'
@@ -35,9 +35,6 @@ except ImportError:
 # constants to use as tags in communications
 DO_WORK = 100
 EXIT = 200
-
-# VERBOSITY
-# VERBOSITY = 1
 
 
 def master_single_machine(pipes, X):
