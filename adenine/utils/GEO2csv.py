@@ -16,13 +16,20 @@ import pandas as pd
 from sklearn import datasets
 
 
-def get_GEO(accession_number, phenotype_name='title'):
+def get_GEO(accession_number, phenotype_name='title', return_gse=False):
     """Get the GEO data from its accession number.
 
     Parameters
     -----------
     accession_number : string
         'GSEXXXXX' is any GEO accession ID loaded by `GEOparse`.
+
+    Returns
+    -----------
+    data : sklearn.datasets.base.Bunch
+        the dataset bunch
+    gse : GEOparse.GEOTypes.GSE
+        the GEOparse object
     """
     gse = GEOparse.get_GEO(geo=accession_number, destdir=os.curdir,
                            silent=True, include_data=True,
@@ -36,11 +43,15 @@ def get_GEO(accession_number, phenotype_name='title'):
                                index=index)
 
 
-    print('Desired labels can be found with --phenotype_name = ')
+    print('* Desired labels can be found with --phenotype_name = ')
     for k in gse.phenotype_data.keys():
-        print('- {}'.format(k))
+        print('\t{}'.format(k))
 
-    return data
+    out = [data]
+    if return_gse:
+        out.append(gse)
+
+    return out
 
 
 def label_mapper(raw_labels, new_labels):
@@ -115,3 +126,35 @@ def GEO_select_samples(data, labels, selected_labels, index,
     X = pd.DataFrame(data, index=index, columns=feature_names).loc[y.index]
     return datasets.base.Bunch(data=X.values, feature_names=X.columns,
                                target=y.values.ravel(), index=X.index.tolist())
+
+def id2gs(data, gse):
+    """Convert IDs into GENE_SYMBOL.
+
+    Parameters
+    -----------
+    data : sklearn.datasets.base.Bunch
+        the dataset bunch
+    gse : GEOparse.GEOTypes.GSE
+        the GEOparse object
+
+    Returns
+    -----------
+    data : sklearn.datasets.base.Bunch
+        where feature_names has the gene symbols
+    """
+    # Get the platform name
+    platform = gse.gpls.keys()[0]
+
+    # Create the lookup table
+    lookup_table = pd.DataFrame(data=gse.gpls[platform].table['GENE_SYMBOL'].values,
+                                index=gse.gpls[platform].table['ID'].values,
+                                columns=['GENE_SYMBOL'])
+    # Correct NaN failures
+    for i, lt_value in enumerate(lookup_table.values.ravel()):
+        if pd.isnull(lt_value):
+            lookup_table.values[i] = str(lookup_table.index[i])+'__NO-MATCH'
+    gene_symbol = [lookup_table['GENE_SYMBOL'].loc[_id] for _id in data.feature_names]
+
+    # Make bunch and return
+    return datasets.base.Bunch(data=data.data, feature_names=gene_symbol,
+                               target=data.target, index=data.index)
