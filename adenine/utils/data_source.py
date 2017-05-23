@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""This module is just a wrapper for some sklearn.datasets functions."""
+"""This module is mainly a wrapper for some sklearn.datasets functions."""
 
 ######################################################################
 # Copyright (C) 2016 Samuele Fiorini, Federico Tomasi, Annalisa Barla
@@ -9,9 +9,10 @@
 # FreeBSD License
 ######################################################################
 import sys
+import os
+import logging
 import numpy as np
 import pandas as pd
-import logging
 from sklearn import datasets
 from sklearn.preprocessing import Binarizer
 
@@ -133,8 +134,11 @@ def load(opt='custom', x_filename=None, y_filename=None, n_samples=0,
     Parameters
     -----------
     opt : {'iris', 'digits', 'diabetes', 'boston', 'circles', 'moons',
-          'custom'}, default: 'custom'
-        Name of a predefined dataset to be loaded.
+          'custom', 'GSEXXXXX'}, default: 'custom'
+        Name of a predefined dataset to be loaded. 'iris', 'digits', 'diabetes'
+        'boston', 'circles' and 'moons' refer to the correspondent
+        `scikit-learn` datasets. 'custom' can be used to load a custom dataset
+        which name is specified in `x_filename` and `y_filename` (optional).
 
     x_filename : string, default : None
         The data matrix file name.
@@ -206,6 +210,9 @@ def load(opt='custom', x_filename=None, y_filename=None, n_samples=0,
             data = datasets.base.Bunch(data=xx, target=yy)
         elif opt.lower() == 'custom':
             data = load_custom(x_filename, y_filename, samples_on, **kwargs)
+        elif opt.lower().startswith('gse'):
+            raise Exception("Use ade_GEO2csv.py to convert GEO DataSets"
+                            "into csv files.")
     except IOError as e:
         print("I/O error({0}): {1}".format(e.errno, e.strerror))
 

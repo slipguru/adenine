@@ -176,13 +176,35 @@ def slave(X):
 
 def main(config_file):
     """Generate the pipelines."""
-    # Load the configuration file
-    config_path = os.path.abspath(config_file)
 
-    # For some reason, it must be atomic
-    imp.acquire_lock()
-    config = imp.load_source('ade_config', config_path)
-    imp.release_lock()
+    if RANK == 0:
+        # Load the configuration file
+        config_path = os.path.abspath(config_file)
+
+        # For some reason, it must be atomic
+        imp.acquire_lock()
+        config = imp.load_source('ade_config', config_path)
+        imp.release_lock()
+
+    # this barrier prevents the slave to re-download the same GEO
+    # dataset if not locally present
+    if IS_MPI_JOB:
+        # Wait for all jobs to end
+        COMM.barrier()
+
+    if RANK != 0:
+        # Load the configuration file
+        config_path = os.path.abspath(config_file)
+
+        # For some reason, it must be atomic
+        imp.acquire_lock()
+        config = imp.load_source('ade_config', config_path)
+        imp.release_lock()
+
+    if hasattr(config, 'use_compression'):
+        use_compression = config.use_compression
+    else:
+        use_compression = False
 
     extra.set_module_defaults(
         config, {
@@ -230,16 +252,29 @@ def main(config_file):
         os.makedirs(outfolder)
 
         # pkl Dump
-        with gzip.open(os.path.join(outfolder, outfile + '.pkl.tz'),
-                       'w+') as out:
-            pkl.dump(pipes_dump, out)
-        logging.info("Dump : %s", os.path.join(outfolder, outfile + '.pkl.tz'))
+        logging.info('Saving Adenine results...')
+        if use_compression:
+            with gzip.open(os.path.join(outfolder, outfile + '.pkl.tz'),
+                           'wb') as out:
+                pkl.dump(pipes_dump, out)
+            logging.info("Dump : %s", os.path.join(outfolder, outfile + '.pkl.tz'))
+        else:
+            with open(os.path.join(outfolder, outfile + '.pkl'), 'wb') as out:
+                pkl.dump(pipes_dump, out)
+                logging.info("Dump : %s", os.path.join(outfolder, outfile + '.pkl'))
 
-        index = config.index if hasattr(config, 'index') \
+        # Retrieve info from the config file
+        _index = config.index if hasattr(config, 'index') \
             else np.arange(X.shape[0])
-        with gzip.open(os.path.join(outfolder, '__data.pkl.tz'), 'w+') as out:
-            pkl.dump({'X': X, 'y': config.y, 'index': index}, out)
-        logging.info("Dump : %s", os.path.join(outfolder, '__data.pkl.tz'))
+        _y = config.y if hasattr(config, 'y') else None
+        if use_compression:
+            with gzip.open(os.path.join(outfolder, '__data.pkl.tz'), 'wb') as out:
+                pkl.dump({'X': X, 'y': _y, 'index': _index}, out)
+            logging.info("Dump : %s", os.path.join(outfolder, '__data.pkl.tz'))
+        else:
+            with open(os.path.join(outfolder, '__data.pkl'), 'wb') as out:
+                pkl.dump({'X': X, 'y': _y, 'index': _index}, out)
+            logging.info("Dump : %s", os.path.join(outfolder, '__data.pkl'))
 
         # Copy the ade_config just used into the outFolder
         shutil.copy(config_path, os.path.join(outfolder, 'ade_config.py'))
