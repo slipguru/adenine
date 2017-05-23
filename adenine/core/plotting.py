@@ -16,6 +16,7 @@ import scipy as sp
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns; sns.set(font="monospace")
+import time
 from sklearn import metrics
 # Legacy import
 try:
@@ -23,6 +24,7 @@ try:
 except ImportError:
     from sklearn.cross_validation import StratifiedShuffleSplit
 
+from adenine.core.template.d3_template import D3_TREE
 from adenine.utils.extra import title_from_filename, Palette
 
 __all__ = ("silhouette", "scatter", "voronoi", "tree",
@@ -381,6 +383,23 @@ def tree(root, data_in, labels=None, index=None, model=None):
         be a clustering model provided with the clusters_centers_ attribute
         (e.g. KMeans).
     """
+    # see http://stackoverflow.com/questions/27386641/how-to-traverse-a-tree-from-sklearn-agglomerativeclustering
+    # ii = itertools.count(X.shape[0])
+    # [{'node_id': next(ii), 'left': x[0], 'right':x[1]} for x in model.children_]
+    aa = []
+    for ii, x in enumerate(model.children_):
+        ii += data_in.shape[0]
+        aa.append([ii, x[0]])
+        aa.append([ii, x[1]])
+    aa.append([None, ii])
+    aa = np.array(aa)
+    df = pd.DataFrame(aa).rename(columns=dict(zip(range(2), ['parent', 'name'])))
+    table_filename = "/tmp/table{}.csv".format(time.time())
+    df.to_csv(table_filename, index=False)
+    # now it can be loaded to generate a D3.js tree
+    with open("index.html", 'w') as f:
+        f.write(D3_TREE % ('"%s"' % table_filename))
+
     filename = os.path.join(root, os.path.basename(root) + '_tree.pdf')
     try:
         import itertools
