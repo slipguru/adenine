@@ -1,4 +1,4 @@
-
+# -*- coding: utf-8 -*-
 # note: "format" this string to load data in csv format with % string
 D3_TREE = r"""
 <!DOCTYPE html>
@@ -29,7 +29,10 @@ D3_TREE = r"""
 }
 
 </style>
-<svg width="1500" height="2000"></svg>
+<button class="download" onClick="(function () { var e = document.createElement('script'); e.setAttribute('src', %s); e.setAttribute('class', 'svg-crowbar'); document.body.appendChild(e); })();">
+    <big>⇩</big> Download SVG
+  </button>
+<svg width="1000" height="1000"></svg>
 <script src="http://d3js.org/d3.v4.min.js"></script>
 <script>
 
@@ -62,8 +65,8 @@ d3.csv(%s, function(error, data) {
       .attr("class", "link")
       .attr("d", function(d) {
         return "M" + d.y + "," + d.x
-            + "C" + (d.parent.y + 100) + "," + d.x
-            + " " + (d.parent.y + 100) + "," + d.parent.x
+            + "C" + (d.parent.y + 50) + "," + d.x
+            + " " + (d.parent.y + 50) + "," + d.parent.x
             + " " + d.parent.y + "," + d.parent.x;
       });
 
@@ -74,13 +77,15 @@ d3.csv(%s, function(error, data) {
       .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; })
 
   node.append("circle")
-      .attr("r", 2.5);
+      .attr("r", 5);
 
   node.append("text")
-      .attr("dy", 3)
+      .style("font-size", "20px")
+      .style("font-weight", "bold")
+      .attr("dy", 1)
       .attr("x", function(d) { return d.children ? -8 : 8; })
       .style("text-anchor", function(d) { return d.children ? "end" : "start"; })
-      .text(function(d) { return d.id.substring(d.id.lastIndexOf(".") + 1); });
+      .text(function(d) { return d.children ? " " : d.id; });
 });
 
 </script>

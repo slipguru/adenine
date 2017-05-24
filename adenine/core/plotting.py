@@ -24,6 +24,7 @@ try:
 except ImportError:
     from sklearn.cross_validation import StratifiedShuffleSplit
 
+import adenine
 from adenine.core.template.d3_template import D3_TREE
 from adenine.utils.extra import title_from_filename, Palette
 
@@ -394,11 +395,16 @@ def tree(root, data_in, labels=None, index=None, model=None):
     aa.append([None, ii])
     aa = np.array(aa)
     df = pd.DataFrame(aa).rename(columns=dict(zip(range(2), ['parent', 'name'])))
+    # write sample names in the leaves
+    lookup_table = dict(zip(np.arange(data_in.shape[0], dtype=float), index))
+    df = df.applymap(lambda x: lookup_table.get(x, False) or float(x) if x is not None else x)
     table_filename = "/tmp/table{}.csv".format(time.time())
     df.to_csv(table_filename, index=False)
+    
     # now it can be loaded to generate a D3.js tree
-    with open("index.html", 'w') as f:
-        f.write(D3_TREE % ('"%s"' % table_filename))
+    with open(os.path.join(root, os.path.basename(root) + '_tree.html'), 'w') as f:
+        svg_crowbar_path = os.path.join(adenine.__path__[0], 'core', 'template', 'svg-crowbar.js')
+        f.write(D3_TREE % ("'%s'" % svg_crowbar_path, '"%s"' % table_filename))
 
     filename = os.path.join(root, os.path.basename(root) + '_tree.pdf')
     try:
