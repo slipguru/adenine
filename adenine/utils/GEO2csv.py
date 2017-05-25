@@ -44,7 +44,7 @@ def get_GEO(accession_number, phenotype_name='title', return_gse=False):
                                index=index)
 
 
-    print('* Desired labels can be found with --phenotype_name = ')
+    print('* Desired labels can be found with --label_field = ')
     for k in gse.phenotype_data.keys():
         print('\t{}'.format(k))
 
