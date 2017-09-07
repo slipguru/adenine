@@ -103,3 +103,10 @@ Check out the project [homepage](http://slipguru.github.io/adenine/index.html)
 ```bash
 $ mpirun -np <MPI-TASKS> --hosts <HOSTS-LIST> ade_run.py my-config-file.py
 ```
+
+## Citation
+
+If you use **adenine** in a scientific publication, we would appreciate citations:
+```tex
+@{coming soon}
+```
