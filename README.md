@@ -1,6 +1,7 @@
 <p align="center">
   <img src="http://www.slipguru.unige.it/Software/adenine/_static/ade_logo_bitmap.png"><br><br>
 </p>
+
 -----------------
 
 # Adenine: A data exploration pipeline
