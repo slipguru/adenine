@@ -40,26 +40,40 @@ EXIT = 200
 def master_dask(pipes, X):
     """Fit and transform/predict some pipelines on some data  using dask.
     """
+    import dask
     from distributed import Client
     import multiprocessing as mp
-    client = Client('localhost:8786')
+    client = Client('cnode001:8786')
 
     jobs = []
     pipes_dump = {}
 
+    [future] = client.scatter([X], broadcast=True)
+    futures = [client.submit(pipe_worker, None, pipe, None, future) for pipe in pipes]
+#    remote_X = client.scatter(X, broadcast=True)
+#    ll = len(pipes)
+#    futures = client.map(pipe_worker, *([None]*ll, pipes, [None]*ll, [remote_X]*ll))
+#    res = client.gather(futures)
+#    for i, r in enumerate(res):
+#        pipes_dump['pipe'+str(i)] = res
+
     # Submit jobs
-    for i, pipe in enumerate(pipes):
-        pipe_id = 'pipe' + str(i)
-        proc = client.submit(pipe_worker, *(None, pipe, None, X)) #FIXME
-        jobs.append(proc)
-        logging.info("Job: %s submitted", pipe_id)
+ #   for i, pipe in enumerate(pipes):
+ #       pipe_id = 'pipe' + str(i)
+ #       proc = client.submit(pipe_worker, *(None, pipe, None, remote_X)) #FIXME
+ #       jobs.append(proc)
+ #       logging.info("Job: %s submitted", pipe_id)
         # print("Job: %s submitted", pipe_id)
 
+    res = client.gather(futures)
+    for i, r in enumerate(res):
+        pipes_dump['pipe'+str(i)] = res
+
     # Collect results
-    for i, proc in enumerate(jobs):
-        pipes_dump['pipe'+str(i)] = proc.result()
-    logging.info("%d jobs collected", i)
-    # print("%d jobs collected", i)
+#    for i, proc in enumerate(jobs):
+#        pipes_dump['pipe'+str(i)] = proc.result()
+#    logging.info("%d jobs collected", i)
+    print("%d jobs collected", len(jobs))
 
     # import joblib as jl
     # jl.Parallel(n_jobs=-1) \
@@ -95,7 +109,7 @@ def master_single_machine(pipes, X):
         Dictionary with the results of the computation.
     """
     # # FIXME
-    # return master_dask(pipes, X)
+    return master_dask(pipes, X)
 
     import multiprocessing as mp
     # jobs = []
@@ -129,8 +143,8 @@ def master_single_machine(pipes, X):
     from joblib import Parallel, parallel_backend
     import joblib as jl
     # with parallel_backend('dask.distributed', scheduler_host='localhost:8786'):
-    with parallel_backend('dask.distributed', scheduler_host='megazord:8786'):
-        out = jl.Parallel(n_jobs=-1) \
+    with parallel_backend('dask.distributed', scheduler_host='cnode001:8786', scatter=[X]):
+        out = jl.Parallel() \
         (jl.delayed(pipe_worker)(None, pipe, None, X) for i, pipe in enumerate(pipes))
 
     for i, res in enumerate(out):
