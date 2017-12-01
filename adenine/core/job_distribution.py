@@ -70,9 +70,6 @@ def master_dask(pipes, X):
     return pipes_dump
 
 
-
-
-
 def master_single_machine(pipes, X):
     """Fit and transform/predict some pipelines on some data (single machine).
 
