@@ -94,35 +94,48 @@ def master_single_machine(pipes, X):
     pipes_dump : dict
         Dictionary with the results of the computation.
     """
-    # FIXME
-    return master_dask(pipes, X)
+    # # FIXME
+    # return master_dask(pipes, X)
 
     import multiprocessing as mp
-    jobs = []
+    # jobs = []
     manager = mp.Manager()
     pipes_dump = manager.dict()
-
-    # Submit jobs
-    for i, pipe in enumerate(pipes):
-        pipe_id = 'pipe' + str(i)
-        proc = mp.Process(target=pipe_worker,
-                          args=(pipe_id, pipe, pipes_dump, X))
-        jobs.append(proc)
-        proc.start()
-        logging.info("Job: %s submitted", pipe_id)
-
-    # Collect results
-    count = 0
-    for proc in jobs:
-        proc.join()
-        count += 1
-    logging.info("%d jobs collected", count)
+    #
+    # # Submit jobs
+    # for i, pipe in enumerate(pipes):
+    #     pipe_id = 'pipe' + str(i)
+    #     proc = mp.Process(target=pipe_worker,
+    #                       args=(pipe_id, pipe, pipes_dump, X))
+    #     jobs.append(proc)
+    #     proc.start()
+    #     logging.info("Job: %s submitted", pipe_id)
+    #
+    # # Collect results
+    # count = 0
+    # for proc in jobs:
+    #     proc.join()
+    #     count += 1
+    # logging.info("%d jobs collected", count)
 
     # import joblib as jl
     # jl.Parallel(n_jobs=-1) \
     #     (jl.delayed(pipe_worker)(
     #         'pipe' + str(i), pipe, pipes_dump, X) for i, pipe in enumerate(
     #             pipes))
+
+
+    import distributed.joblib
+    from joblib import Parallel, parallel_backend
+    import joblib as jl
+    # with parallel_backend('dask.distributed', scheduler_host='localhost:8786'):
+    with parallel_backend('dask.distributed', scheduler_host='megazord:8786'):
+        out = jl.Parallel(n_jobs=-1) \
+        (jl.delayed(pipe_worker)(None, pipe, None, X) for i, pipe in enumerate(pipes))
+
+    for i, res in enumerate(out):
+        pipes_dump['pipe'+str(i)] = res
+    print('{} jobs collected'.format(len(pipes_dump.keys())))
 
     return dict(pipes_dump)
 
