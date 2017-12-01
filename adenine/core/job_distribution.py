@@ -11,7 +11,7 @@ from collections import deque
 from six.moves import cPickle as pkl
 
 from adenine.core import define_pipeline
-from adenine.core.pipelines import pipe_worker
+from adenine.core.pipelines import pipe_worker, fun
 from adenine.utils import extra
 
 try:
@@ -35,6 +35,55 @@ except ImportError:
 # constants to use as tags in communications
 DO_WORK = 100
 EXIT = 200
+
+
+def master_dask(pipes, X):
+    """Fit and transform/predict some pipelines on some data  using dask.
+    """
+    from distributed import Client
+    import multiprocessing as mp
+    client = Client('localhost:8786')
+
+    jobs = []
+    pipes_dump = {}
+
+    # from adenine.core import pipelines
+    # print(pipelines.__dict__.keys())
+    # print(pipelines.fun(8))
+    # return
+
+    # Submit jobs
+    # x = 8
+    for i, pipe in enumerate(pipes):
+        pipe_id = 'pipe' + str(i)
+        # proc = client.submit(pipe_worker, *(pipe_id, pipe, pipes_dump, X))
+        proc = client.submit(pipe_worker, *(None, pipe, None, X)) #FIXME
+        # print(pipe_worker(pipe, X))
+        # proc = client.submit(pipelines.fun, x)
+        jobs.append(proc)
+        # logging.info("Job: %s submitted", pipe_id)
+        print("Job: %s submitted", pipe_id)
+
+    # Collect results
+    # count = 0
+    for i, proc in enumerate(jobs):
+        pipes_dump['pipe'+str(i)] = proc.result()
+        # count += 1
+    # logging.info("%d jobs collected", count)
+    print("%d jobs collected", i)
+    # print(pipes_dump)
+
+    # import joblib as jl
+    # jl.Parallel(n_jobs=-1) \
+    #     (jl.delayed(pipe_worker)(
+    #         'pipe' + str(i), pipe, pipes_dump, X) for i, pipe in enumerate(
+    #             pipes))
+
+    # manager = mp.Manager()
+    return pipes_dump
+
+
+
 
 
 def master_single_machine(pipes, X):
@@ -61,6 +110,9 @@ def master_single_machine(pipes, X):
     pipes_dump : dict
         Dictionary with the results of the computation.
     """
+    # FIXME
+    return master_dask(pipes, X)
+
     import multiprocessing as mp
     jobs = []
     manager = mp.Manager()

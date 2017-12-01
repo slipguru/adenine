@@ -112,7 +112,11 @@ def evaluate(level, step, X):
     return res
 
 
+def fun(x):
+    return x*x
+
 def pipe_worker(pipe_id, pipe, pipes_dump, X):
+# def pipe_worker(pipe, X):
     """Parallel pipelines execution.
 
     Parameters
@@ -186,15 +190,17 @@ def pipe_worker(pipe_id, pipe, pipes_dump, X):
                 step_dump[step_id] = result
 
         except (AssertionError, ValueError) as e:
-            logging.critical("Pipeline %s failed at step %s. "
-                             "Traceback: %s", pipe_id, step[0], e)
-
+            logging.critical("Pipeline %s failed at step %s. ")
+                             # "Traceback: %s", pipe_id, step[0], e) # FIXME
 
     # Monkey-patch, see: https://github.com/scikit-learn/scikit-learn/issues/7562
     # and wait for the next numpy update
     # step_dump['step2'][-2] = None
 
-    if pipes_dump is None:
-        return step_dump
+    # if pipes_dump is None:
+    #     return step_dump
 
-    pipes_dump[pipe_id] = step_dump
+    # pipes_dump[pipe_id] = step_dump
+
+    # FIXME
+    return step_dump
