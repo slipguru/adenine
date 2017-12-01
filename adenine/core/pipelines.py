@@ -112,11 +112,7 @@ def evaluate(level, step, X):
     return res
 
 
-def fun(x):
-    return x*x
-
 def pipe_worker(pipe_id, pipe, pipes_dump, X):
-# def pipe_worker(pipe, X):
     """Parallel pipelines execution.
 
     Parameters
