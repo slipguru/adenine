@@ -58,7 +58,7 @@ def master_dask(pipes, X):
     # Collect results
     for i, proc in enumerate(jobs):
         pipes_dump['pipe'+str(i)] = proc.result()
-    logging.info("%d jobs collected", count)
+    logging.info("%d jobs collected", i)
     # print("%d jobs collected", i)
 
     # import joblib as jl
