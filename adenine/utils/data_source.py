@@ -99,7 +99,7 @@ def load_custom(x_filename, y_filename, samples_on='rows', **kwargs):
         return datasets.base.Bunch(data=X, target=y,
                                    index=np.arange(X.shape[0]))
 
-    elif x_filename.endswith('.csv') or x_filename.endswith('.txt'):
+    elif x_filename.endswith('sv') or x_filename.endswith('.txt'):
         y = None
         kwargs.setdefault('header', 0)  # header on first row
         kwargs.setdefault('index_col', 0)  # indexes on first
