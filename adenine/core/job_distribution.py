@@ -43,7 +43,7 @@ def master_dask(pipes, X):
     import dask
     from distributed import Client
     import multiprocessing as mp
-    client = Client('cnode001:8786')
+    client = Client('localhost:8786')
 
     jobs = []
     pipes_dump = {}
@@ -109,28 +109,28 @@ def master_single_machine(pipes, X):
         Dictionary with the results of the computation.
     """
     # # FIXME
-    return master_dask(pipes, X)
+    # return master_dask(pipes, X)
 
     import multiprocessing as mp
-    # jobs = []
+    jobs = []
     manager = mp.Manager()
     pipes_dump = manager.dict()
-    #
-    # # Submit jobs
-    # for i, pipe in enumerate(pipes):
-    #     pipe_id = 'pipe' + str(i)
-    #     proc = mp.Process(target=pipe_worker,
-    #                       args=(pipe_id, pipe, pipes_dump, X))
-    #     jobs.append(proc)
-    #     proc.start()
-    #     logging.info("Job: %s submitted", pipe_id)
-    #
-    # # Collect results
-    # count = 0
-    # for proc in jobs:
-    #     proc.join()
-    #     count += 1
-    # logging.info("%d jobs collected", count)
+
+    # Submit jobs
+    for i, pipe in enumerate(pipes):
+        pipe_id = 'pipe' + str(i)
+        proc = mp.Process(target=pipe_worker,
+                          args=(pipe_id, pipe, pipes_dump, X))
+        jobs.append(proc)
+        proc.start()
+        logging.info("Job: %s submitted", pipe_id)
+
+    # Collect results
+    count = 0
+    for proc in jobs:
+        proc.join()
+        count += 1
+    logging.info("%d jobs collected", count)
 
     # import joblib as jl
     # jl.Parallel(n_jobs=-1) \
@@ -139,13 +139,13 @@ def master_single_machine(pipes, X):
     #             pipes))
 
 
-    import distributed.joblib
-    from joblib import Parallel, parallel_backend
-    import joblib as jl
-    # with parallel_backend('dask.distributed', scheduler_host='localhost:8786'):
-    with parallel_backend('dask.distributed', scheduler_host='cnode001:8786', scatter=[X]):
-        out = jl.Parallel() \
-        (jl.delayed(pipe_worker)(None, pipe, None, X) for i, pipe in enumerate(pipes))
+    # import distributed.joblib
+    # from joblib import Parallel, parallel_backend
+    # import joblib as jl
+    # # with parallel_backend('dask.distributed', scheduler_host='localhost:8786'):
+    # with parallel_backend('dask.distributed', scheduler_host='cnode001:8786', scatter=[X]):
+    #     out = jl.Parallel() \
+    #     (jl.delayed(pipe_worker)(None, pipe, None, X) for i, pipe in enumerate(pipes))
 
     for i, res in enumerate(out):
         pipes_dump['pipe'+str(i)] = res
